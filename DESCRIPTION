@@ -1,0 +1,52 @@
+Package: protlocassign2
+Title: Compute constrained proportional assignments for 
+    fractionated protein abundance 
+Version: 0.99.0
+Date: 2021-12-10
+Authors@R: 
+    person(given = "Peter",
+           family = "Lobel", 
+           role = c("aut"),
+           email = "lobel@cabm.rutgers.edu")
+    person(given = "Dirk",
+           family = "Moore",
+           role = c("cre","aut"),
+           email = "dirkfmoore@gmail.com")
+Description: This package fits a constrained proportional assignment (cpa)
+   model to mass spectrometry data 
+    to proportionally assign proteins to subcellular locations.
+    The package includes transformations to 
+    improve the accuracy of the assignments as well as
+    facilities for simulating mixtures and evaluating 
+    the perfomance of cpa on those mixtures.
+    Also included are facilities for summarizing spectral-level 
+    data using random effects models to calculate average protein profiles.
+License: GPL-3
+Encoding: UTF-8
+LazyData: false
+Depends: 
+    R (>= 4.1.0),
+    lme4
+RoxygenNote: 7.1.2
+Imports:
+    BB,
+    pracma,
+    outliers,
+    knitr,
+    stats,
+    graphics,
+    viridisLite,
+    viridis,
+    plot.matrix,
+    grid,
+    gridExtra,
+    rmarkdown,
+    utils,
+    methods,
+    BiocParallel
+biocViews: Proteomics, MassSpectrometry
+VignetteBuilder: knitr
+URL: http//github.com/mooredf22/protlocassign2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
