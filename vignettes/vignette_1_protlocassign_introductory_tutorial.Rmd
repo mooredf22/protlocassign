@@ -1,0 +1,335 @@
+---
+title: 'Vignette 1: Tutorial on assignment of proteins to subcellular locations using
+  protlocassign'
+author: "DFM & PL"
+date: "`r Sys.Date()`"
+output:
+  #word_document:
+  #  toc: yes
+  html_document:
+    toc: yes
+    df_print: paged
+vignette: |
+  %\VignetteIndexEntry{Vignette 1: Tutorial on assignment of proteins to subcellular locations using protlocassign} 
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  #collapse = TRUE,
+  comment = "#>",
+  fig.width = 4,
+  fig.height = 4,
+  message = FALSE,
+  warning = FALSE,
+  tidy.opts = list(
+    keep.blank.line = TRUE,
+    width.cutoff = 150
+    ),
+  options(width = 150),
+  eval = TRUE
+)
+```
+
+## Introduction
+
+Determining the locations of proteins in the cell is an important but complex problem. A frequently employed approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribution of different proteins among the centrifugation fractions. The location of proteins of interest in the cellular compartments are then inferred by comparing their distributions across the centrifugation fractions to the distributions of a set of reference proteins (markers) with known cellular locations.
+
+This package implements a subcellular protein assignment procedure known as “constrained proportional assignment”, or CPA (Jadot et al, 2016). The basic concepts involved in CPA and analysis of subcellular proteomics data are described in the main paper. These vignettes serve as a basis for implementing CPA and various utilities for both experienced and beginner R users.
+
+There are two fundamental inputs for CPA.  The first is a file with information regarding the distribution of each protein or other species of interest to be analyzed across centrifugation fractions. Each row has a name that serves as a unique identifier, which we here refer to as a protein name, but one can use other identifiers, (e.g., protein group, protein isoform, gene name, accession number, etc.). For each protein (or other identifier), there are data that reflects its distribution among the centrifugal fractions, which represent a profile. The second is a file containing a list of single-compartment reference proteins (markers) and their associated subcellular locations. As an initial step, the package uses the markers to compute profiles for individual cellular compartments. Then, for each protein, it finds the best match for its profile using a linear combination of compartment profiles. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. 
+
+We illustrate with an example. Tannous et al. (2020) presented an experiment (designated here as AT5) analyzing abundance levels of proteins across a total of nine fractions: six fractions (N, M, L1, L2, P, and S) from differential centrifugation of a rat liver homogenate and three fractions (Nyc1, Nyc2, and Nyc3) from a Nycodenz density gradient centrifugation of the differential fraction L1. Eight subcellular compartments were considered: nucleus (Nuc), mitochondria (Mito), lysosomes (Lyso), peroxisomes (Perox), endoplasmic reticulum (ER) Golgi apparatus (Golgi), plasma membrane (PM), and cytosol (Cyto). The CPA method assigns each of a large number of proteins to one or more of these compartments, based on profiles from the set of reference proteins. 
+
+## Installing the protlocassign package
+
+Start by installing the devtools package from CRAN, by typing:
+
+```
+install.packages("devtools")
+```
+
+Then install the protlocassign package from the github repository by typing:
+
+```
+devtools::install_github("mooredf22/protlocassign")
+```
+
+This will make the programs and data sets available.
+Also, several libraries are required which may be downloaded from CRAN by typing:
+
+```
+install.packages(c("BB", "pracma", "lme4", "outliers"))
+```
+
+Finally, the parallel processing package `BiocParallel` from the Bioconductor package is needed to use parallel processing. The following code will install the package if it is not already present:
+
+
+```
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+if (!require("BiocParallel", quietly = TRUE)) 
+    BiocManager::install("BiocParallel")
+```
+
+Once you have installed these packages, you do not need to re-install them the next time you start up R.
+
+## Working with data
+
+To use this package, you will need two data sets. One, the protein profile data set, contains rows with a unique identifier followed by data describing the profile associated with each identifier across a series of centrifugation fractions. In this vignette, the profiles associated with each identifier are specific amounts with sums constrained to 1 (“normalized specific amounts” or NSAs, see main Paper) but can be in a different form or further transformed to improve the quality of the fit (see Vignettes 2-4). The protein profile data set may contain two additional values representing the numbers of peptides and spectra that were used to compute the profile (see below).  The other data set consists of the list of reference proteins and their associated known subcellular compartments.
+
+
+Consider for example the TMT MS2 data from Tannous et al. (2020) experiment AT5. To get started, load the package and attach the embedded protein profile data set; we see that it has 7893 rows and 11 columns: 
+
+```{r, echo=TRUE}
+library(protlocassign)
+data(protNSA_AT5tmtMS2)
+dim(protNSA_AT5tmtMS2)
+```
+
+For the sake of brevity, we rename this protNSA:
+```{r, echo=TRUE}
+protNSA <- protNSA_AT5tmtMS2
+```
+
+The first few rows of the data can be examined using the `head` command, rounding to improve legibility. The first nine columns represent the protein profile. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. Note that while we use a nested random effects model described in Jadot et al., 2017 to compute the means across spectra (also see Vignette 5), other methods, including taking a straight average or weighted average (e.g., based on reporter ion intensities or peak areas), may be appropriate for other applications.
+
+```{r, echo=TRUE}
+round(head(protNSA), digits=2)
+```
+
+The list containing reference proteins is derived from Jadot et al (2016) and examining the dimensions of the data reveals that it contains 39 rows and two columns, the first for the protein names and the second for their respective subcellular compartments.
+
+```{r, echo=TRUE}
+data(markerListJadot)
+dim(markerListJadot)
+```
+
+The data set can be viewed by entering its name as follows:
+
+```{r, echo=TRUE}
+markerListJadot
+```
+
+While the `protNSA` and `markerListJadot`  data sets are included in the package, they were initially read into R from external files and automatically converted to data frames.  This will need to be done for any new data set.  As an example, we demonstrate this for a case where one is working with the Windows operating system and the data sets reside in the directory `C:\temp\myproteindata`. (If one is working with either the Linux or Mac OS, appropriate changes to these procedures will be needed to access files.)
+First, set the working directory to point there, either by navigating to it in R studio (session menu pane) or by entering:
+
+```
+setwd("C:\\temp\\myproteindata")
+```
+
+Note that in R each backslash character must be doubled to be interpreted correctly (since otherwise it will be incorrectly interpreted as an escape character). Alternatively, you may use a single forward slash:
+
+```
+setwd("C:/temp/myproteindata")
+```
+
+To illustrate how to read in the protein profiles and list of marker proteins, we write out
+our protein profiles and marker list as comma-delimited files. For the protein profiles, we write out the protein names (which are row names in R) by specifying `row.names=T`. Note that we first alter the protein names so that they are preceded by a single quote since, if one subsequently opens the csv file with excel, it could automatically reformat some names to dates (e.g., March1 to 1-Mar).  To write protein profiles and marker proteins to `.csv` files, input:
+
+```
+protNSAout <- protNSA
+rownames(protNSAout) <- paste("'", rownames(protNSA), sep="")
+markerListJadotOut <- markerListJadot
+markerListJadotOut$protName <- paste("'", markerListJadot$protName, sep="")
+write.csv(protNSAout, file="protNSAout.csv", row.names=T)
+write.csv(markerListJadotOut, file="markerListJadotOut.csv", row.names=F)
+```
+
+We may examine these files by importing them into Excel. For the marker protein data file, the first row must contain the two column names (protein unique identifier and compartment designation). Note that the marker proteins must be specified precisely as listed in the protein profile data set. 
+
+We then read in the two data sets (protein profile data and reference protein list), 
+which must be in comma-separated format (`.csv`), with the first row containing column names. 
+The option `row.names=1` takes the first column of
+the `protNSAout.csv` file and uses it as row names for the R file `MyPProtNSAin`.
+
+```
+MyProtNSAin <- read.csv(file="protNSAout.csv", row.names=1)
+MyMarkerListIn <- read.csv(file="markerListJadotOut.csv")
+```
+
+We then remove the preceding single quotes from the protein names.
+```
+rownames(MyProtNSAin) <- sub("^'", "", rownames(MyProtNSAin))
+MyMarkerListIn[,1] <- sub("^'", "", MyMarkerListIn[,1])
+```
+
+These new R data frames are identical to `protNSA` and `markerListJadot`. If the user reads in their own data, be sure that the first row in each of the ".csv" files contains column names. In particular, the names in the first row of the markers file must be "protName" and "referenceCompartment" to ensure that the resulting R data frame is in the proper format.
+
+## Creating and viewing compartment and marker protein profiles
+
+In order to assign proteins proportionately to their respective compartments, we first use the function `locationProfileSetup` to obtain profiles for the compartments based on the means of the individual reference proteins that represent each compartment. This function produces a matrix that has one row for each compartment and one column for each fraction  that comprises the profile.
+
+```{r, echo=TRUE, eval=TRUE}
+refLocationProfilesNSA <- locationProfileSetup(profile=protNSA, markerList=markerListJadot, numDataCols=9)
+```
+
+We display the data, using rounding to improve readability.
+
+```{r, echo=TRUE, eval=TRUE}
+round(refLocationProfilesNSA, digits=4)
+```
+
+To examine the available compartments, view the row names of `refLocationProfilesNSA`.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+rownames(refLocationProfilesNSA)
+```
+
+To graphically display a particular compartment profile and its component proteins, use `markerProfilePlot`. 
+For example, to plot the profile for plasma membrane, input:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+
+markerProfilePlot(refLoc="PM", profile=protNSA, markerList=markerListJadot,
+                     refLocationProfiles=refLocationProfilesNSA, ylab="NSA")
+```
+
+This displays the PM compartmental profile (dashed yellow-black line) and its five component reference proteins (red lines). To plot, for example, the second PM marker protein, use the option `refProtPlot=2` in the `markerProfilePlot` function:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+
+markerProfilePlot(refLoc="PM", profile=protNSA, 
+                  markerList=markerListJadot,
+                  refLocationProfiles=refLocationProfilesNSA, ylab="NSA",
+                  refProtPlot=2)
+```
+
+To show individually each of the five reference proteins that are used to calculate the PM compartmental profile, use `par(mfrow=c(3,2))` to set up a plot array with 3 rows and 2 columns which will accommodate up to six plots on a single page. Then plot all five of the them one-by-one by looping through the five PM marker proteins by first specifying `for (j in 1:5)` and invoking the option `refProtPlot=j` in the `markerProfilePlot` function. (To make them legible, you may first need to open a new window by entering `windows(width=5, height=7)`.) The parameters in `par(mfrow=c(3,2))` and `for (j in 1:5)` can be adjusted to display any number of plots.
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 5, fig.height = 7}
+
+par(mfrow=c(3,2)) # this will be new default layout for subsequent plots.  
+# Will need to reset par(mfrow=c(1,1)) for single graph layouts
+
+for (j in 1:5) {
+  markerProfilePlot(refLoc="PM", profile=protNSA,
+                    markerList=markerListJadot,
+                    refLocationProfiles=refLocationProfilesNSA, 
+                    ylab="NSA", refProtPlot=j)
+  }
+```
+
+To plot all of the compartment and individual marker protein profiles, we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments:
+
+```{r, echo=TRUE, eval=TRUE, fig.width = 7, fig.height = 10}
+loc.list <- rownames(refLocationProfilesNSA)
+n.loc <- length(loc.list)
+par(mfrow=c(4,2))
+for (i in 1:n.loc) {
+  markerProfilePlot(refLoc=loc.list[i], profile=protNSA,
+                     markerList=markerListJadot,
+                     refLocationProfiles=refLocationProfilesNSA, ylab="NSA")
+  }
+```
+
+## Obtaining constrained proportionate assignments of proteins to compartments  
+
+Once we are satisfied with the marker set and compartment profiles, we can run the CPA routine which, for each protein in our data set, apportions its residency among the different specified compartments. This  may take several minutes to complete. Note that the command below uses default options.  It is also possible to specify optional parameters including writing out the obtained goodness of fit minimum (`minVal=T`, default is `minVal=F`), setting initial parameters for each CPA value using an eight element vector specifying the starting proportions (`startProp`, if not specified the function will assign a value of 1/8 for each of the eight compartments), and by constraining the output CPA values for specified compartments to be zero (see help file, `?fitCPA`).
+
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+protCPAfromNSA <- fitCPA(profile=protNSA,
+                          refLocationProfiles=refLocationProfilesNSA, 
+                          numDataCols=9)
+```
+Note that the protein "AIF1" (protein 356) has all missing values, which is why the spg function returns an error for that one protein.
+
+We can view the structure of the output data file and see that the row names contain the protein names, and the next 8 columns contain the allocation proportions of each protein to the eight compartments. The last two columns are integers representing the numbers of peptides and spectra, which are carried over from the input `protProfileSummary` profile data, these are not essential for the CPA analysis.
+
+```{r, echo=TRUE, eval=TRUE}
+round(tail(protCPAfromNSA), digits=2)
+```
+
+
+
+We can look at the profile of, for example, the protein "TLN1". We first ensure that the protein is in the dataset:
+
+```{r, echo=TRUE, eval=TRUE}
+protIndex("TLN1", profile=protNSA)
+```
+
+This function also accepts partial matching of the first few letters of a protein. For example, we can find the indices of the proteins starting with "TLN":
+
+```{r, echo=TRUE, eval=TRUE}
+protIndex("TLN", profile=protNSA)
+```
+
+
+
+Now we plot the results for protein TLN1:
+
+```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=9}
+
+protPlotfun(protName="TLN1", profile=protNSA, 
+numDataCols=9, n.compartments=8,
+  refLocationProfiles=refLocationProfilesNSA, 
+  assignPropsMat=protCPAfromNSA, 
+  yAxisLabel="Normalized Specific Amount")
+```                        
+
+The x-axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 57 percent residence proportion to plasma membrane and 36 percent residence to cytosol. The observed red profile closely matches a mixture of the yellow-black lines weighted by the indicated proportions. 
+
+The `protPlotfun` function is designed to plot profiles of eight subcellular locations. If a data set has more than eight of these, it will be necessary to modify the code to accommodate the larger number.
+
+## Saving the CPA output
+### Data output
+
+To save the results of the CPA procedure, as before, we prepend the protein names
+with a single quote and write out a csv file to a specified directory.
+
+```
+protCPAfromNSAout <- protCPAfromNSA
+rownames(protCPAfromNSAout) <- paste("'", rownames(protCPAfromNSAout), sep="")
+
+setwd("C:/temp/myProteinOutput")
+
+write.csv(protCPAfromNSAout, file="protCPAfromNSAout_AT5tmtMS2.csv", row.names=T)
+```
+
+### Plot output as pdf files
+
+To save the plot of a protein (`TLN1` for example) as a pdf file, we first specify a pdf plot `window`, call the `protPlotfun` function as before, and then close the plot window using `dev.off()` to allow R to complete producing the file:
+
+```
+pdf(file="myPlotPDFfile.pdf", width=7, height=10)
+protPlotfun(protName="TLN1", profile=protNSA, 
+    numDataCols=9, n.compartments=8,
+    refLocationProfiles=refLocationProfilesNSA, 
+    assignPropsMat=protCPAfromNSA,
+    yAxisLabel="Normalized Specific Amount")
+dev.off()
+```   
+
+To output plots all of the protein profiles into a single pdf file, one can set up a loop as follows:
+
+
+```
+pdf(file="allPlotsPDFfile.pdf", width=7, height=10)
+n.prots <- nrow(protCPAfromNSA)
+for (i in 1:n.prots) {
+   protPlotfun(protName=rownames(protCPAfromNSA)[i],
+       profile=protNSA, numDataCols=9, n.compartments=8,
+       refLocationProfiles=refLocationProfilesNSA, 
+       assignPropsMat=protCPAfromNSA,
+       yAxisLabel="Normalized Specific Amount")
+}
+dev.off()
+```   
+
+This will result in a single file, `allPlotsPDFfile.pdf`, with a page for each protein plotted. Note that one protein in our data set, `AIF1`, does not have a profile as all peptides were outliers (see Vignettes 5 and 6).
+
+## References
+
+Jadot, M.; Boonen, M.; Thirion, J.; Wang, N.; Xing, J.; Zhao, C.; Tannous, A.; Qian, M.; Zheng, H.; Everett, J. K., Accounting for protein subcellular localization: A compartmental map of the rat liver proteome. Molecular & Cellular Proteomics 2017, 16, (2), 194-212.
+
+Tannous, A.; Boonen, M.; Zheng, H.; Zhao, C.; Germain, C. J.; Moore, D. F.; Sleat, D. E.; Jadot, M.; Lobel, P., Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. J Proteome Res 2020, 19, (4), 1718-1730.
+
+## Reproducibility
+
+```{r, echo=TRUE, eval=TRUE}
+utils::sessionInfo()
+```
+
+
+

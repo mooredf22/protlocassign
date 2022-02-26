@@ -1,4 +1,4 @@
-Package: protlocassign2
+Package: protlocassign
 Title: Compute constrained proportional assignments for 
     fractionated protein abundance 
 Version: 0.99.0
@@ -46,7 +46,7 @@ Imports:
     BiocParallel
 biocViews: Proteomics, MassSpectrometry
 VignetteBuilder: knitr
-URL: http//github.com/mooredf22/protlocassign2
+URL: http//github.com/mooredf22/protlocassign
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

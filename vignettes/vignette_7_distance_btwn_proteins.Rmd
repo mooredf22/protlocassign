@@ -1,0 +1,87 @@
+---
+title: 'Vignette 7: Calculation of distances between proteins'
+author: "DFM & PL"
+date: "`r Sys.Date()`"
+output:
+  #word_document:
+  #  toc: yes
+  html_document:
+    toc: yes
+    df_print: paged
+  #pdf_document:
+  #  toc: yes
+  #  df_print: paged
+vignette: |
+  %\VignetteIndexEntry{Vignette 7: Calculation of distances between proteins}     
+  %\VignetteEngine{knitr::rmarkdown}
+---
+ 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  #collapse = TRUE,
+  comment = "#>",
+  fig.width = 4,
+  fig.height = 4,
+  message = FALSE,
+  warning = FALSE,
+  tidy.opts = list(
+    keep.blank.line = TRUE,
+    width.cutoff = 150
+  ),
+  options(width = 150),
+  eval = TRUE
+)
+```
+
+## Finding proteins with similar profiles
+
+We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first use the R function `dist` to create a distance matrix for the proteins in a list of mean profiles, such as `protProfileNSA_AT5tmtMS2`. For clarity of presentation, we rename the embedded data sets to remove experiment-specific labels.
+
+```{r, echo=TRUE, eval=TRUE}
+library(protlocassign)
+data(protNSA_AT5tmtMS2)
+data(totProtAT5)
+protNSA <- protNSA_AT5tmtMS2
+totProt <- totProtAT5
+distUseNSA <- dist(protNSA[,1:9], method="euclidean")
+```
+
+Then select the protein names:
+
+```{r, echo=TRUE, eval=TRUE}
+protsUse <- rownames(protNSA)
+```
+Finally, provide a protein name. Here, for the protein "CTSD", we find the 10 nearest proteins.
+
+```{r, echo=TRUE, eval=TRUE}
+nearestProts(protName="CTSD", n.nearest=10,  distProts=distUseNSA, protNames=protsUse,
+             profile=protNSA)
+```
+
+Instead of using normalized specific amounts, we may transform them to relative specific amounts:
+
+```{r, echo=TRUE, eval=TRUE}
+protProfileLevelsRSA <- RSAfromNSA(NSA=protNSA[,1:9],
+                                 NstartMaterialFractions=6, totProt=totProt)
+distUseRSA <- dist(protProfileLevelsRSA, method="euclidean")
+nearestProts(protName="CTSD", n.nearest=10,  distProts=distUseRSA, protNames=protsUse,
+             profile=protProfileLevelsRSA)
+
+```
+
+Note that if one wants to generate a table listing the distances between all protein pairs, one needs to convert the distUse or distUseRSA to a matrix. We show the first five rows and columns here: 
+
+```{r, echo=TRUE, eval=TRUE}
+distUseNSAmatrix <- as.matrix(distUseNSA)
+distUseNSAmatrix[1:5,1:5]
+```
+
+This matrix can be written to a local directory using standard procedures.
+
+## Reproducibility
+
+```{r, echo=TRUE, eval=TRUE}
+utils::sessionInfo()
+```
+
+
