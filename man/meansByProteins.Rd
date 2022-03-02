@@ -14,7 +14,8 @@ meansByProteins(
   numDataCols,
   GroupBy,
   eps,
-  outlierExclude
+  outlierExclude,
+  singularList = FALSE
 )
 }
 \arguments{
@@ -41,6 +42,9 @@ argument is greater than zero}
 spectraAndPeptide @return result_i coefficient
 estimates, numbers of peptides and spectra, and
 id for protein i}
+
+\item{singularList}{If true, list proteins and channels with singular
+lmer fit results; default is FALSE}
 }
 \value{
 estimated means for all channels, and peptide or protein info

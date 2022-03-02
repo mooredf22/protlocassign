@@ -60,13 +60,13 @@ In the Vignette 1 we actually used a normalized specific amount (NSA), denoted h
 $$ {{\tilde{s}}_{\alpha ,l}}=\frac{{{s}_{\alpha ,l}}}{\sum\limits_{j=1}^{f}{{{s}_{\alpha ,j}}}} $$
 In some experiments, these are the only values available for using the CPA procedure. However, with appropriate experimental design and execution, using balance sheet analysis (“bookkeeping”), one can estimate the amounts of total protein present in different samples obtained from a set amount of starting material. These include the total protein content of the starting material (designated $t_h$) and the total protein content of any given fraction (designated $t_l$ for fraction $l$). We can use these to calculate the amount of protein in arbitrary units in fraction $l$ derived from a set amount of starting material as $a_l = s_l t_l$. Note that as $a_l$ is in arbitrary units one can do the same calculation using either $s_l$ or ${\tilde s_l}$, as later, these will yield the same values when calculating relative amounts (see below).
 
-To see how this works in `protlocassign`, let us consider the Jadot et al. reference protein profiles which we generate using the `locationProfileSetup` function. As in earlier vignettes, we rename `protNSA_AT5tmtMS2` as `protNSA` and we tailor the output using the `round` function.
+To see how this works in `protlocassign`, let us consider the Jadot et al. reference protein profiles which we generate using the `locationProfileSetup` function. As in earlier vignettes, we rename `protNSA_test` as `protNSA` and we tailor the output using the `round` function.
 
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
-data(protNSA_AT5tmtMS2)
+data(protNSA_test)
 data(markerListJadot)
-protNSA <- protNSA_AT5tmtMS2
+protNSA <- protNSA_test
 refLocationProfilesNSA <- locationProfileSetup(profile=protNSA, 
                            markerList=markerListJadot, numDataCols=9)
 round(refLocationProfilesNSA, digits=3)

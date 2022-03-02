@@ -1,8 +1,8 @@
 Package: protlocassign
 Title: Compute constrained proportional assignments for 
     fractionated protein abundance 
-Version: 0.99.0
-Date: 2022-02-26
+Version: 0.99.1
+Date: 2022-03-02
 Authors@R: 
     person(given = "Peter",
            family = "Lobel", 

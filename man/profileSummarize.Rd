@@ -15,7 +15,8 @@ profileSummarize(
   eps,
   GroupBy = "protId",
   outlierExclude = "spectraAndPeptide",
-  cpus = 1
+  cpus = 1,
+  singularList = FALSE
 )
 }
 \arguments{
@@ -40,6 +41,9 @@ if average by peptide}
 
 \item{cpus}{1 (default);
 if cpus > 1 use BiocParallel with SnowParm(cpus)}
+
+\item{singularList}{If true, list proteins and channels with singular
+lmer fit results; default is FALSE}
 }
 \value{
 protProfileSummaryIdentity: mean or weighted mean normalized

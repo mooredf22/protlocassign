@@ -39,15 +39,15 @@ In previous vignettes we investigated the use of all nine TMT-MS2 fractions when
 
 ```{r, echo=TRUE}
 library(protlocassign)
-data(protNSA_AT5tmtMS2)
-dim(protNSA_AT5tmtMS2)
+data(protNSA_test)
+dim(protNSA_test)
 ```
 
 Next, we convert the data from the original NSA data to the Acup-transformed data, which is the appropriate transformation for combining fractions.
 
 ```{r, echo=TRUE}
 data(totProtAT5)
-protAcup_AT5tmtMS2_data <- AcupFromNSA(protNSA_AT5tmtMS2[,1:6],
+protAcup_test_data <- AcupFromNSA(protNSA_test[,1:6],
                                        NstartMaterialFractions=6, 
                                        totProt=totProtAT5[1:6])
 ```
@@ -56,7 +56,7 @@ We complete the conversion to five-channel data as follows:
 
 ```{r, echo=TRUE}
 # take the first six fractions:
-protAcupSixTemp <- protAcup_AT5tmtMS2_data[,1:6]  
+protAcupSixTemp <- protAcup_test_data[,1:6]  
 # add L1 and L2 together, and put into L1; then re-name L1 as L
 # make L1 the sum of L1 and L2:
 protAcupFiveTemp <- within(protAcupSixTemp, L1 <- L1+L2) 
@@ -365,8 +365,8 @@ The mixing simulations indicate that for mixtures involving Lyso or PM, there is
 
 Analysis of pairwise simulations using log2-transformed RSA profiles as well as NSA and Acup profiles (with and without log2 transformations) are displayed below.  Overall, the best results are obtained  using log-transformed NSA data. Here, we see that pairwise mixtures involving Lyso and PM are improved compared to the fits with untransformed RSA profiles but many other combinations involving Nuc and ER are worsened:
 
-```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
-
+<!-- ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10} -->
+```
 errorAllRSAlog2 <- mixturePlotPanel(refLocationProfilesAcup=
                                     refLocationProfilesAcup,
                                     totProt=totProt, 
@@ -410,7 +410,7 @@ If desired, these plots of pairwise mixtures may also be saved as pdf files as d
 
 Finally, we present the pairwise and overall errors for log2 RSA (errors for identity RSA are reported above), identity and log2 NSA, and identity and log2 Acup:
 
-```{r, echo=TRUE}
+<!--```{r, echo=TRUE}-->
 errorAllRSAlinear 
 sum(errorAllRSAlinear[,3])
 
@@ -418,7 +418,6 @@ errorAllRSAlog2
 sum(errorAllRSAlog2[,3])
 
 errorAllNSAlinear
-#write.csv(errorAllNSAlinear, file="errorAllNSAlinear5chan.csv", row.names=FALSE)
 sum(errorAllNSAlinear[,3])
 
 errorAllNSAlog2

@@ -45,7 +45,7 @@ install.packages("devtools")
 If not yet installed, install the `protlocassign` package from the github repository by typing
 
 ```
-devtools::install_github("mooredf22/protlocassign")
+BiocManager::install("protlocassign")
 ```
 
 This will make the programs and data sets available, as well as installing needed libraries
@@ -77,10 +77,11 @@ The external data file must have the following structure.  For each spectrum, th
 mySpectraData <- read.csv("C:\\temp\\mySpectraInput\\mySpectraData.txt")
 str(mySpectraData, strict.width="cut", width=65)
 ```
-As an example, here are commands to read in the Tannous AT5 TMT-MS2 data from an external file stored on
-the MassIVE Center for Quantatiative Mass Spectrometry housed at the University of California at San Diego.  
+If the full Tannous AT5 TMT-MS2 data are desired, they may be downloaded from an external file stored on
+the MassIVE Center for Quantatiative Mass Spectrometry housed at the University of California at San Diego.
+The required code is as follows:
 
-```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+```
 urlQuantPSM <- "https://massive.ucsd.edu/ProteoSAFe/DownloadResultFile?file=f.MSV000083848/updates/2022-02-10_ablatannous_094fb41d/quant/QuantPSM.csv&forceDownload=true"
 QuantPSM <- read.csv(urlQuantPSM)
 str(QuantPSM, strict.width="cut", width=65)
@@ -88,23 +89,31 @@ str(QuantPSM, strict.width="cut", width=65)
 
 If the protein names (which are in column 1) are prepended by a single quote (this prevents Excel from interpreting some protein names as dates), it may be removed by using the `sub` function to substitute the initial quote (denoted by "^'") with an empty character ("") as shown here:
 
-```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+```
 QuantPSM[,1] <- sub("^'", "", QuantPSM[,1])
 ```
 
 
 The function `proteinDataPrep` is available to aid in formatting a file in the required form. This takes input data, sorts it by the first and second columns (which are renamed `prot` and `peptide`, the latter being a concatenation of the protein name and peptide sequence), appends all remaining columns (retaining their names), and generates a unique numerical ID for prot and peptide. We specify `numRefCols=5` because that is the number of columns immediately preceding the profile data, and `numDataCols=9` because that is the number of fractions in each profile.
 
-```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+```
 spectraNSA_AT5tmtMS2 <- proteinDataPrep(QuantPSM, numRefCols=5,
                                   numDataCols=9)
 str(spectraNSA_AT5tmtMS2, strict.width="cut", width=65)
 ```
-The data frame `spectraNSA_AT5tmtMS2` contains the full data set. Since we shall use it in the remainder of this vignette, we simplify the name as follows:
+The data frame `spectraNSA_AT5tmtMS2` contains the full data set. For the remainder of this vignette, we may simplify the name as follows:
 
-```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+```
 spectraNSA <- spectraNSA_AT5tmtMS2
 ```
+
+For the purposes of this vignette, we have provided a test data set `spectraNSA_test` consisting of the spectra from genes TLN1, TLN2, and all of the Jadot marker proteins (listed in the included data frame `markerListJadot`). We use this data as follows:
+
+```{r, echo=TRUE}
+data(spectraNSA_test)
+spectraNSA <- spectraNSA_test
+```
+
 
 Note that in some cases, one may want to change the peptide identifier to include additional information other than the actual sequence such as presence of post-translational modifications.  In this case, one would create a new variable `PepMod` prior to running `proteinDataPrep`, and then insert that new column after the first column, which contains the protein name.
 
@@ -177,7 +186,7 @@ flagSpectraBoxRange110ranErrF <- outlierFind(protClass=spectraNSA,
 sum(flagSpectraBoxRange110ranErrF$outlier.num.spectra != 0)
 ```
 
-We have identified 56 outliers because, as discussed above, there are some peptides with enough 0 values that the interquartile range is 0. We can correct this by specifying `randomError=TRUE`, which reduces the number of outliers.  Note in the example below there are six outliers. With repeated runs of `outlierFind`, unless the same random number seed is set and only one cpu is specified, the random error will change, which will result in slightly varying outcomes.
+We have identified 2 outliers because, as discussed above, there are some peptides with enough 0 values that the interquartile range is 0. We can correct this by specifying `randomError=TRUE`, which reduces the number of outliers.  Note in the example below there are no outliers. With repeated runs of `outlierFind`, unless the same random number seed is set, the random error will change, which will result in slightly varying outcomes.
 
 ```{r, echo=TRUE}
 flagSpectraBoxRange110ranErrT <- outlierFind(protClass=spectraNSA, 
@@ -237,13 +246,13 @@ sum({flagSpectraPeps$outlier.num.spectra == 0} &
 
 We now calculate the mean profile for each protein, using a random effects linear model where spectra are nested within peptides. In the three examples listed below, we examine cases where we: (1) reject the contribution of any outlying spectra and peptides; (2) reject the contribution of just outlier spectra within peptides; and (3) we do not reject any peptides or spectra. Here, the `outlierExclude` argument overrides the outlier specifications in the `flagSpectraPeps` file.  The resulting file contains the protein profile, indicating the number of peptides and spectra used to determine each protein profile using the rules above. The root portion of the name `protNSA` denotes that these values are normalized specific amounts (NSAs) for protein profiles. 
 
-The `lmer` random effects function within `profileSummarize` will generate error messages for some proteins due to numerical singularity issues. In these cases, `profileSummarize` automatically re-calculates the profile average using standard (non-nested) averaging.
+The `lmer` random effects function within `profileSummarize` will generate error messages for some channels within some proteins due to numerical singularity issues. To minimize these errors, the function requires two conditions to be met before calling the `lmer` function: There must be at least eight spectra and four peptides, and the ratio of numbers of spectra to peptides must exceed 4. If these conditions are not met the function calculates a standard (non-nested) average of all spectra to obtain a mean profile. Otherwise, the `lmer` random effects model is fitted. In some cases, for a given protein and channel, the `lmer` routine fails and reports a singularity in the model fit. In these cases, `profileSummarize` automatically re-calculates the profile average using standard (non-nested) averaging. If the option `singularList=TRUE` is specified, the function will list the specific protein and channel number (which here range from 1 to 9) where the `lmer` routine encountered the singularity. For example, "ACP2" (a lysosomal protein) has 41 spectra and 8 peptides. The `lmer` procedure converged for the first eight fractions but failed for the ninth one (Nyc3). The default is `singularList=FALSE`. 
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
+```{r, echo=TRUE, message=TRUE, warning=TRUE}
 protNSA_1 <- 
           profileSummarize(protsCombineCnew=flagSpectraPeps,
           numRefCols=7, numDataCols=9, eps=eps, GroupBy="protId",
-          outlierExclude="spectraAndPeptide", cpus=4)
+          outlierExclude="spectraAndPeptide", cpus=4, singularList=TRUE)
 str(protNSA_1,  strict.width="cut", width=65)
 ```
 
@@ -278,7 +287,6 @@ sum((protNSA_2$Npep))
 sum((protNSA_1$Npep))
 ```
 
-Note that even though we only reject spectra in protNSA_2, there is still one rejected peptide because all spectra assigned to this peptide were outliers.  
 
 We can examine the number of proteins with missing profile values (caused by outlier rejection) in each of the three cases by choosing one fraction, e.g., "M"; all other channels will also be missing.
 
@@ -288,7 +296,7 @@ sum(is.na(protNSA_2$M))
 sum(is.na(protNSA_3$M))
 ```
 
-We see that if we reject all outlier spectra and peptides (protNSA_1) there is only one protein with missing profiles. If we only reject outlier spectra within peptides (protNSA_2), there are no  proteins with missing profiles. It is important to note that the outlier rejection process includes a random component, so that repeating the analysis on the embedded data set without specifically setting the seed for the random number generator could potentially result in a different number of proteins with missing profiles. 
+We see that none are rejected in this test data frame. It is important to note that the outlier rejection process includes a random component, so that repeating the analysis on the embedded data set without specifically setting the seed for the random number generator could potentially result in a different number of proteins with missing profiles. 
 
 Taking the first option (rejecting outlier spectra within peptides as well as outlier peptides) as the preferred method, we then create a protein profile data frame in the same format as used in earlier vignettes by moving the protein names from a variable within the data frame to row names.  
 
@@ -302,8 +310,8 @@ protNSA_new <- protNSA_new[,-1]  #delete first internal column containing protei
 The data frame `protNSA_new` is essentially identical to the data set `protNSA_AT5tmtMS2` included in the `protlocassign` package. (The argument `countEQ=TRUE` causes the function to compute the mean error across all profiles, not just among those that differ.)
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
-data(protNSA_AT5tmtMS2)
-all.equal(protNSA_AT5tmtMS2, protNSA_new, countEQ=TRUE, tolerance=0)
+data(protNSA_test)
+all.equal(protNSA_test, protNSA_new, countEQ=TRUE, tolerance=0)
 ```
 
 ## Creating a combined protein/peptide profile data frame

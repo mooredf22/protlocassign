@@ -19,6 +19,8 @@
 #'      spectraAndPeptide @return result_i coefficient
 #'      estimates, numbers of peptides and spectra, and
 #'      id for protein i
+#' @param singularList If true, list proteins and channels with singular
+#'          lmer fit results; default is FALSE
 #' @return estimated means for all channels, and peptide or protein info
 #' @examples
 #' set.seed(17356)
@@ -48,7 +50,8 @@
 #
 #' @export
 meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
-    numRefCols, numDataCols, GroupBy, eps, outlierExclude) {
+    numRefCols, numDataCols, GroupBy, eps, outlierExclude, 
+    singularList=FALSE) {
     # outlierExclude: none: don't exclude any
     # outliers spectra: exclude only spectra
     # within peptides spectraAndPeptide: exclude
@@ -72,6 +75,7 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
     profileAll_i <- profileAll_i_x
     profileAll_i[, seq_len(numDataCols)] <- log2(profileAll_i_x[,
         seq_len(numDataCols)] + eps)  # transform to log2 scale
+    channelNames <- names(profileAll_i)
 
 
 
@@ -160,6 +164,9 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 
             if (isSingular(result_k)) {
               lmerSingular <- TRUE
+              if (singularList) {
+                cat(c("protein",prot_i," channel", k, "\n" ))
+              }
               ## The following is for diagnostics only
               ##  error handling is as planned
               #cat("lmer matrix singular; recalculating average profile\n")
@@ -244,6 +251,8 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #'          according to exclusion level
 #' @param     cpus 1 (default);
 #'            if cpus > 1 use BiocParallel with SnowParm(cpus)
+#' @param singularList If true, list proteins and channels with singular
+#'          lmer fit results; default is FALSE
 #' @importFrom lme4 lmer
 #' @importFrom BiocParallel bplapply
 #' @export
@@ -268,7 +277,7 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 # ================================================================
 profileSummarize <- function(protsCombineCnew, numRefCols,
     numDataCols, refColsKeep = c(1, 2), eps, GroupBy = "protId",
-    outlierExclude = "spectraAndPeptide", cpus=1) {
+    outlierExclude = "spectraAndPeptide", cpus=1, singularList=FALSE) {
 
     # outlierExclude: none: don't exclude any
     # outlers spectra: (default) exclude only
@@ -309,14 +318,15 @@ profileSummarize <- function(protsCombineCnew, numRefCols,
     system.time(result <- lapply(indList, meansByProteins,
                 uniqueLabel = uniqueLabel, protsCombineCnew = protsCombineCnew,
                 numRefCols = numRefCols, numDataCols = numDataCols,
-                GroupBy = GroupBy, eps = eps, outlierExclude = outlierExclude))
+                GroupBy = GroupBy, eps = eps, outlierExclude = outlierExclude,
+                singularList=singularList))
   }
   if (cpus > 1) {
     system.time(result <- bplapply(indList, meansByProteins,
                uniqueLabel = uniqueLabel, protsCombineCnew = protsCombineCnew,
                numRefCols = numRefCols, numDataCols = numDataCols,
                GroupBy = GroupBy, eps = eps, outlierExclude = outlierExclude,
-               BPPARAM = SnowParam(cpus)))
+               BPPARAM = SnowParam(cpus), singularList=singularList))
   }
 
  # }

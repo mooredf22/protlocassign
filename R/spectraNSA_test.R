@@ -1,17 +1,21 @@
-#' Test data set with  TLN1, TLN2, AIF1, NSA mean profiles
-#'   as well as mean profiles of all of the proteins 
-#'   listed in "markerListJadot".
+#' Test data set with all spectra of TLN1, TLN2, AIF1, NSA profiles
+#'   as well as of all of the proteins listed in "markerListJadot".`
 #'
 #' Data from the TMT MS2 data, AT5 experiment; see Tannous et al
 #'
 #' @docType data
-#' @format a test data set
+#' @format a test data set of all NSA spectra of TLN1
 #'
 #' \describe{
+#'   \item{\code{prot}}{protein name}
+#'   \item{\code{peptide}}{protein::peptide}
+#'   \item{\code{SpectrumId}}{identification label of spectrum}
+#'   \item{\code{PeptidesStartPostionInProtein}}{number of start position}
+#'   \item{\code{modification}}{peptide modification list}
 #'   \item{\code{N}}{a numeric vector}
 #'   \item{\code{M}}{a numeric vector}
 #'   \item{\code{L1}}{a numeric vector}
-#'  \item{\code{L2}}{a numeric vector}
+#'   \item{\code{L2}}{a numeric vector}
 #'   \item{\code{P}}{a numeric vector}
 #'   \item{\code{S}}{a numeric vector}
 #'   \item{\code{Nyc1}}{a numeric vector}
@@ -27,9 +31,8 @@
 #'  Sleat, D. E.; Jadot, M.; Lobel, P., Comparative Analysis of
 #'  Quantitative Mass Spectrometric Methods for Subcellular Proteomics.
 #'  J Proteome Res 2020, 19, (4), 1718-1730.
-#'
-#' @usage data(protNSA_test)
+#' @usage data(TLN1_test)
 #' @examples
-#' data(protNSA_test)
-#' str(protNSA_test)
-"protNSA_test"
+#' data(spectraNSA_test)
+#' str(spectraNSA_test)
+"spectraNSA_test"

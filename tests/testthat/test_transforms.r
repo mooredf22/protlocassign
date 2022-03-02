@@ -25,14 +25,14 @@ protCPAfromNSA_test <- fitCPA(profile=protNSA_test["TLN1",],
                               refLocationProfiles=refLocationProfilesNSA,
                               numDataCols=9)
 test_cpa <- as.numeric(protCPAfromNSA_test)
-expect_equal(test_cpa[1], 0.3630353, tolerance=0.0001)
+expect_equal(test_cpa[1], 0.35657021, tolerance=0.001)
 expect_equal(test_cpa[2], 0)
 expect_equal(test_cpa[3], 0)
 expect_equal(test_cpa[4], 0)
 expect_equal(test_cpa[5], 0)
-expect_equal(test_cpa[6], 0.06363186, tolerance=0.0001)
+expect_equal(test_cpa[6], 0.06110218, tolerance=0.001)
 expect_equal(test_cpa[7], 0)
-expect_equal(test_cpa[8], 0.57333283, tolerance=0.0001)
+expect_equal(test_cpa[8], 0.58232761, tolerance=0.001)
 
 
 

@@ -626,17 +626,22 @@ assignCPAloc <- function(assignLocProps, cutoff = 0.8,
     # assign location to the one with a
     # proportion > cutoff assignLocProps <-
     # assignPropsAll[1,]
-    if (cutoff <= 0.5)
+    if (anyNA(assignLocProps)) {
+      protLoc <- "unclassified"
+    }
+    if (!anyNA(assignLocProps)) {
+      if (cutoff <= 0.5)
         cutoff <- 0.5001
-    exceedCutoff <- {
+      exceedCutoff <- {
         assignLocProps > cutoff
+      }
+      if (sum(exceedCutoff) > 0) {
+          indLoc <- which(exceedCutoff)
+          protLoc <- Locations[indLoc]
+      }
+      if (sum(exceedCutoff) == 0)
+          protLoc <- "unclassified"
     }
-    if (sum(exceedCutoff) > 0) {
-        indLoc <- which(exceedCutoff)
-        protLoc <- Locations[indLoc]
-    }
-    if (sum(exceedCutoff) == 0)
-        protLoc <- "unclassified"
     protLoc
 }
 

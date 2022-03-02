@@ -43,33 +43,30 @@ We illustrate with an example. Tannous et al. (2020) presented an experiment (de
 
 ## Installing the protlocassign package
 
-Start by installing the devtools package from CRAN, by typing:
+The `protlocassign` package is located on the Bioconductor respository. The first step is to install the "BiocManager" package from CRAN, by typing:
 
 ```
-install.packages("devtools")
+install.packages("BiocManager")
 ```
 
 Then install the protlocassign package from the github repository by typing:
 
 ```
-devtools::install_github("mooredf22/protlocassign")
+BiocManager::install("protlocassign")
 ```
 
 This will make the programs and data sets available.
-Also, several libraries are required which may be downloaded from CRAN by typing:
+Also, several libraries are required which may be downloaded from the CRAN respository by typing:
 
 ```
-install.packages(c("BB", "pracma", "lme4", "outliers"))
+BiocManager::install(c("BB", "pracma", "lme4", "outliers"))
 ```
 
 Finally, the parallel processing package `BiocParallel` from the Bioconductor package is needed to use parallel processing. The following code will install the package if it is not already present:
 
 
 ```
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-if (!require("BiocParallel", quietly = TRUE)) 
-    BiocManager::install("BiocParallel")
+BiocManager::install("BiocParallel")
 ```
 
 Once you have installed these packages, you do not need to re-install them the next time you start up R.
@@ -87,9 +84,17 @@ data(protNSA_AT5tmtMS2)
 dim(protNSA_AT5tmtMS2)
 ```
 
-For the sake of brevity, we rename this protNSA:
+Alternatively we may work with a test data set containing a small subset of the proteins
+
 ```{r, echo=TRUE}
-protNSA <- protNSA_AT5tmtMS2
+data(protNSA_test)
+dim(protNSA_test)
+```
+
+For the sake of brevity, we here use the `protNSA_test`data frame and rename it `protNSA`:
+
+```{r, echo=TRUE}
+protNSA <- protNSA_test
 ```
 
 The first few rows of the data can be examined using the `head` command, rounding to improve legibility. The first nine columns represent the protein profile. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. Note that while we use a nested random effects model described in Jadot et al., 2017 to compute the means across spectra (also see Vignette 5), other methods, including taking a straight average or weighted average (e.g., based on reporter ion intensities or peak areas), may be appropriate for other applications.

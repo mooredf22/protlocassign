@@ -41,9 +41,9 @@ In this vignette, we explore the effect of using normalized specific amount (NSA
 For clarity of presentation, we simplify embedded data sets by dropping experiment-level notation:
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
-data(protNSA_AT5tmtMS2)
+data(protNSA_test)
 data(totProtAT5)
-protNSA <- protNSA_AT5tmtMS2
+protNSA <- protNSA_test
 totProt <- totProtAT5
 ```
 
@@ -387,7 +387,9 @@ sum(errorAllRSAlinear[,3])
 Here we present code that will produce the remaining combinations of fit type (RSA, NSA, and Acup) and log transformation (True or False). First is RSA with log-transformed values (linear RSA having been plotted previously in the vignette). 
 
 
-```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 11}
+<!-- ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 11} -->
+
+```
 
 fitType <- "RSA"
 log2Transf <- TRUE
@@ -436,7 +438,7 @@ errorAllAcupLog2 <- mixturePlotPanel(refLocationProfilesAcup=
               NstartMaterialFractions=6, errorReturn = TRUE, 
               fitType=fitType, log2Transf=log2Transf, eps=0.001)
 
-```
+ ```
 
 If one needs to prepare the plots as pdf files which are written to an external directory,
 first set the working directory, e.g., 
@@ -458,7 +460,8 @@ dev.off()
 
 We may show the pairwise and overall errors for all transformations as follows:
 
-```{r, echo=TRUE, eval=TRUE}
+<!-- ```{r, echo=TRUE, eval=TRUE} -->
+```
 errorAllRSAlinear
 sum(errorAllRSAlinear[,3])
 
