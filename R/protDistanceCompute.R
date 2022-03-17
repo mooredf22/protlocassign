@@ -16,11 +16,11 @@
 #' @return List of the proteins in protName closest to protName or to profile
 #' @export
 #' @examples
-#' data(protNSA_AT5tmtMS2)
-#' distUse <- dist(protNSA_AT5tmtMS2[,seq_len(9)], method='euclidean')
-#' protsUse <- names(protNSA_AT5tmtMS2)
+#' data(protNSA_test)
+#' distUse <- dist(protNSA_test[,seq_len(9)], method='euclidean')
+#' protsUse <- names(protNSA_test)
 #' nearestProts(protName='CTSD', n.nearest=10,  distProts=distUse,
-#'   protNames=protsUse, profile=protNSA_AT5tmtMS2[,seq_len(9)])
+#'   protNames=protsUse, profile=protNSA_test[,seq_len(9)])
 nearestProts <- function(protName, n.nearest = 5, distProts,
     protNames, profile) {
     distProtsMat <- as.matrix(distProts)
@@ -30,7 +30,7 @@ nearestProts <- function(protName, n.nearest = 5, distProts,
         return(ref)
     }
     if (nrow(ref) > 1) {
-        cat("More than one protein matches protName\n")
+        warning("More than one protein matches protName\n")
         return(ref)
     }
 

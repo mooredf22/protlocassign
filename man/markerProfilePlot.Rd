@@ -37,11 +37,11 @@ This function plots profiles of reference proteins
    and also the average profile for each compartment
 }
 \examples{
-data(protNSA_AT5tmtMS2)
+data(protNSA_test)
 data(markerListJadot)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_AT5tmtMS2,
+refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
    markerList=markerListJadot, numDataCols=9)
-markerProfilePlot(refLoc='PM', profile=protNSA_AT5tmtMS2,
+markerProfilePlot(refLoc='PM', profile=protNSA_test,
    markerList=markerListJadot,
    refLocationProfiles=refLocationProfilesNSA, ylab='NSA')
 }

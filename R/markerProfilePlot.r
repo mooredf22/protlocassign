@@ -23,11 +23,11 @@
 #' @export
 #' @return plot of profiles of reference (marker) proteins
 #' @examples
-#' data(protNSA_AT5tmtMS2)
+#' data(protNSA_test)
 #' data(markerListJadot)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_AT5tmtMS2,
+#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
 #'    markerList=markerListJadot, numDataCols=9)
-#' markerProfilePlot(refLoc='PM', profile=protNSA_AT5tmtMS2,
+#' markerProfilePlot(refLoc='PM', profile=protNSA_test,
 #'    markerList=markerListJadot,
 #'    refLocationProfiles=refLocationProfilesNSA, ylab='NSA')
 
@@ -50,7 +50,7 @@ markerProfilePlot <- function(refLoc, profile, markerList,
 
     # stop if refLoc not found
     if (!(refLoc %in% compartments.list)) {
-        cat("reference compartment not found\n")
+        warning("reference compartment not found\n")
         return(NULL)
     }
 

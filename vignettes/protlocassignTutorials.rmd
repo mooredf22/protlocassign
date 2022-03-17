@@ -1,0 +1,2098 @@
+---
+title: "protlocassign tutorials"
+author: "DFM & PL"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    toc: yes
+  html_document:
+    toc: yes
+    df_print: paged
+vignette: |
+  %\VignetteIndexEntry{protlocassign tutorials}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  #collapse = TRUE,
+  comment = "#>",
+  fig.width = 4,
+  fig.height = 4,
+  message = FALSE,
+  warning = FALSE,
+  tidy.opts = list(
+    keep.blank.line = TRUE,
+    width.cutoff = 150
+    ),
+  options(width = 150),
+  eval = TRUE
+)
+```
+
+\newpage
+
+# Tutorial 1: Getting started with the assignment of proteins to subcellular locations using protlocassign 
+
+## Introduction
+
+Determining the locations of proteins in the cell is an important but complex problem. A frequently employed approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribution of different proteins among the centrifugation fractions. The location of proteins of interest in the cellular compartments are then inferred by comparing their distributions across the centrifugation fractions to the distributions of a set of reference proteins (markers) with known cellular locations.
+
+This package implements a subcellular protein assignment procedure known as “constrained proportional assignment”, or CPA (Jadot et al, 2016). The basic concepts involved in CPA and analysis of subcellular proteomics data are described in the main paper. These tutorials serve as a basis for implementing CPA and various utilities for both experienced and beginner R users.
+
+There are two fundamental inputs for CPA.  The first is a file with information regarding the distribution of each protein or other species of interest to be analyzed across centrifugation fractions. Each row has a name that serves as a unique identifier, which we here refer to as a protein name, but one can use other identifiers, (e.g., protein group, protein isoform, gene name, accession number, etc.). For each protein (or other identifier), there are data that reflects its distribution among the centrifugal fractions, which represent a profile. The second is a file containing a list of single-compartment reference proteins (markers) and their associated subcellular locations. As an initial step, the package uses the markers to compute profiles for individual cellular compartments. Then, for each protein, it finds the best match for its profile using a linear combination of compartment profiles. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. 
+
+We illustrate with an example. Tannous et al. (2020) presented an experiment (designated here as AT5) analyzing abundance levels of proteins across a total of nine fractions: six fractions (N, M, L1, L2, P, and S) from differential centrifugation of a rat liver homogenate and three fractions (Nyc1, Nyc2, and Nyc3) from a Nycodenz density gradient centrifugation of the differential fraction L1. Eight subcellular compartments were considered: nucleus (Nuc), mitochondria (Mito), lysosomes (Lyso), peroxisomes (Perox), endoplasmic reticulum (ER) Golgi apparatus (Golgi), plasma membrane (PM), and cytosol (Cyto). The CPA method assigns each of a large number of proteins to one or more of these compartments, based on profiles from the set of reference proteins. 
+
+## Installing the protlocassign package
+
+To obtain the `protlocassign` package, first installing the `devtools` package from CRAN by typing:
+
+```
+install.packages("devtools")
+```
+
+Then install the protlocassign package from the Github repository by typing:
+
+```
+devtools::install_github("mooredf22/protlocassign")
+```
+
+Other packages may downloaded by using the Bioconductor repository. The first step is to install the "BiocManager" package from CRAN, by typing:
+
+```
+install.packages("BiocManager")
+```
+
+Also, several libraries are required which may be downloaded from the CRAN respository by typing:
+
+```
+BiocManager::install(c("BB", "pracma", "lme4", "outliers"))
+```
+
+Finally, the parallel processing package `BiocParallel` from the Bioconductor package is needed to use parallel processing. The following code will install the package if it is not already present:
+
+
+```
+BiocManager::install("BiocParallel")
+```
+
+Once you have installed these packages, you do not need to re-install them the next time you start up R.
+
+## Working with data
+
+To use this package, you will need two data sets. One, the protein profile data set, contains rows with a unique identifier followed by data describing the profile associated with each identifier across a series of centrifugation fractions. In this tutorial, the profiles associated with each identifier are specific amounts with sums constrained to 1 (“normalized specific amounts” or NSAs, see main Paper) but can be in a different form or further transformed to improve the quality of the fit (see Tutorials 2-4). The protein profile data set may contain two additional values representing the numbers of peptides and spectra that were used to compute the profile (see below).  The other data set consists of the list of reference proteins and their associated known subcellular compartments.
+
+
+Consider for example a test data set drawn from the TMT MS2 data from Tannous et al. (2020) experiment AT5. To get started, load the package and attach the embedded test protein profile data set; we see that it has 40 rows and 11 columns: 
+
+```{r, echo=TRUE}
+library(protlocassign)
+
+data(protNSA_test)
+dim(protNSA_test)
+```
+
+For the sake of brevity, we rename it `protNSA`:
+
+```{r, echo=TRUE}
+protNSA <- protNSA_test
+```
+
+The first few rows of the data can be examined using the `head` command, rounding to improve legibility. The first nine columns represent the protein profile. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. Note that while we use a nested random effects model described in Jadot et al., 2017 to compute the means across spectra (also see Tutorial 5), other methods, including taking a straight average or weighted average (e.g., based on reporter ion intensities or peak areas), may be appropriate for other applications.
+
+```{r, echo=TRUE}
+round(head(protNSA), digits=2)
+```
+
+The list containing reference proteins is derived from Jadot et al (2016) and examining the dimensions of the data reveals that it contains 39 rows and two columns, the first for the protein names and the second for their respective subcellular compartments.
+
+```{r, echo=TRUE}
+data(markerListJadot)
+dim(markerListJadot)
+```
+
+The data set can be viewed by entering its name as follows:
+
+```{r, echo=TRUE}
+markerListJadot
+```
+
+While the `protNSA_test` and `markerListJadot`  data sets are included in the package, they were initially read into R from external files and automatically converted to data frames.  This will need to be done for any new data set.  As an example, we demonstrate this for a case where one is working with the Windows operating system and the data sets reside in the directory `C:\temp\myproteindata`. (If one is working with either the Linux or Mac OS, appropriate changes to these procedures will be needed to access files.)
+First, set the working directory to point there, either by navigating to it in R studio (session menu pane) or by entering:
+
+```
+setwd("C:\\temp\\myproteindata")
+```
+
+Note that in R each backslash character must be doubled to be interpreted correctly (since otherwise it will be incorrectly interpreted as an escape character). Alternatively, you may use a single forward slash:
+
+```
+setwd("C:/temp/myproteindata")
+```
+
+To illustrate how to read in the protein profiles and list of marker proteins, we write out
+our protein profiles and marker list as comma-delimited files. For the protein profiles, we write out the protein names (which are row names in R) by specifying `row.names=T`. Note that we first alter the protein names so that they are preceded by a single quote since, if one subsequently opens the csv file with excel, it could automatically reformat some names to dates (e.g., March1 to 1-Mar).  To write protein profiles and marker proteins to `.csv` files, input:
+
+```
+protNSAout <- protNSA
+rownames(protNSAout) <- paste("'", rownames(protNSA), sep="")
+markerListJadotOut <- markerListJadot
+markerListJadotOut$protName <- paste("'", markerListJadot$protName, sep="")
+write.csv(protNSAout, file="protNSAout.csv", row.names=T)
+write.csv(markerListJadotOut, file="markerListJadotOut.csv", row.names=F)
+```
+
+We may examine these files by importing them into Excel. For the marker protein data file, the first row must contain the two column names (protein unique identifier and compartment designation). Note that the marker proteins must be specified precisely as listed in the protein profile data set. 
+
+We then read in the two data sets (protein profile data and reference protein list), 
+which must be in comma-separated format (`.csv`), with the first row containing column names. 
+The option `row.names=1` takes the first column of
+the `protNSAout.csv` file and uses it as row names for the R file `MyPProtNSAin`.
+
+```
+MyProtNSAin <- read.csv(file="protNSAout.csv", row.names=1)
+MyMarkerListIn <- read.csv(file="markerListJadotOut.csv")
+```
+
+We then remove the preceding single quotes from the protein names.
+```
+rownames(MyProtNSAin) <- sub("^'", "", rownames(MyProtNSAin))
+MyMarkerListIn[,1] <- sub("^'", "", MyMarkerListIn[,1])
+```
+
+These new R data frames are identical to `protNSA_test` and `markerListJadot`. If the user reads in their own data, be sure that the first row in each of the ".csv" files contains column names. In particular, the names in the first row of the markers file must be "protName" and "referenceCompartment" to ensure that the resulting R data frame is in the proper format.
+
+If one desires to work with the full set of 7893 protein profiles in the Tannous et al. data set, we may download it from the MassIVE repository. To do so, execute the following code, first removing the comment character "#":
+
+```
+# urlQuantPSMprot <-  "https://massive.ucsd.edu/ProteoSAFe/DownloadResultFile?file=f.MSV000083842/updates/2022-03-14_ablatannous_c39637a3/quant/protNSA_AT5tmtMS2.csv&forceDownload=true"
+
+# protNSA_AT5tmtMS2 <- read.csv(urlQuantPSMprot)
+# data(protNSA_AT5tmtMS2)
+# dim(protNSA_AT5tmtMS2)
+```
+
+
+## Creating and viewing compartment and marker protein profiles
+
+In order to assign proteins proportionately to their respective compartments, we first use the function `locationProfileSetup` to obtain profiles for the compartments based on the means of the individual reference proteins that represent each compartment. This function produces a matrix that has one row for each compartment and one column for each fraction  that comprises the profile.
+
+```{r, echo=TRUE, eval=TRUE}
+refLocationProfilesNSA <- locationProfileSetup(profile=protNSA, markerList=markerListJadot, numDataCols=9)
+```
+
+We display the data, using rounding to improve readability.
+
+```{r, echo=TRUE, eval=TRUE}
+round(refLocationProfilesNSA, digits=4)
+```
+
+To examine the available compartments, view the row names of `refLocationProfilesNSA`.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+rownames(refLocationProfilesNSA)
+```
+
+To graphically display a particular compartment profile and its component proteins, use `markerProfilePlot`. 
+For example, to plot the profile for plasma membrane, input:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+
+markerProfilePlot(refLoc="PM", profile=protNSA, markerList=markerListJadot,
+                     refLocationProfiles=refLocationProfilesNSA, ylab="NSA")
+```
+
+This displays the PM compartmental profile (dashed yellow-black line) and its five component reference proteins (red lines). To plot, for example, the second PM marker protein, use the option `refProtPlot=2` in the `markerProfilePlot` function:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+
+markerProfilePlot(refLoc="PM", profile=protNSA, 
+                  markerList=markerListJadot,
+                  refLocationProfiles=refLocationProfilesNSA, ylab="NSA",
+                  refProtPlot=2)
+```
+
+To show individually each of the five reference proteins that are used to calculate the PM compartmental profile, use `par(mfrow=c(3,2))` to set up a plot array with 3 rows and 2 columns which will accommodate up to six plots on a single page. Then plot all five of the them one-by-one by looping through the five PM marker proteins by first specifying `for (j in 1:5)` and invoking the option `refProtPlot=j` in the `markerProfilePlot` function. (To make them legible, you may first need to open a new window by entering `windows(width=5, height=7)`.) The parameters in `par(mfrow=c(3,2))` and `for (j in 1:5)` can be adjusted to display any number of plots.
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 5, fig.height = 7}
+
+par(mfrow=c(3,2)) # this will be new default layout for subsequent plots.  
+# Will need to reset par(mfrow=c(1,1)) for single graph layouts
+
+for (j in 1:5) {
+  markerProfilePlot(refLoc="PM", profile=protNSA,
+                    markerList=markerListJadot,
+                    refLocationProfiles=refLocationProfilesNSA, 
+                    ylab="NSA", refProtPlot=j)
+  }
+```
+
+To plot all of the compartment and individual marker protein profiles, we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments:
+
+```{r, echo=TRUE, eval=TRUE, fig.width = 7, fig.height = 10}
+loc.list <- rownames(refLocationProfilesNSA)
+n.loc <- length(loc.list)
+par(mfrow=c(4,2))
+for (i in 1:n.loc) {
+  markerProfilePlot(refLoc=loc.list[i], profile=protNSA,
+                     markerList=markerListJadot,
+                     refLocationProfiles=refLocationProfilesNSA, ylab="NSA")
+  }
+```
+
+## Obtaining constrained proportionate assignments of proteins to compartments  
+
+Once we are satisfied with the marker set and compartment profiles, we can run the CPA routine which, for each protein in our data set, apportions its residency among the different specified compartments. Note that the command below uses default options.  It is also possible to specify optional parameters including writing out the obtained goodness of fit minimum (`minVal=T`, default is `minVal=F`), setting initial parameters for each CPA value using an eight element vector specifying the starting proportions (`startProp`, if not specified the function will assign a value of 1/8 for each of the eight compartments), and by constraining the output CPA values for specified compartments to be zero (see help file, `?fitCPA`).
+
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+protCPAfromNSA <- fitCPA(profile=protNSA,
+                          refLocationProfiles=refLocationProfilesNSA, 
+                          numDataCols=9)
+```
+Note that the protein "AIF1" (protein 356) has all missing values, which is why the spg function returns an error for that one protein.
+
+We can view the structure of the output data file and see that the row names contain the protein names, and the next 8 columns contain the allocation proportions of each protein to the eight compartments. The last two columns are integers representing the numbers of peptides and spectra, which are carried over from the input `protProfileSummary` profile data, these are not essential for the CPA analysis.
+
+```{r, echo=TRUE, eval=TRUE}
+round(tail(protCPAfromNSA), digits=2)
+```
+
+
+
+We can look at the profile of, for example, the protein "TLN1". We first ensure that the protein is in the dataset:
+
+```{r, echo=TRUE, eval=TRUE}
+protIndex("TLN1", profile=protNSA)
+```
+
+This function also accepts partial matching of the first few letters of a protein. For example, we can find the indices of the proteins starting with "TLN":
+
+```{r, echo=TRUE, eval=TRUE}
+protIndex("TLN", profile=protNSA)
+```
+
+
+
+Now we plot the results for protein TLN1:
+
+```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=9}
+
+protPlotfun(protName="TLN1", profile=protNSA, 
+numDataCols=9, n.compartments=8,
+  refLocationProfiles=refLocationProfilesNSA, 
+  assignPropsMat=protCPAfromNSA, 
+  yAxisLabel="Normalized Specific Amount")
+```                        
+
+The x-axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 57 percent residence proportion to plasma membrane and 36 percent residence to cytosol. The observed red profile closely matches a mixture of the yellow-black lines weighted by the indicated proportions. 
+
+The `protPlotfun` function is designed to plot profiles of eight subcellular locations. If a data set has more than eight of these, it will be necessary to modify the code to accommodate the larger number.
+
+## Saving the CPA output
+### Data output
+
+To save the results of the CPA procedure, as before, we prepend the protein names
+with a single quote and write out a csv file to a specified directory.
+
+```
+protCPAfromNSAout <- protCPAfromNSA
+rownames(protCPAfromNSAout) <- paste("'", rownames(protCPAfromNSAout), sep="")
+
+setwd("C:/temp/myProteinOutput")
+
+write.csv(protCPAfromNSAout, file="protCPAfromNSAout_AT5tmtMS2.csv", row.names=T)
+```
+
+### Plot output as pdf files
+
+To save the plot of a protein (`TLN1` for example) as a pdf file, we first specify a pdf plot `window`, call the `protPlotfun` function as before, and then close the plot window using `dev.off()` to allow R to complete producing the file:
+
+```
+pdf(file="myPlotPDFfile.pdf", width=7, height=10)
+protPlotfun(protName="TLN1", profile=protNSA, 
+    numDataCols=9, n.compartments=8,
+    refLocationProfiles=refLocationProfilesNSA, 
+    assignPropsMat=protCPAfromNSA,
+    yAxisLabel="Normalized Specific Amount")
+dev.off()
+```   
+
+To output plots all of the protein profiles into a single pdf file, one can set up a loop as follows:
+
+
+```
+pdf(file="allPlotsPDFfile.pdf", width=7, height=10)
+n.prots <- nrow(protCPAfromNSA)
+for (i in 1:n.prots) {
+   protPlotfun(protName=rownames(protCPAfromNSA)[i],
+       profile=protNSA, numDataCols=9, n.compartments=8,
+       refLocationProfiles=refLocationProfilesNSA, 
+       assignPropsMat=protCPAfromNSA,
+       yAxisLabel="Normalized Specific Amount")
+}
+dev.off()
+```   
+
+This will result in a single file, `allPlotsPDFfile.pdf`, with a page for each protein plotted. Note that one protein in our data set, `AIF1`, does not have a profile as all peptides were outliers (see Tutorials 5 and 6).
+
+\newpage
+
+# Tutorial 2: Relative specific amount (RSA) transformation and CPA
+
+## Introduction
+
+In Tutorial 1 (“Getting Started”), we illustrated the principles of constrained proportional assignment using protein profiles that represent mass spectrometry data from a set of subcellular fractions in the form of normalized specific amounts (NSAs). NSA profiles have equivalent amounts of total protein analyzed per fraction, with the sum of all fractions constrained to 1.  This tutorial describes how to use functions in the `protlocassign` package to transform NSA profiles in a manner that is more appropriate for inferring proportional residence in subcellular compartments.
+
+
+## Setting up the data and reference protein files, and transforming to Relative Specific Amounts (RSAs)
+
+As explained in the Tutorial 1, we will demonstrate using two R data sets that are included in the `protlocassign` package.  One, `protNSA_test`, consists of row names that indicate protein identifiers, each of which is followed by data describing the identifier profile across the nine normalized specific amounts derived from a subcellular fractionation experiment. The other data set, `markerListJadot`, consists of a list of reference proteins and their associated known subcellular compartments.  As before, to run the program, the `protlocassign` library must be installed.
+
+
+
+```{r, echo=TRUE}
+library(protlocassign)
+```
+
+In Tutorial 1, we use `protNSA_AT5tmtMS2` and an untransformed average of reference protein profiles in the form of NSAs for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSAs).  As explained in the main text and elaborated in Tutorial 3, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material. The RSA describes the fold-enrichment (RSA>1) or depletion (RSA<1) of a protein during the fractionation process, and is analogous to the relative specific activity term used in classical analytical subcellular fractionation.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `totProtAT5` which is preloaded in `protlocassign`.  Note that the order and numbers of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `totProtAT5`) must correspond to those in the data set containing individual protein profiles (e.g., `protNSA_AT5tmtMS2` or `protNSA_test`). For clarity of presentation, we rename `totProtAT5` and `protProfileNSA_test` to `totProt` and `protProfileNSA`, respectively.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+data(protNSA_test)
+protNSA <- protNSA_test 
+str(protNSA)
+
+data(totProtAT5)
+totProt <- totProtAT5
+round(totProt, digits=4)
+```
+
+The function `RSAfromNSA` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically the homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material. Our code requires that the fractions representing the starting material are contiguous and are located at the beginning of the profile. Note that the function `RSAfromNSA` can use protein profiles expressed either as NSAs or as specific amounts. Thus we select the first nine columns of `protNSA`:
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+protRSA  <- RSAfromNSA(NSA=protNSA[,1:9],
+                         NstartMaterialFractions=6, totProt=totProt)
+dim(protRSA)
+str(protRSA)
+```
+
+Since there is additional information in the last two columns of `protNSA` that we want to include in the new file, specifically the numbers of spectra and peptides (`Nspectra` and `Nseq`), we add them to the output as follows:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+protRSA <- data.frame(protRSA, protNSA[,10:11])
+#note data frame is being overwritten
+dim(protRSA)
+str(protRSA)
+```
+
+We also need to transform the profiles of the markers for each compartment. As in Tutorial 1, we use the function `locationProfilesetup` to average the profiles (which must be normalized specific amounts) to obtain profiles for the reference proteins:
+
+```{r, echo=TRUE, eval=TRUE}
+data(markerListJadot)
+refLocationProfilesNSA <- locationProfileSetup(profile=protNSA,
+                          markerList=markerListJadot, numDataCols=9)
+round(refLocationProfilesNSA, digits=4)
+
+```
+
+We then use `RSAfromNSA` to transform these reference profiles.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+refLocationProfilesRSA <- RSAfromNSA(NSA=refLocationProfilesNSA, NstartMaterialFractions=6,
+       totProt=totProt)
+round(refLocationProfilesRSA, digits=4)
+
+```
+
+We computed the RSA reference profiles above from the NSA reference profiles. Note that, as an alternative, one could compute the RSA reference profiles directly from `protRSA`. These two approaches yield similar but non-identical results, and we typically use the first procedure to generate RSA-transformed reference location profiles. 
+
+```{r, echo=TRUE, eval=TRUE}
+refLocationProfilesRSA_2 <- locationProfileSetup(profile=protRSA,
+                          markerList=markerListJadot, numDataCols=9)
+round(refLocationProfilesRSA_2, digits=4)
+# we use the `as.matrix` function for display purposes in the tutorial
+as.matrix(all.equal(refLocationProfilesRSA, refLocationProfilesRSA_2, 
+                    precision=0, countEQ=TRUE))
+```
+
+## Plotting RSA-transformed profiles, and finding RSA-based constrained proportional assignments
+
+As in Tutorial 1, we can plot reference profiles, but this time using the RSA-transformed data. For example, here is a plot for all markers:
+
+```{r, echo=TRUE, eval=TRUE, fig.width = 7, fig.height = 11}
+loc.list <- rownames(refLocationProfilesRSA)
+n.loc <- length(loc.list)
+par(mfrow=c(4,2))
+for (i in 1:n.loc) {
+  markerProfilePlot(refLoc=loc.list[i], profile=protRSA,
+                     markerList=markerListJadot,
+                     refLocationProfiles=refLocationProfilesRSA, ylab="RSA")
+  }
+```
+
+Now we can run the CPA routine on the RSA-transformed levels. The result is a matrix with protein identifiers as row names, and data indicating the estimated proportional assignments of each protein among the eight subcellular locations.
+
+```{r, echo=TRUE, eval=TRUE}
+protCPAfromRSA <- fitCPA(profile=protRSA,
+                        refLocationProfiles=refLocationProfilesRSA, 
+                        numDataCols=9)
+str(protCPAfromRSA)
+```
+Note that the protein "AIF1" (protein 356) has all missing values, which is why the spg function returns an error for that one protein.
+
+The `protPlotfun` function is designed to plot profiles of eight subcellular locations. If a data set has more than eight of these, it will be necessary to modify the code to accommodate the larger number.
+
+Now we plot the results for protein TLN1:
+
+```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=11}
+
+protPlotfun(protName="TLN1", profile=protRSA, numDataCols=9,
+                        refLocationProfiles=refLocationProfilesRSA,
+                        assignPropsMat=protCPAfromRSA,
+                        yAxisLabel="Relative Specific Amount")
+```
+
+The x-axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 35 percent residence proportion to plasma membrane and 53 percent residence to cytosol. As in Tutorial 1, the observed red profile is a weighted mixture of the expected yellow-black lines.
+
+\newpage
+
+# Tutorial 3: Data transformations: Notation and mixtures using protlocassign
+
+## Introduction
+
+As explained in the main text and in Tutorial 2, there are different ways to transform protein profile data.  Here, we describe a way to explore the effect of using transformed data with CPA.  Briefly, we conduct different data transformations on a set of theoretical proteins that have a range of distributions between two cellular compartments, and then conduct CPA and determine how well it predicts the original distribution. To create the theoretical proteins for our simulations, we use data from the experiment from Tannous et al which consists of a TMT-MS2 analysis of six differential fraction (N, M, L1, L2, P, and S) obtained from centrifugation of a rat liver homogenate and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3).
+
+In our procedure, we first use the eight compartment profiles generated from the marker protein set to simulate a set of eight theoretical proteins that wholly reside in each of the respective compartments.  We then then create binary mixtures with defined combinations of the eight theoretical proteins to simulate proteins that are distributed in varying proportions between two compartments. Note that data from mass spectrometry experiments generally represent specific amounts ${s_{\alpha ,l}}$ of a protein $\alpha$ in fraction $l$, with the same amount of total protein being analyzed for each sample (fraction). For conducting our simulations, we first must transform this data into relative amounts, so that each protein has precisely the same total amount in the initial starting material used for fractionation.
+
+## Computation of Relative Amounts
+
+Consider an $n$ by 9 matrix of specific amounts that details the average distribution of $n$ proteins among 9 fractions:
+$$
+\mathbf{S}=\left[ \begin{matrix}
+   {{s}_{11}} & {{s}_{12}} & \cdots  & {{s}_{19}}  \\
+   {{s}_{21}} & {{s}_{22}} & \cdots  & {{s}_{29}}  \\
+   \vdots  & \vdots  & {} & \vdots   \\
+   {{s}_{n1}} & {{s}_{n2}} & \cdots  & {{s}_{n9}}  \\
+\end{matrix} \right]
+$$
+
+Each row $\alpha$ represents a mean profile for a protein $\alpha$, with each profile consisting of $f=9$ fractions. 
+
+In the Tutorial 1 we actually used a normalized specific amount (NSA), denoted here as $\tilde{s}_{\alpha,l}$ calculated as follows:
+
+
+$$ {{\tilde{s}}_{\alpha ,l}}=\frac{{{s}_{\alpha ,l}}}{\sum\limits_{j=1}^{f}{{{s}_{\alpha ,j}}}} $$
+In some experiments, these are the only values available for using the CPA procedure. However, with appropriate experimental design and execution, using balance sheet analysis (“bookkeeping”), one can estimate the amounts of total protein present in different samples obtained from a set amount of starting material. These include the total protein content of the starting material (designated $t_h$) and the total protein content of any given fraction (designated $t_l$ for fraction $l$). We can use these to calculate the amount of protein in arbitrary units in fraction $l$ derived from a set amount of starting material as $a_l = s_l t_l$. Note that as $a_l$ is in arbitrary units one can do the same calculation using either $s_l$ or ${\tilde s_l}$, as later, these will yield the same values when calculating relative amounts (see below).
+
+To see how this works in `protlocassign`, let us consider the Jadot et al. reference protein profiles which we generate using the `locationProfileSetup` function. As in earlier tutorials, we rename `protNSA_test` as `protNSA` and we tailor the output using the `round` function.
+
+```{r, echo=TRUE, eval=TRUE}
+library(protlocassign)
+data(protNSA_test)
+data(markerListJadot)
+protNSA <- protNSA_test
+refLocationProfilesNSA <- locationProfileSetup(profile=protNSA, 
+                           markerList=markerListJadot, numDataCols=9)
+round(refLocationProfilesNSA, digits=3)
+
+```
+
+
+Here, each row represents the profile $\tilde{s}_l$ for a protein resident solely in a particular cellular compartment. The amount of total protein derived from a set amount of starting material from all fractions in the experiment used for these tutorials is in `totProtAT5`, a vector supplied with the `protassign` package. For convenience we rename it `totProt`.
+
+```{r, echo=TRUE, eval=TRUE}
+data(totProtAT5)
+totProt <- totProtAT5
+round(totProt, digits=3)
+```
+
+We denote these values using a vector $\mathbf{t}= ({t_1},{t_2}, \ldots ,{t_9})$.
+
+As noted above, for protein $\alpha$ in fraction $l$, we have ${{a}_{\alpha ,l}}={{\tilde{s}}_{\alpha ,l}}{{t}_{l}}$. In matrix form,
+
+
+$\mathbf{A}=\widetilde{\mathbf{S}}\cdot\mathrm{diag}(\mathbf{t})=\left[\begin{matrix}{\widetilde{s}}_{11}t_1&{\widetilde{s}}_{12}t_2&\cdots&{\widetilde{s}}_{19}t_9\\{\widetilde{s}}_{21}t_1&{\widetilde{s}}_{22}t_2&\cdots&{\widetilde{s}}_{29}t_9\\\vdots&\vdots&&\vdots\\{\widetilde{s}}_{n1}t_1&{\widetilde{s}}_{n2}t_2&\cdots&{\widetilde{s}}_{n9}t_9\\\end{matrix}\right]$
+
+
+We need this matrix to do the next step, which is to convert to a common scale for all proteins. We do this by normalizing to the amount of protein $\alpha$ in the starting material, which we denote as $a_{\alpha, h}$. If the homogenate is measured directly, this can be calculated from ${\widetilde{s}_{\alpha ,h}}{{t}_{h}}$.
+Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $\widetilde{s}_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions (N, M, L1, L2, P, and  S) are a complete set of differential fractions that represent the starting material, and thus 
+
+$${a_{\alpha ,h}} = \sum\nolimits_{i = 1}^6 {{\tilde{s}_{\alpha ,i}}{t_i}} $$
+and $t_h=\sum_{i=1}^{6}t_i$. Note that this is readily calculated by summing the first six elements of $\mathbf{t}$.
+
+```{r, echo=TRUE, eval=TRUE}
+sum(totProt[1:6])
+```
+
+(The last three "Nyc" columns were derived from L1, so we do not include them in the sum.)
+
+Finally, we normalize amounts in any given fraction to amounts in starting material, which we call the relative amount, designated here as `Acup`, and denote as ${\breve{a}}_{\alpha,l}$
+
+
+
+In our example,
+
+$${\overset{\smile}{a}_{\alpha ,l}} =\frac{a_{\alpha,l}}{a_{\alpha,h}} = \frac{{{s_{\alpha ,l}}{t_l}}}{{{s_{\alpha ,h}}{t_h}}} = \frac{{{s_{\alpha ,l}}{t_l}}}{{\sum\nolimits_{i=1}^6 {{s_{\alpha ,i}}{t_i}} }} = \frac{{{{\tilde s}_{\alpha ,l}}{t_l}}}{{\sum\nolimits_{i = 1}^6 {{{\tilde s}_{\alpha ,i}}{t_i}} }}$$
+
+
+In matrix form, we may write this as: 
+
+
+$\breve{\mathbf{A}}=\mathbf{A}\cdot\mathrm{diag}(1/a_{{\alpha},h})=\left[\begin{matrix}{ \tilde{s}}_{11}t_1/a_{1,h}&{ \tilde{s}}_{12}t_2/a_{1,h}&\cdots&{ \tilde{s}}_{19}t_9/a_{1,h}\\{ \tilde{s}}_{21}t_1/a_{2,h}&{ \tilde{s}}_{22}t_2/a_{2,h}&\cdots&{ \tilde{s}}_{29}t_9/a_{2,h}\\\vdots&\vdots&&\vdots\\{ \tilde{s}}_{n1}t_1/a_{n,h}&{ \tilde{s}}_{n2}t_2/a_{n,h}&\cdots&{ \tilde{s}}_{n9}t_9/a_{n,h}\\\end{matrix}\right]$
+
+ 
+or simply as  ${\breve{\mathbf{A}}} = [\breve{a}_{\alpha ,l}]$.
+
+The function `AcupFromNSA` computes this:
+
+```{r, echo=TRUE, eval=TRUE}
+
+refLocationProfilesAcup <- AcupFromNSA(NSA=refLocationProfilesNSA, NstartMaterialFractions=6, 
+                               totProt=totProt)
+round(refLocationProfilesAcup, digits=4)
+```
+
+The values in `refLocationProfilesAcup` represent in principle the relative amount of a given cellular compartment that ends up in a given centrifugation fraction.
+ 
+## Computation of Relative Specific Amounts from Relative Amounts
+
+When examining the distribution of a given protein in different fractions, it is particularly useful to consider its abundance relative to that of total protein.  We refer to this as a Relative Specific Amount (RSA or $r$), which can be calculated as ${r_{\alpha ,l}} = \breve{a}_{\alpha ,l}/ \breve{t}_l$, where the vector $\breve{\mathbf{t}}=\frac{\mathbf{t}}{t_h}=\frac{\mathbf{t}}{\sum_{1}^{6}t_i}$. 
+For a protein $\alpha$ the RSA in fraction $l$ is given by:
+
+$r_{\alpha,l}=\frac{{\breve{a}}_{\alpha,l}}{{\breve{t}}_l}=\frac{\frac{{\widetilde{s}}_{\alpha,l}t_l}{\sum_{i=1}^{6}{{\widetilde{s}}_{\alpha,i}t_i}}}{\frac{t_l}{\sum_{i=1}^{6}t_i}}=\frac{s_{\alpha,l}\cdot\sum_{i=1}^{6}t_i}{\sum_{i=1}^{6}s_{\alpha,i}t_i}=\frac{{\widetilde{s}}_{\alpha,l}\cdot\sum_{i=1}^{6}t_i}{\sum_{i=1}^{6}{\widetilde{s}}_{\alpha,i}t_i}$
+
+In matrix form, this is $\mathbf{R}=\left[ {{r}_{\alpha ,l}} \right]$.
+
+We can get the RSA matrix from `refLocationProfilesAcup` and `totProt` as follows:
+
+
+```{r, echo=TRUE, eval=TRUE}
+refLocationProfilesRSA <- RSAfromAcup(refLocationProfilesAcup, NstartMaterialFractions=6, totProt=totProt)
+round(refLocationProfilesRSA, digits=3)
+```
+
+
+Note that we can also obtain the RSA transformed data directly from NSA data as described in Tutorial 2:
+
+```{r, echo=TRUE, eval=TRUE}
+refLocationProfilesRSA_2 <- RSAfromNSA(NSA=refLocationProfilesNSA,
+                                NstartMaterialFractions=6, totProt=totProt)
+```
+
+This yields precisely the same values as calculated previously using `locationProfileSetup`.
+
+```{r, echo=TRUE, eval=TRUE}
+identical(refLocationProfilesRSA, refLocationProfilesRSA_2)
+```
+
+Finally, if we normalize an RSA profile so that the rows sum to one, this yields a normalized specific amount profile (see Appendix of main paper). Consider example the matrix `refLocationProfilesRSA`, which contains the RSA-transformed compartment profiles. We normalize the rows using the `apply` function, and then transpose using the `t` function to yield a matrix of the normalized specific amounts; these values are essentially identical to those that we started with in `refLocationProfiles`. This is performed using the function `NSAfromRSA`:
+
+
+```{r, echo=TRUE, eval=TRUE}
+refLocationProfilesNSA_2 <- NSAfromRSA(refLocationProfilesRSA_2)
+```
+
+Note that `refLocationProfilesNSA_2` is not identical to the values obtained previously using the `locationProfileSetup` function with the protein profiles containing NSA data because of internal precision issues, but both are essentially equivalent.
+
+```{r, echo=TRUE, eval=TRUE}
+as.matrix(all.equal(refLocationProfilesNSA_2, refLocationProfilesNSA, 
+                    tolerance=0, countEQ=TRUE))
+```
+
+The available transformation functions are `AcupFromNSA`, `RSAfromAcup`, `RSAfromNSA` (a combination of the previous two), and `NSAfromRSA`. For completeness, we also include the functions `NSAfromAcup` and `AcupFromRSA`. All functions except `NSAfromRSA` require arguments for `NstartMaterialFractions` and `totProt`. These functions allow any profile to be expressed in the form of `NSA`, `Acup`, and `RSA`.
+
+## Simulating proteins resident in multiple subcellular locations
+
+We may simulate data from proteins with multiple residences using the `proteinMix` function. For example, to simulate data from proteins that are distributed in a range of proportions between cytosol and lysosomes, we use this function with relative amounts of their single-compartment profiles. Note that we need to use Acup-transformed data to create the mixtures so that the total amount of the given protein summed across all fractions will be invariant for all mixtures. By default, we vary the proportions by increments of 0.1, but different values can be specified using the argument `increment.prop` (e.g., `increment.prop=0.2` or `increment.prop=0.05`). We specify the mixing locations by the arguments `Loc1=1` and `Loc2=4`, which are the row numbers of the desired compartment profiles in `refLocationProfiles`:
+
+```{r, echo=TRUE, eval=TRUE}
+
+refLocationProfilesAcup <- AcupFromNSA(NSA=refLocationProfilesNSA, 
+                                       NstartMaterialFractions=6, 
+                                       totProt=totProt)
+data.frame(rownames(refLocationProfilesAcup))
+mixCytoLysoAcup <- proteinMix(AcupRef=refLocationProfilesAcup, 
+                              increment.prop=0.1,
+                              Loc1=1, Loc2=4)
+# Note that the default value of increment.prop=0.1. 
+# This does not need to be explicitly 
+#  specified unless a different increment is desired.
+```
+
+
+
+The result is a matrix that contains the Acup values (relative amounts) for the simulated proteins:
+
+```{r, echo=TRUE, eval=TRUE}
+round(mixCytoLysoAcup, digits=3)
+```
+
+Then we can test the CPA algorithm by first converting this mixture data to RSAs:
+
+```{r, echo=TRUE, eval=TRUE}
+mixCytoLysoRSA <- RSAfromAcup(Acup=mixCytoLysoAcup, 
+                              NstartMaterialFractions=6, totProt=totProt)
+
+round(mixCytoLysoRSA, digits=3)
+
+```
+
+Finally, we fit the CPA algorithm to this RSA-transformed, simulated data using the previously generated RSA-transformed marker protein profiles:
+
+```{r, echo=TRUE, eval=TRUE}
+mixCytoLysoCPAfromRSA <- fitCPA(profile=mixCytoLysoRSA,
+                             refLocationProfiles=refLocationProfilesRSA,
+                            numDataCols=9)
+round(mixCytoLysoCPAfromRSA, digits=3)
+```
+
+
+The estimated proportions correspond closely to the proportions used in the simulation (see below).
+
+Plotting these estimates against the “true” distributions of the simulated proteins provides insights into different transformations on the goodness of fit. As an introduction, we first illustrate this using plots of simulated proteins distributed in varying amounts between the cytoplasm and the lysosome with CPA conducted on the RSA-transformed data. We then extend this to simulated proteins distributed cytoplasm and each of the other compartments. In Tutorial 4, we use the simulated mixtures to evaluate the effect of various transformations on the CPA procedure.  
+
+## Plotting mixtures of proteins with transformations
+
+We can use the `mixturePlot` function to evaluate the effect of different data transformations used to represent protein profiles on the compartmental distributions estimated by CPA. The function produces graphical representations by plotting the theoretical distribution (based on simulation parameters, x-coordinate) versus the predicted values (based on CPA, y-coordinate).  
+
+This function also evaluates the prediction error by computing the area separating the predicted and expected protein mixtures via the trapezoidal rule; this is done with the `trapz` function in the `pracma` library, which must have been previously installed. We also need to tell the program which two locations were used to generate the mixtures using `Loc1` and `Loc2`. As our first example, we examine the results CPA using the RSA transformation on simulated proteins distributed between Cyto and Lyso.  
+
+```{r, echo=TRUE, eval=TRUE}
+library(pracma)
+par(mfrow=c(1,1))  # reset window for a single plot
+# The argument increment.prop needs to match the value used  
+#   in creating the mixture using proteinMix. This does
+#   not need to be specified if using the value of 0.1
+mixturePlot(mixProtiProtjCPA=mixCytoLysoCPAfromRSA, 
+            NstartMaterialFractions=6, Loc1=1, Loc2=4,
+            increment.prop=0.1, xaxisLab=TRUE, yaxisLab=TRUE)
+```
+
+Here we see visually that the estimated proportions match the simulated ones. The prediction error, the area separated by the observed and expected CPA estimates, is nearly zero, and is shown in parentheses.
+
+Next, we consider a mixture of Cyto with each of the other seven compartments using RSA-based transformations. We begin by setting up the plot area for a 4 by 2 array of plots. Optionally, to control the size of the window, we may want to explicitly open a window using `windows(height=10, width=7)`. Next we fix one component of the mixture to the first, which is Cyto, and loop over the other 7 subcellular compartments, creating mixtures of the `refLocationProfilesAcup` values. For each case, we transform these mixtures to RSA and obtain CPA mixing proportion estimates from these RSA-transformed mixtures and compute the area-based prediction errors. 
+These values are stored in a data frame `mixErrorMat` which is then renamed to avoid overwriting since multiple mixtures and transformations are being explored.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
+par(mfrow=c(4,2))
+i <- 1
+mixErrorMat <- NULL
+for (j in 2:8) {   
+   # Create the mixture of Cyto (i = 1) with compartment j
+   mixProtiProtjAcup <- proteinMix(Acup=refLocationProfilesAcup, 
+                                   Loc1=i, Loc2=j)
+
+   # Tranform the mixtures to relative specific amounts
+   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtjAcup, 
+                        NstartMaterialFractions=6, totProt=totProt)
+    
+   # Find the constrained proportional assigments (CPA)                 
+   mixProtiProtjCPAfromRSA <- fitCPA(profile=mixProtiProtjRSA,
+                    refLocationProfiles=refLocationProfilesRSA, 
+                    numDataCols=9)
+   
+   # Plot the results, including the area-based error estimate, 
+   #    and collect the area-based errors (errorReturn=TRUE)                         
+    mixResult <- mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA, 
+                             NstartMaterialFractions=6, Loc1=i, Loc2=j, 
+                             increment.prop=0.1, errorReturn = TRUE)
+    mixErrorMat <- rbind(mixErrorMat, mixResult)         
+}
+mixErrorAllCytoRSA <- mixErrorMat
+```
+
+All seven mixtures have essentially zero area-based error, as we expect. We can examine these errors with more precision as follows:
+
+```{r, echo=TRUE, eval=TRUE}
+mixErrorAllCytoRSA
+```
+
+\newpage
+
+# Tutorial 4: More on mixtures and transformations
+
+In this tutorial, we explore the effect of using normalized specific amount (NSA), relative specific amount (RSA), and relative amount (Acup) data, and their log transformations on CPA.  We also discuss the underlying reasons why the different transformations can yield different results, which may be useful in choosing the appropriate transformation for a particular protein distribution. We illustrate using two mixtures: Cyto with Lyso and Cyto with Nuc. We begin by creating the NSA profiles for the reference compartments, which we will use for further transformations and to create mixtures. 
+
+
+## Applying CPA to relative specific amount (RSA), normalized specific amount (NSA), or relative amount (Acup) data derived from simulated mixtures of Cyto and Lyso
+
+For clarity of presentation and to allow the following commands to be used with any data set, we rename `totProtAT5` and `protProfileNSA_test` to `totProt` and `protProfileNSA`, respectively.
+
+```{r, echo=TRUE, eval=TRUE}
+library(protlocassign)
+data(protNSA_test)
+data(totProtAT5)
+protNSA <- protNSA_test
+totProt <- totProtAT5
+```
+
+
+```{r, echo=TRUE, eval=TRUE}
+data(markerListJadot)
+refLocationProfilesNSA <- locationProfileSetup(profile=protNSA, 
+                            markerList=markerListJadot, numDataCols=9)
+refLocationProfilesAcup <- AcupFromNSA(refLocationProfilesNSA, 
+                            NstartMaterialFractions=6, totProt=totProt)
+```
+
+
+Now create markers using refLocationProfilesAcup compartments Cyto (row 1) and Lyso (row 4) in the standard way, and transform the mixtures to relative specific amounts:
+
+```{r, echo=TRUE, eval=TRUE}
+i=1
+j=4
+mixProt1Prot4Acup <- proteinMix(refLocationProfilesAcup, Loc1=i, Loc2=j)
+mixProt1Prot4RSA <- RSAfromAcup(Acup=mixProt1Prot4Acup, 
+                            NstartMaterialFractions=6, totProt=totProt)
+# increment.prop is not specified so we use the default value of 0.1
+
+```
+
+As in Tutorial 3, we display the Acup and RSA profiles for these Cyto-Lyso mixtures:
+
+```{r, echo=TRUE, eval=TRUE}
+round(mixProt1Prot4Acup, digits=3)
+round(mixProt1Prot4RSA, digits=3)
+```
+
+Next, obtain CPA estimates using the RSA-transformed mixtures and RSA-transformed references profiles. We see that the CPA estimates match the proportions we used to create the mixtures:
+
+```{r, echo=TRUE, eval=TRUE}
+refLocationProfilesRSA <- RSAfromNSA(NSA=refLocationProfilesNSA, 
+                          NstartMaterialFractions=6,
+                          totProt=totProt)
+mixProt1Prot4CPAfromRSA <- fitCPA(profile=mixProt1Prot4RSA, 
+                      refLocationProfiles=refLocationProfilesRSA, 
+                      numDataCols=9)
+round(mixProt1Prot4CPAfromRSA, digits=3)
+```
+
+We may obtain the normalized specific amounts transformation of `mixProtiProtjRSA` by using the `NSAfromRSA` function:
+
+```{r, echo=TRUE, eval=TRUE}
+mixProt1Prot4NSA <- NSAfromRSA(mixProt1Prot4RSA)
+round(mixProt1Prot4NSA, digits=3)
+```
+
+We next apply the CPA routine to these normalized specific amount (NSA) profiles:
+
+```{r, echo=TRUE, eval=TRUE}
+
+mixProt1Prot4CPAfromNSA <- fitCPA(profile=mixProt1Prot4NSA,
+                             refLocationProfiles=refLocationProfilesNSA,
+                             numDataCols=9)
+round(mixProt1Prot4CPAfromNSA, digits=3)
+```
+
+Note that the results assign the simulated multi-compartment proteins to the correct Cyto and Lyso compartments, but the estimates of the proportions deviate somewhat from those used to for the simulations.
+
+Now, instead of transforming the Acup mixtures to RSA's or using NSA's, what happens if we just use the Acup mixtures themselves, i.e., the relative amounts? There are significant departures of the CPA estimates, including assignments to  compartments not used in the simulations from the proportions used to create the mixtures:
+
+```{r, echo=TRUE, eval=TRUE}
+mixProt1Prot4CPAfromAcup <- 
+                  fitCPA(profile=mixProt1Prot4Acup,
+                          refLocationProfiles=refLocationProfilesAcup, 
+                         numDataCols=9)
+round(mixProt1Prot4CPAfromAcup, digits=3)
+```
+
+Displaying the Acup values using `refLocationProfilesAcup` helps explain these discrepancies. Note that the three Nyc columns, which are important for classifying lysosomal proteins, are very small, which effectively down-weights their importance in the CPA procedure:
+
+```{r, echo=TRUE, eval=TRUE}
+round(refLocationProfilesAcup, digits=4)
+```
+
+Plots of the CPA estimated vs actual mixture proportions can be generated as described in the previous tutorial.  As before, the x-coordinate represents the theoretical distribution based on simulation parameters and the y-coordinate represents the predicted values based on CPA. The assignment errors are show in parentheses.  
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,3))
+# In the following, the argument increment.prop is not specified so
+#  we use the default value of 0.1
+mixturePlot(mixProtiProtjCPA=mixProt1Prot4CPAfromRSA, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j, 
+            errorReturn = TRUE, subTitle="RSA")
+mixturePlot(mixProtiProtjCPA=mixProt1Prot4CPAfromNSA, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            errorReturn = TRUE, subTitle="NSA")
+mixturePlot(mixProtiProtjCPA=mixProt1Prot4CPAfromAcup, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j, 
+            errorReturn = TRUE, subTitle="Acup")
+
+```
+
+We may obtain only the areas indicating the prediction error by using the `mixtureAreaError` function.
+
+```{r, echo=TRUE, eval=TRUE}
+# As discussed earlier, the argument increment.prop=0.1 does not
+#  need to be specified because it is the default
+#  and is consistent with the previously generated mixtures.
+mixtureAreaError(mixProtiProtjCPA=mixProt1Prot4CPAfromRSA, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j)
+mixtureAreaError(mixProtiProtjCPA=mixProt1Prot4CPAfromNSA, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j)
+mixtureAreaError(mixProtiProtjCPA=mixProt1Prot4CPAfromAcup, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j)
+```
+
+## Applying CPA to log transformations of Cyto and Lyso mixtures
+
+As an alternative, let us apply log2 transformations to the different types of profile data. The log transformation results in a marked improvement for the Acup data and a modest improvement for the NSA data, and poorer results for the RSA data. In all cases, the log transformed data do not provide CPA estimates that are as accurate as were obtained using the RSA transformation alone:
+
+```{r, echo=TRUE, eval=TRUE}
+eps <- 0.001
+
+
+mixProt1Prot4CPAfromRSAlog2 <- fitCPA(profile=log2(mixProt1Prot4RSA + eps), 
+                      refLocationProfiles=log2(refLocationProfilesRSA + eps), 
+                      numDataCols=9)
+round(mixProt1Prot4CPAfromRSAlog2, digits=3)
+
+mixProt1Prot4CPAfromNSAlog2 <- 
+            fitCPA(profile=log2(mixProt1Prot4NSA + eps),
+                refLocationProfiles=log2(refLocationProfilesNSA + eps),
+                numDataCols=9)
+round(mixProt1Prot4CPAfromNSAlog2, digits=3)
+
+mixProt1Prot4CPAfromAcupLog2 <- 
+            fitCPA(profile=log2(mixProt1Prot4Acup + eps),
+              refLocationProfiles=log2(refLocationProfilesAcup + eps),
+              numDataCols=9)
+round(mixProt1Prot4CPAfromAcupLog2, digits=3)
+
+```
+
+Following are plots of the CPA estimated vs actual mixture proportions for simulated proteins where the different profiles (RSA, NSA, and Acup) are log2-transformed.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,3))
+mixturePlot(mixProtiProtjCPA=mixProt1Prot4CPAfromRSAlog2, 
+            NstartMaterialFractions=6,
+            Loc1=i, Loc2=j, errorReturn = TRUE,
+            subTitle="Log2 RSA")
+mixturePlot(mixProtiProtjCPA=mixProt1Prot4CPAfromNSAlog2, 
+            NstartMaterialFractions=6, 
+            Loc1=i, Loc2=j, errorReturn = TRUE,
+            subTitle="Log2 NSA")
+mixturePlot(mixProtiProtjCPA=mixProt1Prot4CPAfromAcupLog2, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            errorReturn = TRUE, subTitle="Log2 Acup")
+```
+
+
+## Applying CPA to RSA, NSA, or Acup data derived from simulated mixtures of Cyto and Nuc
+
+In the previous sections, we showed that one can apply CPA to Cyto-Lyso mixtures using a range of transformations, and we saw that the best results were obtained using RSA values, and the worst results from using relative amounts (Acup transformations). Then we saw that log-transformations of the relative amounts improved the quality of the estimates considerably but decreased accuracy of RSA estimates.
+
+In this section we consider Cyto and Nuc mixtures, which we generate as described above. We shall see that here, Acup-transformed values produce good CPA estimates, just as RSA-transformed values. The reason is that, unlike with Lyso, the Nuc (and Cyto) profiles do not depend on the Nyc portions of the values, and thus the estimated subcellular residence proportions do not suffer from the extremely small Nyc profile values.
+
+Here are the CPA estimates from RSA-transformed profiles:
+
+```{r, echo=TRUE, eval=TRUE}
+i=1  # Cyto
+j=6  # Nuc
+mixProt1Prot6Acup <- proteinMix(refLocationProfilesAcup, Loc1=i, Loc2=j)
+mixProt1Prot6RSA <- RSAfromAcup(Acup=mixProt1Prot6Acup, 
+                          NstartMaterialFractions=6, totProt=totProtAT5)
+
+
+mixProt1Prot6CPAfromRSA <- fitCPA(profile=mixProt1Prot6RSA, 
+            refLocationProfiles=refLocationProfilesRSA, numDataCols=9)
+round(mixProt1Prot6CPAfromRSA, digits=3)
+```
+The simulated proportions are estimated very accurately.
+
+Following Tutorial 3, we may see what happens if we apply the CPA routine to profiles containing  NSA data:
+
+```{r, echo=TRUE, eval=TRUE}
+mixProt1Prot6NSA <- NSAfromRSA(mixProt1Prot6RSA)
+mixProt1Prot6CPAfromNSA <- 
+                    fitCPA(profile=mixProt1Prot6NSA,
+                    refLocationProfiles=refLocationProfilesNSA, 
+                    numDataCols=9)
+round(mixProt1Prot6CPAfromNSA, digits=3)
+```
+
+The estimates of the proportions deviate somewhat from those used to generate the mixtures.
+
+Now do this using the relative amounts for markers (“Acup markers”) and simulated protein mixtures (Acup) instead of RSA-transformed values.
+
+
+```{r, echo=TRUE, eval=TRUE}
+mixProt1Prot6CPAfromAcup <- fitCPA(profile=mixProt1Prot6Acup,
+                             refLocationProfiles=refLocationProfilesAcup, 
+                             numDataCols=9)
+```
+
+Note that, unlike with the Cyto-Lyso mixture, the estimates using Acup profiles of the Cyto-Nuc mixture are very accurate, and superior to those using NSA profiles:
+
+```{r, echo=TRUE, eval=TRUE}
+round(mixProt1Prot6CPAfromAcup, digits=3)
+```
+
+The CPA for these different transformations can be plotted versus the true proportions as before:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,3))
+mixturePlot(mixProtiProtjCPA=mixProt1Prot6CPAfromRSA, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            errorReturn = TRUE, subTitle="RSA")
+mixturePlot(mixProtiProtjCPA=mixProt1Prot6CPAfromNSA, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            errorReturn = TRUE, subTitle="NSA")
+mixturePlot(mixProtiProtjCPA=mixProt1Prot6CPAfromAcup, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            errorReturn = TRUE, subTitle="Acup")
+```
+
+
+## Applying CPA to log transformations of Cyto and Nuc mixtures
+
+Now try a log2 transformation on different types of simulated protein and marker profiles (RSA's, NSA's, and Acup). Note that in all cases, the CPA values using log-transformed data are less accurate than when using untransformed data.
+
+```{r, echo=TRUE, eval=TRUE}
+eps <- 0.001
+
+mixProt1Prot6CPAfromRSAlog2 <- 
+           fitCPA(profile=log2(mixProt1Prot6RSA + eps), 
+                refLocationProfiles=log2(refLocationProfilesRSA + eps),
+                numDataCols=9)
+round(mixProt1Prot6CPAfromRSAlog2, digits=3)
+
+mixProt1Prot6CPAfromNSAlog2 <- 
+           fitCPA(profile=log2(mixProt1Prot6NSA + eps),
+                refLocationProfiles=log2(refLocationProfilesNSA + eps), 
+                numDataCols=9)
+round(mixProt1Prot6CPAfromNSAlog2, digits=3)
+
+
+mixProt1Prot6CPAfromAcupLog2 <- 
+           fitCPA(profile=log2(mixProt1Prot6Acup + eps),
+               refLocationProfiles=log2(refLocationProfilesAcup + eps), 
+               numDataCols=9)
+round(mixProt1Prot6CPAfromAcupLog2, digits=3)
+```
+
+Following are plots of the CPA estimated vs actual proportions using the log2-transformed profiles.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,3))
+mixturePlot(mixProtiProtjCPA=mixProt1Prot6CPAfromRSAlog2, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            errorReturn = TRUE, subTitle="Log2RSA")
+mixturePlot(mixProtiProtjCPA=mixProt1Prot6CPAfromNSAlog2, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            errorReturn = TRUE, subTitle="Log2NSA")
+mixturePlot(mixProtiProtjCPA=mixProt1Prot6CPAfromAcupLog2, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            errorReturn = TRUE, subTitle="Log2Acup")
+```
+
+## Transformation fitting error heatmaps
+
+We may visualize the area-based errors for all pairwise mixtures using the `mixtureHeatMap` function, which requires prior installation of the `plot.matrix` R library. For each pair of compartments, this function first creates the mixtures as described earlier using the `Acup` markers. Then it computes the three transformations we have discussed, as well as the log2 transformations of these. These values are presented as a 2 by 3 array, with the three transformations as columns (RSA, left; NSA, center; Acup, right). The top row uses the original values (identity transformation), and the bottom row uses a log2 transformation of these values. The prediction errors are listed in each box with larger errors indicated by darker colors. These 2 by 3 heat maps are arranged in an upper triangular array, with each entry corresponding to a mixture of the indicated row and column compartments.
+
+This function requires additional packages which should be installed prior to running the `mixtureHeatMap` function:
+
+```
+install.packages(c("plot.matrix", "viridis", "grid", "gridExtra"))
+```
+
+In addition to plotting a heat map, the `mixtureHeatMap` function returns a two by three matrix of total errors, which comprise a sum across all 28 tables, which we write to a variable named `errorMatAll`:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,1))
+errorMatAll <- mixtureHeatMap(Acup=refLocationProfilesAcup, totProt=totProt)
+```
+
+
+We can view these total errors as follows:
+
+```{r, echo=TRUE, eval=TRUE}
+errorMatAll 
+```
+
+Alternatively, we can visualize  `errorMatAll` as a heatmap, with darker colors indicating greater errors:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 2}
+#library(plot.matrix)
+#library("viridis")
+op <- par(mar=c(4,4,1,1))  # save default parameters in variable op
+
+col <- rev(viridis::magma(12))
+plot(errorMatAll, col=col, breaks=seq(0, 12, 1), key=NULL, main="",
+     axis.col=NULL, axis.row=NULL, 
+     xlab="RSA                        NSA                       Acup", 
+     ylab="Log2 Identity", digits=2, cex=2, cex.lab=1.1)
+par(op) # restore default parameters
+
+```
+
+These heatmaps demonstrate that for all combinations of compartments using relative specific amounts without any further log transformation for CPA results in the most accurate estimates of the true mixtures.
+
+## Plotting all pairs of mixtures
+
+We may use the function `mixturePlotPanel` to make these plots for all 8*7/2 = 28 possible pairs of mixtures. The function does this for
+CPA values using different types of mixture profiles, specifying with the argument fitType (e.g., fitType = “RSA”, “NSA” or “Acup”).
+An option is also available to transform either of these using `y = log2(x + eps)`, where `eps` is a small number; by default, `eps = 0.001`, by specifying `log2Transf=TRUE`. The function also can output area-based errors for all 28 mixture pairs by specifying the option `errorReturn = TRUE`. causes the function to return a table of all area-based errors. If specifying this option, we typically write the output to a data frame, which is named `errorAll` in the example below. 
+
+We execute the function as follows: (one may first need to open a 7 by 11 window using the "windows" command):
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 11}
+# If the function produces a figure margins error message, 
+#    open a 7 by 11 window:
+# windows(width=7, height=11)
+
+errorAllRSAlinear <- mixturePlotPanel(refLocationProfilesAcup=
+                                        refLocationProfilesAcup, 
+              totProt=totProt, NstartMaterialFractions=6, errorReturn = TRUE, 
+              fitType="RSA", log2Transf=FALSE)
+```
+
+We then can display a table of the errors.
+
+```{r, echo=TRUE, eval=TRUE}
+errorAllRSAlinear
+```
+
+By summing the third column of `errorAll` (the errors), we obtain a global measure of error. 
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 11}
+sum(errorAllRSAlinear[,3])
+```
+
+
+## Appendix: CPA plots for all combinations of fit type and functional transformation
+
+Here we present code that will produce the remaining combinations of fit type (RSA, NSA, and Acup) and log transformation (True or False). First is RSA with log-transformed values (linear RSA having been plotted previously in the tutorial). 
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 11}
+
+
+
+fitType <- "RSA"
+log2Transf <- TRUE
+
+
+errorAllRSAlog2 <- mixturePlotPanel(refLocationProfilesAcup=
+              refLocationProfilesAcup, totProt=totProt, 
+              NstartMaterialFractions=6, errorReturn = TRUE, 
+              fitType=fitType, log2Transf=log2Transf, eps=0.001)
+
+
+
+fitType <- "NSA"
+log2Transf <- FALSE
+
+errorAllNSAlinear <- mixturePlotPanel(refLocationProfilesAcup=
+                               refLocationProfilesAcup,
+              totProt=totProt, NstartMaterialFractions=6,
+              errorReturn = TRUE, 
+              fitType=fitType, log2Transf=log2Transf)
+
+fitType <- "NSA"
+log2Transf <- TRUE
+
+
+errorAllNSAlog2 <- mixturePlotPanel(refLocationProfilesAcup=
+                   refLocationProfilesAcup, totProt=totProt, 
+                   NstartMaterialFractions=6, errorReturn = TRUE, 
+                   fitType=fitType, log2Transf=log2Transf, eps=0.001)
+
+fitType <- "Acup"
+log2Transf <- FALSE
+
+
+errorAllAcupLinear <- mixturePlotPanel(refLocationProfilesAcup=
+              refLocationProfilesAcup, totProt=totProt, 
+              NstartMaterialFractions=6, errorReturn = TRUE, 
+              fitType=fitType, log2Transf=log2Transf)
+
+fitType <- "Acup"
+log2Transf <- TRUE
+
+
+errorAllAcupLog2 <- mixturePlotPanel(refLocationProfilesAcup=
+              refLocationProfilesAcup, totProt=totProt, 
+              NstartMaterialFractions=6, errorReturn = TRUE, 
+              fitType=fitType, log2Transf=log2Transf, eps=0.001)
+```
+
+If one needs to prepare the plots as pdf files which are written to an external directory,
+first set the working directory, e.g., 
+
+```
+setwd("c:\\temp\\myProteinOutput")
+```
+
+To output the plots to a pdf file, set things up as follows:
+
+```
+pdf(file="CPA assignProts.pdf", width=7, height=11)
+```
+Then issue the desired calls to `mixturePlotsPanel` as above. All plots requested will be written to the same file. Finally, close out the pdf file to complete writing it out:
+
+```
+dev.off()
+```
+
+We may show the pairwise and overall errors for all transformations as follows:
+
+```{r, echo=TRUE, eval=TRUE}
+
+errorAllRSAlinear
+sum(errorAllRSAlinear[,3])
+
+errorAllRSAlog2
+sum(errorAllRSAlog2[,3])
+
+errorAllNSAlinear
+sum(errorAllNSAlinear[,3])
+
+errorAllNSAlog2
+sum(errorAllNSAlog2[,3])
+
+errorAllAcupLinear
+sum(errorAllAcupLinear[,3])
+
+errorAllAcupLog2
+sum(errorAllAcupLog2[,3])
+```
+
+\newpage
+
+# Tutorial 5: Using five classical fractionation channels on CPA
+
+## Introduction and creation of five-channel data
+
+In previous tutorials we investigated the use of all nine TMT-MS2 fractions when performing CPA. In this tutorial, we investigate the performance of CPA using only the five classical differential centrifugation fractions N, M, L, P, and S. We derive the five classical fractions by removing the Nyc fractions and combining L1 and L2 to make the L fraction. We load the `protlocassign` fraction and summarize the full nine-fraction data as follows:
+
+```{r, echo=TRUE}
+library(protlocassign)
+data(protNSA_test)
+dim(protNSA_test)
+```
+
+Next, we convert the data from the original NSA data to the Acup-transformed data, which is the appropriate transformation for combining fractions.
+
+```{r, echo=TRUE}
+data(totProtAT5)
+totProt <- totProtAT5
+protAcup_test_data <- AcupFromNSA(protNSA_test[,1:6],
+                                       NstartMaterialFractions=6, 
+                                       totProt=totProt[1:6])
+```
+
+We complete the conversion to five-channel data as follows:
+
+```{r, echo=TRUE}
+# take the first six fractions:
+protAcupSixTemp <- protAcup_test_data[,1:6]  
+# add L1 and L2 together, and put into L1; then re-name L1 as L
+# make L1 the sum of L1 and L2:
+protAcupFiveTemp <- within(protAcupSixTemp, L1 <- L1+L2) 
+# L is now the name of third columm:
+names(protAcupFiveTemp)[3] <- "L"  
+# drop L2 column (column 4)
+protAcup_5frac <- protAcupFiveTemp[, -4]  
+head(round(protAcup_5frac,3))
+```
+
+
+ We also must create a vector `totProt` with five values, corresponding to
+  N, M, L (=L1+L2), P, S. Here are the original values of total protein in the nine channels:
+  
+```{r, echo=TRUE}
+round(totProt, 3)
+```
+
+Now we complete the calculation:
+
+```{r, echo=TRUE}
+totProtTemp <- totProt
+totProtTemp[3] <- totProt[3] + totProt[4]
+names(totProtTemp)[3] <- "L"
+# remove L2 (component 4) and Nyc values (columns 7, 8, 9)
+totProt_5frac <- totProtTemp[c(-4, -7, -8, -9)]   
+round(totProt_5frac, 3)
+```
+
+## Transformations of the five-channel data and reference profiles
+
+Next we can convert the five-channel Acup data to NSA and also to RSA:
+
+```{r, echo=TRUE}
+protNSA_5frac <- NSAfromAcup(Acup=protAcup_5frac, NstartMaterialFractions=5, 
+                      totProt=totProt_5frac)
+head(round(protNSA_5frac,3))
+
+protRSA_5frac <- RSAfromNSA(NSA=protNSA_5frac,NstartMaterialFractions = 5, 
+                      totProt = totProt_5frac)
+```
+
+We may obtain the three transformations of the reference profiles as follows:
+
+```{r, echo=TRUE}
+data(markerListJadot)
+refLocationProfilesNSA_5frac <- locationProfileSetup(profile=protNSA_5frac, 
+                            markerList=markerListJadot, numDataCols=5)
+refLocationProfilesAcup_5frac <- AcupFromNSA(refLocationProfilesNSA_5frac, 
+                            NstartMaterialFractions=5, totProt=totProt_5frac)
+refLocationProfilesRSA_5frac <- RSAfromNSA(refLocationProfilesNSA_5frac, 
+                            NstartMaterialFractions=5, totProt=totProt_5frac)
+
+round(refLocationProfilesNSA_5frac, 3)
+round(refLocationProfilesRSA_5frac, 3)
+round(refLocationProfilesAcup_5frac, 3)
+```
+
+We then generate profile plots:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
+
+loc.list <- rownames(refLocationProfilesRSA_5frac)
+n.loc <- length(loc.list)
+par(mfrow=c(4,2))
+for (i in 1:n.loc) {
+  markerProfilePlot(refLoc=loc.list[i], profile=protRSA_5frac,
+                    markerList=markerListJadot,
+                    refLocationProfiles=refLocationProfilesRSA_5frac, 
+                    ylab="RSA")
+}
+```
+
+## Mixture simulations using five-channel data
+
+One can generate any desired mixture and transformation by adjusting values of i and j.
+
+
+```{r, echo=TRUE}
+
+i=1  #Cyto
+j=2  #ER
+mixProtiProtj12Acup_5frac <- proteinMix(refLocationProfilesAcup_5frac, Loc1=i, Loc2=j)
+mixProtiProtj12RSA_5frac <- RSAfromAcup(Acup=mixProtiProtj12Acup_5frac, 
+                            NstartMaterialFractions=5, totProt=totProt_5frac)
+mixProtiProtjCPAfromRSA12_5frac <- fitCPA(profile=mixProtiProtj12RSA_5frac,
+                            refLocationProfiles=refLocationProfilesRSA_5frac,
+                            numDataCols=5)
+
+i=1  #Cyto
+j=3  #Golgi
+mixProtiProtj13Acup_5frac <- proteinMix(refLocationProfilesAcup_5frac, Loc1=i, Loc2=j)
+mixProtiProtj13RSA_5frac <- RSAfromAcup(Acup=mixProtiProtj13Acup_5frac, 
+                                  NstartMaterialFractions=5, totProt=totProt_5frac)
+mixProtiProtjCPAfromRSA13_5frac <- fitCPA(profile=mixProtiProtj13RSA_5frac,
+                                 refLocationProfiles=refLocationProfilesRSA_5frac,
+                                 numDataCols=5)
+i=1  #Cyto
+j=4  #Lyso
+mixProtiProtj14Acup_5frac <- proteinMix(refLocationProfilesAcup_5frac, Loc1=i, Loc2=j)
+mixProtiProtj14RSA_5frac <- RSAfromAcup(Acup=mixProtiProtj14Acup_5frac, 
+                            NstartMaterialFractions=5, totProt=totProt_5frac)
+mixProtiProtjCPAfromRSA14_5frac <- fitCPA(profile=mixProtiProtj14RSA_5frac,
+                                refLocationProfiles=refLocationProfilesRSA_5frac,
+                                numDataCols=5)
+
+i=1  #Cyto
+j=5  #Mito
+mixProtiProtj15Acup_5frac <- proteinMix(refLocationProfilesAcup_5frac, Loc1=i, Loc2=j)
+mixProtiProtj15RSA_5frac <- RSAfromAcup(Acup=mixProtiProtj15Acup_5frac, 
+                            NstartMaterialFractions=5, totProt=totProt_5frac)
+mixProtiProtjCPAfromRSA15_5frac <- fitCPA(profile=mixProtiProtj15RSA_5frac,
+                                refLocationProfiles=refLocationProfilesRSA_5frac,
+                                numDataCols=5)
+
+i=1  #Cyto
+j=6  #Nuc
+mixProtiProtj16Acup_5frac <- proteinMix(refLocationProfilesAcup_5frac, Loc1=i, Loc2=j)
+mixProtiProtj16RSA_5frac <- RSAfromAcup(Acup=mixProtiProtj16Acup_5frac, 
+                            NstartMaterialFractions=5, totProt=totProt_5frac)
+mixProtiProtjCPAfromRSA16_5frac <- fitCPA(profile=mixProtiProtj16RSA_5frac,
+                                refLocationProfiles=refLocationProfilesRSA_5frac,
+                                numDataCols=5)
+i=1  #Cyto
+j=7  #Perox
+mixProtiProtj17Acup_5frac <- proteinMix(refLocationProfilesAcup_5frac, Loc1=i, Loc2=j)
+mixProtiProtj17RSA_5frac <- RSAfromAcup(Acup=mixProtiProtj17Acup_5frac, 
+                            NstartMaterialFractions=5, totProt=totProt_5frac)
+mixProtiProtjCPAfromRSA17_5frac <- fitCPA(profile=mixProtiProtj17RSA_5frac,
+                                refLocationProfiles=refLocationProfilesRSA_5frac,
+                                numDataCols=5)
+
+i=1  #Cyto
+j=8  #PM
+mixProtiProtj18Acup_5frac <- proteinMix(refLocationProfilesAcup_5frac, Loc1=i, Loc2=j)
+mixProtiProtj18RSA_5frac <- RSAfromAcup(Acup=mixProtiProtj18Acup_5frac, 
+                            NstartMaterialFractions=5, totProt=totProt_5frac)
+mixProtiProtjCPAfromRSA18_5frac <- fitCPA(profile=mixProtiProtj18RSA_5frac,
+                             refLocationProfiles=refLocationProfilesRSA_5frac,
+                            numDataCols=5)
+```
+
+
+Now we can plot all simulations for mixing Cyto with each of the other seven compartments.   Note that as before, the x-coordinate represents the theoretical distribution based on simulation parameters and the y-coordinate represents the predicted values based on CPA. The assignment errors are shown in parentheses.  
+
+We see that CPA performs well except for Cyto-Lyso and Cyto-PM:
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
+
+#library(pracma)   # for trapz function
+par(mfrow=c(2,4))
+
+mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA12_5frac,
+            NstartMaterialFractions=5, Loc1=1, Loc2=2,
+            errorReturn = TRUE, subTitle="RSA")
+
+
+mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA13_5frac,
+            NstartMaterialFractions=5, Loc1=1, Loc2=3,
+            errorReturn = TRUE, subTitle="RSA")
+
+mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA14_5frac,
+            NstartMaterialFractions=5, Loc1=1, Loc2=4,
+            errorReturn = TRUE, subTitle="RSA")
+
+mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA15_5frac,
+            NstartMaterialFractions=5, Loc1=1, Loc2=5,
+            errorReturn = TRUE, subTitle="RSA")
+
+mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA16_5frac,
+            NstartMaterialFractions=5, Loc1=1, Loc2=6,
+            errorReturn = TRUE, subTitle="RSA")
+
+mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA17_5frac,
+            NstartMaterialFractions=5, Loc1=1, Loc2=7,
+            errorReturn = TRUE, subTitle="RSA")
+
+
+mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA18_5frac,
+            NstartMaterialFractions=5, Loc1=1, Loc2=8,
+            errorReturn = TRUE, subTitle="RSA")
+
+```
+As described in the previous tutorial, we can look at a heatmap of the errors for the different pairwise mixtures and transformations.   As a reminder, these values are presented as a 2 by 3 array, with the three transformations as columns (RSA, left; NSA, center; Acup, right). The top row uses the original values (identity transformation), and the bottom row uses a log2 transformation of these values. The prediction errors are listed in each box with larger errors indicated by darker colors. CPA on mixtures involving Cyto and Lyso or PM have the highest error rates. The errors are reduced for these mixtures when conducting CPA on log-transformed NSA profiles but this has adverse effects on the fit for other compartments (see below, Appendix).   
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
+#install.packages(c("plot.matrix", "viridis", "grid", "gridExtra"))
+
+par(mfrow=c(1,1))
+errorMatAll <- mixtureHeatMap(Acup=refLocationProfilesAcup_5frac, 
+                        totProt=totProt_5frac, NstartMaterialFractions=5)
+
+```
+
+We can also either print out overall errors (i.e., sum of all errors for each combination of data transformation method), or, alternatively, generate a heatmap of the overall errors.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 2}
+errorMatAll
+#library(plot.matrix)
+#library("viridis")
+op <- par(mar=c(4,4,1,1))  # save default parameters in variable op
+
+col <- rev(viridis::magma(16))
+library(plot.matrix)
+plot(errorMatAll, col=col, breaks=seq(0, 15, 1), key=NULL, main="",
+     axis.col=NULL, axis.row=NULL, 
+     xlab="RSA                        NSA                       Acup", 
+     ylab="Log2 Linear", digits=2, cex=2, cex.lab=1.1)
+par(op) # restore default parameters
+
+```
+
+## Restricted constrained proportional assignment
+
+From the examples above, our modeling shows that `fitCPA` does not report the correct assignment for some of the simulated binary mixtures from a five-fraction differential centrifugation experiment.  To investigate this further, we have conducted modeling where we restrict the CPA algorithm to only assign weights to specified subsets of compartments.  In the following code, we examine the effect of restricting CPA to fit a simulated protein with a 50:50 distribution between Cyto and Lyso. We have already created this earlier in this tutorial as the sixth entry in the data frame `mixProtiProtj14RSA` and create a new one-row data frame that only contains this simulated protein.
+
+```{r, echo=TRUE}
+
+data.frame(rownames(mixProtiProtj14RSA_5frac))
+mixCyto50Lyso50RSA_5frac <- mixProtiProtj14RSA_5frac[6,]
+
+```
+
+In our first example, we force the algorithm to only assign positive weights to Cyto and Lyso, holding the remaining weights fixed at zero.  We do this using the `fitCPA` function where the optional parameter `ind.vary` specifies the row numbers for the compartments whose proportions are allowed to vary (Cyto=1, Lyso=4) with the remaining compartment proportions fixed at zero. The option `minVal=TRUE` causes the value of the sum of squares goodness of fit (`value`) to be printed. From the output we see that the CPA routine with these constraints correctly reports the distribution of the simulated protein. 
+
+```{r, echo=TRUE}
+mixCyto50Lyso50CPAfromRSAforced <- fitCPA(profile= mixCyto50Lyso50RSA_5frac,
+                            refLocationProfiles=refLocationProfilesRSA_5frac,
+                            numDataCols=5, ind.vary=c(1,4), minVal=TRUE)
+round(mixCyto50Lyso50CPAfromRSAforced, digits=4)
+```
+
+As a second example, we allow positive weights to only two of the eight compartments at a time as described above, cycling through all possible pairs of compartments.   Here we introduce a new function, `fCPAsubsets`, that automates this procedure, with an argument `nCPAcomparts` that specifies the number of compartments allowed to vary in each cycle.  Note that when we specify `nCPAcomparts=2` for eight compartments, there are 8 choose 2 = 28 possible pairs. The output is in a data frame that contains each of the assignments and goodness of fit values, sorted by the parameter `value`.  Here, the top CPA assignment has a goodness of fit value markedly better than the others and gives the correct assignment between Cyto and Lyso.  
+
+```{r, echo=TRUE}
+mixCyto50Lyso50CPAfromRSApairs <- 
+                       fCPAsubsets(profile= mixCyto50Lyso50RSA_5frac,
+                       refLocationProfiles=refLocationProfilesRSA_5frac,
+                       numDataCols=5,nCPAcomparts=2)
+round(mixCyto50Lyso50CPAfromRSApairs, digits=4)
+```
+
+It is also possible to consider other fixed combinations. For example, `nCPAcomparts=3` would cycle through 8 choose 3 = 56 combinations where three compartment proportions are allowed to vary with the remaining five fixed at zero. As a final example we consider all 2^8 - 1 = 255 possible subsets of compartments and conduct CPA using each of these subsets.  In the code below, we successively set `nCPAcomparts` equal to 1, 2, 3…, 8 and create a data frame that contains the estimated proportions and goodness of fit parameter values. We then sort by the parameter `value` and observe that many CPA assignments are nearly as good as the top assignment.
+
+```{r, echo=TRUE}
+mixCyto50Lyso50CPAfromRSAallSubsets<- NULL
+for (kk in 1:8) {
+   temp  <- fCPAsubsets(profile=mixCyto50Lyso50RSA_5frac,
+                              refLocationProfiles=refLocationProfilesRSA_5frac,
+                              numDataCols=5, nCPAcomparts=kk)
+   mixCyto50Lyso50CPAfromRSAallSubsets <- 
+                       rbind(mixCyto50Lyso50CPAfromRSAallSubsets, temp)
+}
+# sort dataframe by the variable “value” by creating an intermediate 
+#   list of indices "ord_fit".
+ord_fit <- order(mixCyto50Lyso50CPAfromRSAallSubsets$value)
+mixCyto50Lyso50CPAfromRSAallSubsetsOrd <- 
+         mixCyto50Lyso50CPAfromRSAallSubsets[ord_fit,]
+round(head(mixCyto50Lyso50CPAfromRSAallSubsetsOrd), 3)
+```
+
+
+We may plot the goodness of fit statistic `value` and the CPA assignment proportions for Cyto and Lyso versus model number as follows, with the best fitting models first. This plot shows that the goodness of fit statistic is extremely low for a large number of models:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 5}
+modelVals <- 1:255
+par(mfrow=c(1,1))  # reset the plot space
+plot(mixCyto50Lyso50CPAfromRSAallSubsetsOrd$value ~ modelVals, 
+     xlab="Model id", ylab="Goodness of fit value", las=1)
+```
+
+In the following plot we show the CPA estimates for Cyto and Lyso for all models. Even for the best fitting models (with id numbers 1 to about 90), the CPA estimates vary quite a lot.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 5}
+
+par(mfrow=c(1,1))  # reset the plot space
+plot(mixCyto50Lyso50CPAfromRSAallSubsetsOrd$Lyso ~ modelVals, xlab="Model id", 
+     ylab="CPA proortion", type="n", ylim=c(0, 1.1), las=1)
+
+points(mixCyto50Lyso50CPAfromRSAallSubsetsOrd$Lyso ~ modelVals, pch=4, 
+       col="darkgreen", cex=1.5)
+points(mixCyto50Lyso50CPAfromRSAallSubsetsOrd$Cyto ~ modelVals, pch=1, col="red")
+legend(x="topleft", legend=c("Cyto proportion", "Lyso proportion"),
+       pch=c( 1, 4), col=c("red", "darkgreen"))
+```
+
+From this it is clear that the model is over-parameterized with multiple models that fit nearly as well yet give inaccurate CPA estimates. Further study of the properties of estimation methods when multiple models fit equally well is warranted.
+
+## Appendix:  Plots of CPA assignments of all two-compartent simulated proteins using linear and log RSA, NSA, and Acup data 
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
+
+
+errorAllRSAlinear_5frac <- mixturePlotPanel(refLocationProfilesAcup=
+                              refLocationProfilesAcup_5frac,
+                              totProt=totProt_5frac, NstartMaterialFractions=5, 
+                              errorReturn = TRUE,
+                              fitType="RSA", log2Transf=FALSE)
+
+```
+
+
+The mixing simulations indicate that for mixtures involving Lyso or PM, there is a poor fit.
+
+Analysis of pairwise simulations using log2-transformed RSA profiles as well as NSA and Acup profiles (with and without log2 transformations) are displayed below.  Overall, the best results are obtained  using log-transformed NSA data. Here, we see that pairwise mixtures involving Lyso and PM are improved compared to the fits with untransformed RSA profiles but many other combinations involving Nuc and ER are worsened:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
+
+errorAllRSAlog2_5frac <- mixturePlotPanel(refLocationProfilesAcup=
+                                    refLocationProfilesAcup_5frac,
+                                    totProt=totProt_5frac, 
+                                    NstartMaterialFractions=5, 
+                                    errorReturn = TRUE,
+                                    fitType="RSA", log2Transf=TRUE)
+
+
+errorAllNSAlinear_5frac <- mixturePlotPanel(refLocationProfilesAcup=
+                                    refLocationProfilesAcup_5frac,
+                                    totProt=totProt_5frac, 
+                                    NstartMaterialFractions=5, 
+                                    errorReturn = TRUE,
+                                    fitType="NSA", log2Transf=FALSE)
+
+errorAllNSAlog2_5frac <- mixturePlotPanel(refLocationProfilesAcup=
+                                    refLocationProfilesAcup_5frac,
+                                    totProt=totProt_5frac, 
+                                    NstartMaterialFractions=5, 
+                                    errorReturn = TRUE,
+                                    fitType="NSA", log2Transf=TRUE)
+
+errorAllAcupLinear_5frac <- mixturePlotPanel(refLocationProfilesAcup=
+                                    refLocationProfilesAcup_5frac,
+                                    totProt=totProt_5frac, 
+                                    NstartMaterialFractions=5, 
+                                    errorReturn = TRUE,
+                                    fitType="Acup", log2Transf=FALSE)
+
+errorAllAcupLog2_5frac <- mixturePlotPanel(refLocationProfilesAcup=
+                                    refLocationProfilesAcup_5frac,
+                                    totProt=totProt_5frac, 
+                                    NstartMaterialFractions=5, 
+                                    errorReturn = TRUE,
+                                    fitType="Acup", log2Transf=TRUE)
+
+
+```
+
+If desired, these plots of pairwise mixtures may also be saved as pdf files as described in Tutorial 4.
+
+Finally, we present the pairwise and overall errors for log2 RSA (errors for identity RSA are reported above), identity and log2 NSA, and identity and log2 Acup:
+
+```{r, echo=TRUE}
+
+errorAllRSAlinear_5frac 
+sum(errorAllRSAlinear_5frac[,3])
+
+errorAllRSAlog2_5frac
+sum(errorAllRSAlog2_5frac[,3])
+
+errorAllNSAlinear_5frac
+sum(errorAllNSAlinear_5frac[,3])
+
+errorAllNSAlog2_5frac
+sum(errorAllNSAlog2_5frac[,3])
+
+errorAllAcupLinear_5frac
+sum(errorAllAcupLinear_5frac[,3])
+
+errorAllAcupLog2_5frac
+sum(errorAllAcupLog2_5frac[,3])
+```
+
+These can also be saved as tables as described in Tutorial 4.
+
+\newpage
+
+# Tutorial 6: Working with spectral-level data
+
+This package contains functions to identify outlier spectra and peptides and then to compute weighted averages of the spectral profiles to produce a single profile for each protein. Before we describe how to use these functions, we must cover some preliminary steps needed to use them.
+
+Start by installing the devtools package from CRAN, by typing:
+
+```
+install.packages("devtools")
+```
+
+If not yet installed, install the `protlocassign` package from the github repository by typing
+
+```
+devtools::install("protlocassign")
+<!-- BiocManager::install("protlocassign") -->
+```
+
+This will make the programs and data sets available, as well as installing needed libraries.
+
+The package requires that you attach these libraries:
+
+
+```{r, echo=TRUE}
+library(outliers)
+library(lme4)
+```
+
+
+These libraries include the `lme4` package, which implements a set of routines for working with nested data. In this case, this specifically applies to the nesting of spectra within peptides and peptides within proteins. The `outliers` package implements a score-based outlier detection routine, which is one option we provide.
+
+Finally, be sure to install `BiocParallel` for parallel computing as described in Tutorial 1.
+
+The package `protlocassign` is required:
+
+```{r, echo=TRUE}
+library(protlocassign)
+```
+
+## Spectral-level data file structure
+
+In this section we describe how to access the spectral-level data from the AT5-TMT2 experiment described in Tannous et al. 2020. The instructions here also apply to reading in another data set of interest.
+
+The data file must have the following structure.  For each spectrum, the first and second columns must be a protein and peptide identifier, the latter of which also contains the protein identifier in the first part of the field. The next columns can contain ancillary information (e.g., a unique spectral identifier, the position of a peptide within a protein, etc) followed by NSA profiles. Finally, the last two columns contain unique labels for each protein and peptide.  We have included an embedded spectral data set, `spectraNSA_test`, that corresponds to `protNSA_test`.
+
+```{r, echo=TRUE}
+data(spectraNSA_test)
+str(spectraNSA_test, strict.width="cut", width=65)
+```
+
+We can display the ancillary text information and the NSA profiles with numeric identifiers separately. Note that the row names are derived from the original full spectral data set (see below).
+
+```{r, echo=TRUE}
+head(spectraNSA_test[,1:5])
+head(round(spectraNSA_test[,-(1:5)], digits=3))
+```
+
+In many cases, data will not be in the correct form, but a basic requirement is that the first two columns contain protein and peptide identifiers, the next series of columns contain annotation data, and the final series of columns contains NSA profiles for each spectrum.   As an example, we show the embedded file `QuantPSM_test` which contains data in a different format. Here we show the structure of `QuantPSM_test`: 
+
+```{r, echo=TRUE}
+data(QuantPSM_test)
+str(QuantPSM_test, strict.width="cut", width=65)
+```
+
+Note that the protein names (which are in column 1) are prepended by a single quote (this prevents Excel from interpreting some protein names as dates). These may be removed by using the sub function to substitute the initial quote (denoted by “^’”) with an empty character (““) as shown here:
+
+```{r, echo=TRUE}
+QuantPSM_test2 <- QuantPSM_test
+QuantPSM_test2[,1] <- sub("^'", "", QuantPSM_test[,1])
+```
+
+The function `proteinDataPrep` is available to aid in formatting asuch a file into the required form. This takes input data, sorts it by the first and second columns (which are renamed prot and peptide, the latter being a concatenation of the protein name and peptide sequence), appends all remaining columns (retaining their names), and generates a unique numerical ID for prot and peptide. We specify numRefCols=5 because that is the number of columns immediately preceding the profile data, and numDataCols=9 because that is the number of fractions in each profile.
+
+```{r, echo=TRUE}
+spectraNSA_test2 <- proteinDataPrep(QuantPSM_test2, numRefCols=5,
+                                  numDataCols=9)
+str(spectraNSA_test2, strict.width="cut", width=65)
+```
+
+We show that this newly-created data frame is equivalent to `spectraNSA_test`, which is distributed with the `protlocassign` package:
+
+```{r, echo=TRUE}
+data(spectraNSA_test)
+all.equal(spectraNSA_test, spectraNSA_test2)
+```
+
+If the full Tannous AT5 TMT-MS2 data are desired, they may be downloaded from an external file stored on
+the MassIVE repository. The required code is as follows:
+
+```
+urlQuantPSM <- "https://massive.ucsd.edu/ProteoSAFe/DownloadResultFile?file=f.MSV000083848/updates/2022-02-10_ablatannous_094fb41d/quant/QuantPSM.csv&forceDownload=true"
+QuantPSM <- read.csv(urlQuantPSM)
+str(QuantPSM, strict.width="cut", width=65)
+```
+
+In this file the protein names (which are in column 1) are prepended by a single quote as they were in the `QuantPSM_test`, and these may be removed as described above.
+
+For the remainder of this tutorial, we use spectraNSA_test and  we may simplify the name as follows:
+
+```{r, echo=TRUE}
+data(spectraNSA_test)
+spectraNSA <- spectraNSA_test
+```
+
+If desired, the full spectral data set (or any other properly formatted spectral data set) could also be renamed `spectraNSA` and used for all subsequent operations.
+
+Note that in some cases, one may want to change the peptide identifier to include additional information other than the actual sequence such as presence of post-translational modifications.  In this case, one would create a new variable `PepMod` prior to running `proteinDataPrep`, and then insert that new column after the first column, which contains the protein name.
+
+Note that in `spectraNSA`, the first five columns in the data frame contain information associated with the spectra assignment (protein identifier, peptide identifier, unique spectral identifier, location of peptide in protein, and post-translational/chemical modifications), while the next nine columns contain normalized specific amount data. The final two columns contain numbered lists of distinct proteins and peptides; these two columns are needed by the outlier detection functions described in the next section. 
+
+
+## Removal of outliers
+
+The first step is an outlier screen, which is performed at the spectrum level. For each spectrum, the normalized specific amount for each of the nine fractions is first log2 transformed via $y=log2(c+\epsilon)$ , where $\epsilon$ is an estimate of the background intensity in the abundance estimate $c$. We estimated $\epsilon$ as the median of the normalized specific amount of an isobaric labeling channel that lacks the bacterial standard DrR57, which is absent in mammalian cells, and which was added to all other channels. For the TMT-MS2 experiment we found $\epsilon = 0.029885$. The package provides a choice of two different outlier rejection methods that can be invoked to process the data. The “boxplot” method rejects any value that exceeds a specified multiple of the interquartile range below the first or above the third quartile. This method was used in Tannous et al. (2020) using three times the interquartile range, which we invoke here by specifying `outlierMeth="boxplot"` and `range=3`. The “scores” method used in Jadot et al (2017) calculates normal scores (differences between each value and the mean of those values, divided by their standard deviation) and rejects values in the tails of a standard normal distribution for a specified percentile, such as 0.99. It may be invoked by specifying `outlierMeth="scores"` and `proba=0.99`. Note that the outlier rejection procedure is conducted on each channel, and the number of outliers for each spectrum are reported in the variable `outlier.num.spectra`, which can range from zero (no outliers) to the number of fractions (in this case 9). This process is repeated for every peptide from every protein. We reject any spectrum where `outlier.num.spectra > 0`.
+
+We first process the data to identify outliers when grouping spectra to peptides using the function `outlierFind` and specifying that the outlier level is "peptide", meaning that profiles with outlier spectra within peptides (accepting all peptides unless they are composed entirely of spectra with outliers) will be flagged. The arguments `numRefCols = 5` and `numDataCols = 9` are used to identify position of the nine-element profile in the data frame.  The argument `randomError=TRUE` (which is the default) specifies that a small random number (uniform distribution ranging from zero to `eps`) will be added to profile elements that take the value zero. This addresses a problem that arises when there are a large number of zero-valued elements, i.e., both the first and third quartile, in which case the interquartile range will be zero. Without adding these random small amounts, too many "outliers" would be detected. We  specify a random number seed `setSeed` so that the results are exactly reproducible. (The `setSeed` parameter is ignored if cpus=1; in that case, use the `set.seed` function if reproducibility is required.) Note that routines to identify outliers with our example data set will take several minutes to complete. When the option `cpus` is set to 2 or greater the function uses the `BiocParallel` library from Bioconductor to carry out parallel processing. If `cpus=1` then no parallel processing is done. The following code will install the package if it is not already present:
+
+
+```
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+if (!require("BiocParallel", quietly = TRUE)) 
+    BiocManager::install("BiocParallel")
+```
+
+
+```{r, echo=TRUE}
+eps <- 0.029885209
+library(BiocParallel)
+flagSpectraBox <- outlierFind(protClass=spectraNSA, 
+              outlierLevel="peptide", numRefCols=5, numDataCols=9, 
+              outlierMeth="boxplot", range=3, eps=eps, 
+              randomError=TRUE, setSeed=17356, cpus=4)
+```
+
+Alternatively, we can specify using the "scores" method as follows. Note that the argument "range" is only used when `outlierMeth="boxplot"`, and ignored otherwise. Similarly, the "proba" argument is only used when `outlierMeth="scores"`
+
+```{r, echo=TRUE}
+flagSpectraScore <- outlierFind(protClass=spectraNSA, 
+                outlierLevel="peptide", numRefCols=5, numDataCols=9, 
+                outlierMeth="scores", proba=0.99,
+                eps=eps, randomError=TRUE, setSeed=27681, cpus=4)
+```
+
+We then examine the output files from the boxplot and scores methods:
+
+```{r, echo=TRUE}
+str(flagSpectraBox, strict.width="cut", width=65)
+str(flagSpectraScore, strict.width="cut", width=65)
+```
+
+We can determine the total number of spectra as well as the number of acceptable (e.g. non-outlier) and outlier spectra for both methods using the following statements:
+
+```{r, echo=TRUE}
+length(flagSpectraBox$outlier.num.spectra)    # total number of spectra
+sum(flagSpectraBox$outlier.num.spectra == 0)  # number of acceptable spectra
+sum(flagSpectraBox$outlier.num.spectra != 0)  # number of outlier spectra
+```
+
+Similarly, we can determine the total number of spectra and the number of acceptable spectra for the scores method using the following statements:
+
+```{r, echo=TRUE}
+length(flagSpectraScore$outlier.num.spectra)    # total number of spectra
+sum(flagSpectraScore$outlier.num.spectra == 0)  # number of acceptable spectra
+sum(flagSpectraScore$outlier.num.spectra != 0)  # number of outlier spectra
+```
+
+Note that in both examples shown above, the `randomError` argument was used (`randomError=TRUE`). The reason for invoking this argument is illustrated in the two examples below where we set the argument to `False` or `True` when we use the boxplot method with a very large range (`range=110`) where we intuitively would expect that there would be very few outliers.  However, if we use the `randomError=FALSE` argument we find that there are 56 outliers:
+
+```{r, echo=TRUE}
+flagSpectraBoxRange110ranErrF <- outlierFind(protClass=spectraNSA, 
+              outlierLevel="peptide", numRefCols=5, numDataCols=9, 
+              outlierMeth="boxplot", range=110, eps=eps, 
+              randomError=FALSE, setSeed=NULL, cpus=4)
+sum(flagSpectraBoxRange110ranErrF$outlier.num.spectra != 0)
+```
+
+We have identified 2 outliers because, as discussed above, there are some peptides with enough 0 values that the interquartile range is 0. We can correct this by specifying `randomError=TRUE`, which reduces the number of outliers.  Note in the example below there are no outliers. With repeated runs of `outlierFind`, unless the same random number seed is set, the random error will change, which will result in slightly varying outcomes.
+
+```{r, echo=TRUE}
+flagSpectraBoxRange110ranErrT <- outlierFind(protClass=spectraNSA, 
+              outlierLevel="peptide", numRefCols=5, numDataCols=9, 
+              outlierMeth="boxplot", range=110, eps=eps, 
+              randomError=TRUE, setSeed=652908, cpus=4)
+sum(flagSpectraBoxRange110ranErrT$outlier.num.spectra != 0)
+```
+
+The procedure described is useful in eliminating outlying spectra for estimates of peptide profiles.  The next step is to create mean profiles for each peptide, and also to identify outlying peptide profiles.    
+
+## Compute means for each protein-peptide combination
+
+The function `profileSummarize` with option `GroupBy="peptideId"` computes the mean profile of each peptide, eliminating spectra that have been identified as outliers. The input data, `flagSpectraBox` contains six reference columns (see above), specified by `numRefCols=6`. A portion of these can be kept and carried over to the output file, but note that since the function here is producing a profile for each peptide from its relevant component spectra, some of the reference columns from the input data may not be appropriate.  Here, the argument `refColsKeep=c(1,2,4)` causes the function to retain reference columns 1, 2, and 4, which correspond to "prot", "peptide", and "PeptidesStartPositionInProtein". If a field is kept which has multiple values across all spectra that contribute to a given peptide, only the single value from the first of these spectra is used.  The argument `refColsKeep` is only used in the case where `GroupBy` is set to `peptideId`, and if not specified, the default is to keep only the first two columns. We use the argument `outlierExclude="spectra"` to indicate that, when computing mean profiles, we exclude spectra that are identified as outliers within their respective peptides. Note that in the output, `Nspectra` reports the number of spectra (in this case, all non-outlier spectra) used to calculate the mean peptide profile.
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+pepProfiles <- profileSummarize(protsCombineCnew=flagSpectraBox,
+                numRefCols=6, numDataCols=9, refColsKeep=c(1,2,4),eps=eps,
+                GroupBy="peptideId", outlierExclude="spectra", cpus=4)
+str(pepProfiles, strict.width="cut", width=65)
+```
+
+Next, using this output, we use the function `outlierFind` to identify peptide outliers within proteins. We do this by specifying `outlierLevel` to be "protein" and do not need to specify that we use the default boxplot method with `range=3` and the `randomError=TRUE`. Note that in this procedure, all peptides in a given protein are weighted equally, regardless of how many non-outlier spectra are used to determine the average peptide profile. 
+
+```{r, echo=TRUE}
+flagPepsBox <- outlierFind(protClass=pepProfiles,            
+                    outlierLevel="protein", 
+                    numRefCols=3, numDataCols=9, eps=eps,
+                    setSeed=823537, cpus=4)
+str(flagPepsBox, strict.width="cut", width=65)
+```
+
+We determine the total number of peptides and the number of acceptable and outlier peptides using the following statements:
+
+```{r, echo=TRUE}
+length(flagPepsBox$outlier.num.peptides)
+sum(flagPepsBox$outlier.num.peptides == 0)
+sum(flagPepsBox$outlier.num.peptides != 0)
+```
+
+We can now merge the indicator of peptide outlier status into the full spectral level file. Here, we create a new data frame, `flagSpectraPeps`, by adding `outlier.num.peptides` (column 4 from `flagPepsBox`) to  `flagSpectraBox`, merging on pepId (column 17 from `flagPepsBox`). 
+
+```{r, echo=TRUE}
+data.frame(names(flagPepsBox))
+flagSpectraPeps <- merge(x=flagSpectraBox, 
+                        y=flagPepsBox[,c(4,17)], by="pepId")
+str(flagSpectraPeps,  strict.width="cut", width=65)
+```
+
+We determine the number of spectra in the full data set and the number of acceptable spectra from acceptable peptides using the following statements:
+
+```{r, echo=TRUE}
+length(flagSpectraPeps$outlier.num.peptides)
+sum({flagSpectraPeps$outlier.num.spectra == 0} & 
+      {flagSpectraPeps$outlier.num.peptides == 0})
+```
+
+We now calculate the mean profile for each protein, using a random effects linear model where spectra are nested within peptides. In the three examples listed below, we examine cases where we: (1) reject the contribution of any outlying spectra and peptides; (2) reject the contribution of just outlier spectra within peptides; and (3) we do not reject any peptides or spectra. Here, the `outlierExclude` argument overrides the outlier specifications in the `flagSpectraPeps` file.  The resulting file contains the protein profile, indicating the number of peptides and spectra used to determine each protein profile using the rules above. The root portion of the name `protNSA` denotes that these values are normalized specific amounts (NSAs) for protein profiles. 
+
+The `lmer` random effects function within `profileSummarize` will generate error messages for some channels within some proteins due to numerical singularity issues. To minimize these errors, the function requires two conditions to be met before calling the `lmer` function: There must be at least eight spectra and four peptides, and the ratio of numbers of spectra to peptides must exceed 4. If these conditions are not met the function calculates a standard (non-nested) average of all spectra to obtain a mean profile. Otherwise, the `lmer` random effects model is fitted. In some cases, for a given protein and channel, the `lmer` routine fails and reports a singularity in the model fit. In these cases, `profileSummarize` automatically re-calculates the profile average using standard (non-nested) averaging. If the option `singularList=TRUE` is specified, the function will list the specific protein and channel number (which here range from 1 to 9) where the `lmer` routine encountered the singularity. For example, "ACP2" (a lysosomal protein) has 41 spectra and 8 peptides. The `lmer` procedure converged for the first eight fractions but failed for the ninth one (Nyc3). The default is `singularList=FALSE`. 
+
+```{r, echo=TRUE, message=TRUE, warning=TRUE}
+protNSA_1 <- 
+          profileSummarize(protsCombineCnew=flagSpectraPeps,
+          numRefCols=7, numDataCols=9, eps=eps, GroupBy="protId",
+          outlierExclude="spectraAndPeptide", cpus=4, singularList=TRUE)
+str(protNSA_1,  strict.width="cut", width=65)
+```
+
+
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+protNSA_2 <- 
+          profileSummarize(protsCombineCnew=flagSpectraPeps,
+          numRefCols=7, numDataCols=9, eps=eps, GroupBy="protId",
+          outlierExclude="spectra", cpus=4)
+str(protNSA_2,  strict.width="cut", width=65)
+```
+
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+protNSA_3 <- 
+          profileSummarize(protsCombineCnew=flagSpectraPeps,
+          numRefCols=7, numDataCols=9, eps=eps, GroupBy="protId",
+          outlierExclude="none", cpus=4)
+str(protNSA_3,  strict.width="cut", width=65)
+```
+
+When comparing the total numbers of peptides and spectra used to calculate protein profiles, we see that protNSA_3 > protNSA_2 > protNSA_1 for each:
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+sum((protNSA_3$Nspectra))
+sum((protNSA_2$Nspectra))
+sum((protNSA_1$Nspectra))
+
+sum((protNSA_3$Npep))
+sum((protNSA_2$Npep))
+sum((protNSA_1$Npep))
+```
+
+
+We can examine the number of proteins with missing profile values (caused by outlier rejection) in each of the three cases by choosing one fraction, e.g., "M"; all other channels will also be missing.
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+sum(is.na(protNSA_1$M))
+sum(is.na(protNSA_2$M))
+sum(is.na(protNSA_3$M))
+```
+
+We see that none are rejected in this test data frame. It is important to note that the outlier rejection process includes a random component, so that repeating the analysis on the embedded data set without specifically setting the seed for the random number generator could potentially result in a different number of proteins with missing profiles. 
+
+Taking the first option (rejecting outlier spectra within peptides as well as outlier peptides) as the preferred method, we then create a protein profile data frame in the same format as used in earlier tutorials by moving the protein names from a variable within the data frame to row names.  
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+protNSA_new <- protNSA_1 
+#copy first field in data frame containing protein names to rownnames field
+rownames(protNSA_new) <- protNSA_1[,1]  
+protNSA_new <- protNSA_new[,-1]  #delete first internal column containing protein names
+```
+
+The data frame `protNSA_new` is essentially identical to the data set `protNSA_AT5tmtMS2` included in the `protlocassign` package. (The argument `countEQ=TRUE` causes the function to compute the mean error across all profiles, not just among those that differ.)
+
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+data(protNSA_test)
+all.equal(protNSA_test, protNSA_new, countEQ=TRUE, tolerance=0)
+```
+
+## Creating a combined protein/peptide profile data frame
+
+In this section, we describe a function `protPepProfile` that creates a data frame with each protein profile followed by the peptide profiles associated with each protein and their outlier status. The function requires two arguments. The first is a data frame of peptide profiles specified by `flagPeps = flagPepsBox`. The second is a data frame of protein profiles specified by `protProfileData = protNSA_1`; this data frame must have `prot` in the first column and the profiles in the following `numDataCols` columns. These two data frames must be in a consistent form and use the same type of profile data (e.g., NSA), as created earlier in this tutorial. We first re-examine the list of column names of `flagPepsBox` to determine that there are four reference columns preceding the nine columns of profile data:
+
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+data.frame(names(flagPepsBox))
+protPepProfileNSA <- protPepProfile(flagPeps=flagPepsBox,
+                                 numRefCols=4, numDataCols=9, 
+                                 protProfileData=protNSA_1)
+str(protPepProfileNSA, strict.width="cut", width=65)
+```
+
+Finally, for later CPA analysis, we need the data frame to contain a unique row name for each profile, which we obtain from the peptide column.  Here, for peptides this is a concatenation of the protein name and peptide sequence while for proteins this is the protein name alone.
+
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+rownames(protPepProfileNSA) <- protPepProfileNSA$peptide
+```
+
+We examine the first few row names here:
+
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+head(rownames(protPepProfileNSA))
+```
+
+
+
+We may use `protPepProfileNSA` in carrying out transformations and in calculating CPA estimates with the `fitCPA` function. These calculations, as well as transformations, are discussed in the next section.
+
+
+## RSA transformations
+
+In this section we shall first calculate RSA transformed profiles for all proteins and peptides, and then compute the constrained proportional assignments (CPA) for all proteins and peptides in a form ready for export. Then we show how to use it to plot profiles for any protein and its component peptides, with outlier peptides labelled in the plot. 
+
+First, we attach the `protlocassign` package, which includes the `protPepProfile` data frame. Note that for rows containing proteins, the peptide column contains just the protein name while for rows containing peptides, the peptide column contains a concatenated protein and peptide sequence. As in previous tutorials, we rename the embedded data frames to remove experiment specific designations (e.g., AT5tmtMS2) for ease of presentation.
+
+```{r, echo=TRUE, eval=TRUE}
+library(protlocassign)
+
+data(totProtAT5)
+protPepNSA <- protPepProfileNSA
+str(protPepNSA, strict.width="cut", width=65)
+totProt <- totProtAT5
+totProt
+```
+
+Next, we extract the NSA reference profiles from the nine profile columns of `protPepNSA`:
+
+```{r, echo=TRUE, eval=TRUE}
+data(markerListJadot)
+refLocationProfilesNSA <- locationProfileSetup(profile=protPepNSA[, 4 + (1:9)],
+                          markerList=markerListJadot, numDataCols=9)
+round(refLocationProfilesNSA, digits=4)
+```
+
+Using the `RSAfromNSA` function described previously in Tutorial 3, we calculate the RSA-transformed marker profiles:
+
+```{r, echo=TRUE, eval=TRUE}
+refLocationProfilesRSA <- RSAfromNSA(NSA=refLocationProfilesNSA,
+                              NstartMaterialFractions=6, totProt=totProtAT5)
+round(refLocationProfilesRSA, digits=4)
+```
+
+We transform the protein/peptide profiles by taking the nine columns containing the profile data from `protPepNSA` and then, using the `RSAfromNSA` function described previously in Tutorial 3, we calculate an intermediate nine-column data frame `protPepRSA_trimmed` of RSA-transformed profiles.
+
+```{r, echo=TRUE, eval=TRUE}
+protPepRSA_trimmed <- RSAfromNSA(NSA=protPepNSA[, 4 + (1:9)],
+                              NstartMaterialFractions=6, totProt=totProtAT5)
+str(protPepRSA_trimmed, strict.width="cut", width=65)
+```
+
+
+Finally, we add the five reference columns back in as the first columns of `protPepRSA` and also the two columns listing the number of spectra and peptides per protein. The resulting data frame `protPepRSA` has the same structure as the original data frame `protPepNSA`.
+
+```{r, echo=TRUE, eval=TRUE}
+protPepRSA <- data.frame(protPepNSA[, 1:4], protPepRSA_trimmed, protPepNSA[,14:15] )  # add in the ref columns
+str(protPepRSA, strict.width="cut", width=65)
+```
+
+## Plotting RSA protein and peptide profiles
+
+
+Next, we identify rows with proteins only, and extract them. The resulting data frame, `protRSA`, parallels the structure of `protNSA`. We also extract the rows with peptides only in the data frame `pepRSA`.
+
+```{r, echo=TRUE, eval=TRUE}
+protRSA.ind <- {protPepRSA$prot == protPepRSA$peptide}  # protein indicators
+protRSA <- protPepRSA[protRSA.ind,]  # these are the data for proteins only
+dim(protRSA)
+pepRSA <- protPepRSA[!protRSA.ind,] # these are the data for peptides only
+
+data.frame(colnames(protRSA))
+```
+
+Now we calculate the constrained proportional assignments on proteins only, using RSA-transformed profiles:
+
+```{r, echo=TRUE, eval=TRUE}
+protCPAfromRSA <-  fitCPA(profile=protRSA[, 4+1:9],
+                      refLocationProfiles=refLocationProfilesRSA, 
+                      numDataCols=9)
+str(protCPAfromRSA, strict.width="cut", width=65)
+```
+
+
+
+The following commands generate a plot of TLN1 protein/peptides, with CPA estimates. Outlier peptide profiles are in orange. The header reports the number of peptides and spectra used to compute the protein profile, which in this case excludes outlier peptides and outlier spectra.  
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
+#windows(width=7.5, height=10)  # open a window 7.5 by 10 inches
+protPepPlotfun(protName="TLN1", protProfile=protRSA[,5:15],
+               Nspectra=TRUE, pepProfile=pepRSA, numRefCols=4,
+               numDataCols=9, n.compartments=8, 
+               refLocationProfiles=refLocationProfilesRSA,
+               assignPropsMat=protCPAfromRSA, 
+               yAxisLabel="Relative Specific Amount")
+```
+
+Note that the outlier peptides do not contribute to the CPA analysis of the proteins, but these may be of interest.  For instance, they may represent protein isoforms with distinct distributions. Thus, there may be specific biological questions that require CPA estimates for all proteins and peptides without outlier removal. This can be accomplished using the following command:
+
+```{r, echo=TRUE, eval=TRUE}
+protPepCPAfromRSA <- fitCPA(profile=protPepRSA[,4 + 1:9],
+                               refLocationProfiles=refLocationProfilesRSA, numDataCols=9)
+str(protPepCPAfromRSA, strict.width="cut", width=65)
+```
+We next assemble the final CPA values for the protein/peptide data along with ancillary information, ready for export. Then we output the data to C:\\temp\\myProteinOutput; users will select their own directory.
+
+```
+protPepCPAfromRSAout <- data.frame(protPepRSA[,1:4], protPepCPAfromRSA, protPepRSA[,14:15])
+protPepCPAfromRSAout$prot <- paste("`", protPepCPAfromRSAout$prot, sep="")
+protPepCPAfromRSAout$peptide <- paste("`", protPepCPAfromRSAout$peptide, sep="")
+                                  
+setwd("C:\\temp\\myProteinOutput")
+write.csv(protPepCPAfromRSAout, file="protPepCPAfromRSAout.csv", row.names=FALSE, na=".") 
+```
+
+To output plots of all of the protein and peptide profiles into a single pdf file, we first use `setwd` to point to the desired output directory, and then we can set up a loop as follows:
+
+```
+setwd("C:\\temp\\myProteinOutput")
+pdf(file="allProtPepPlotsRSA.pdf", width=7, height=10)
+n.prots <- nrow(protRSA)
+for (i in 1:n.prots) {
+   protPepPlotfun(protName=protRSA$prot[i],
+       protProfile=protRSA[,5:15], 
+       Nspectra=TRUE, pepProfile=pepRSA, numRefCols=4, 
+       numDataCols=9, n.compartments=8, 
+       refLocationProfiles=refLocationProfilesRSA,
+       assignPropsMat=protCPAfromRSA, 
+       yAxisLabel="Relative Specific Amount")
+}
+dev.off()
+```
+
+\newpage
+
+# Tutorial 7: Calculation of distances between proteins
+
+## Finding proteins with similar profiles
+
+We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first use the R function `dist` to create a distance matrix for the proteins in a list of mean profiles, such as `protProfileNSA_AT5tmtMS2`. For clarity of presentation, we rename the embedded data sets to remove experiment-specific labels.
+
+```{r, echo=TRUE, eval=TRUE}
+library(protlocassign)
+#data(protNSA_AT5tmtMS2)
+data("protNSA_test")
+data(totProtAT5)
+#protNSA <- protNSA_AT5tmtMS2
+protNSA <- protNSA_test
+totProt <- totProtAT5
+distUseNSA <- dist(protNSA[,1:9], method="euclidean")
+```
+
+Then select the protein names:
+
+```{r, echo=TRUE, eval=TRUE}
+protsUse <- rownames(protNSA)
+```
+Finally, provide a protein name. Here, for the protein "CTSD", we find the 10 nearest proteins.
+
+```{r, echo=TRUE, eval=TRUE}
+nearestProts(protName="CTSD", n.nearest=10,  distProts=distUseNSA, protNames=protsUse,
+             profile=protNSA)
+```
+
+Instead of using normalized specific amounts, we may transform them to relative specific amounts:
+
+```{r, echo=TRUE, eval=TRUE}
+protProfileLevelsRSA <- RSAfromNSA(NSA=protNSA[,1:9],
+                                 NstartMaterialFractions=6, totProt=totProt)
+distUseRSA <- dist(protProfileLevelsRSA, method="euclidean")
+nearestProts(protName="CTSD", n.nearest=10,  distProts=distUseRSA, protNames=protsUse,
+             profile=protProfileLevelsRSA)
+
+```
+
+Note that if one wants to generate a table listing the distances between all protein pairs, one needs to convert the distUse or distUseRSA to a matrix. We show the first five rows and columns here: 
+
+```{r, echo=TRUE, eval=TRUE}
+distUseNSAmatrix <- as.matrix(distUseNSA)
+distUseNSAmatrix[1:5,1:5]
+```
+
+This matrix can be written to a local directory using standard procedures.
+
+
+
+
+## References
+
+Jadot, M.; Boonen, M.; Thirion, J.; Wang, N.; Xing, J.; Zhao, C.; Tannous, A.; Qian, M.; Zheng, H.; Everett, J. K., Accounting for protein subcellular localization: A compartmental map of the rat liver proteome. Molecular & Cellular Proteomics 2017, 16, (2), 194-212.
+
+Tannous, A.; Boonen, M.; Zheng, H.; Zhao, C.; Germain, C. J.; Moore, D. F.; Sleat, D. E.; Jadot, M.; Lobel, P., Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. J Proteome Res 2020, 19, (4), 1718-1730.
+
+## Reproducibility
+
+Following is the output of the utility `sessionInfo`. This output contains details of the packages and version numbers used to generate these tutorials.
+
+
+```{r, echo=TRUE, eval=TRUE}
+print(utils::sessionInfo(), width=80)
+```
+
+
+

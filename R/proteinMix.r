@@ -33,7 +33,7 @@ proteinMix <- function(AcupRef, Loc1, Loc2, increment.prop = 0.1) {
         Loc2 <- Loc1orig
     }
     if (Loc2 > nrowRef)
-        cat("Error, not enough rows\n")
+        warning("Error, not enough rows\n")
     LocNames <- row.names(AcupRef)
     prop.vec <- seq(0, 1, increment.prop)
     qrop.vec <- 1 - prop.vec

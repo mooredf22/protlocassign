@@ -41,7 +41,7 @@ fCPAsubsets <- function(profile, refLocationProfiles,
     # the spg function (in package BB) to assign
     # proportionate assignments to compartments
     if (nrow(profile) != 1) {
-        cat("profile must have one row\n")
+        warning("profile must have one row\n")
         return("")
     }
     # profile <- profile[1:numDataCols]

@@ -23,6 +23,6 @@ return index of a protein name, or (if exactMatch=TRUE) indices of
    proteins starting with the string given in 'protName'
 }
 \examples{
-data(protNSA_AT5tmtMS2)
-protIndex('TLN1', profile=protNSA_AT5tmtMS2)
+data(protNSA_test)
+protIndex('TLN1', profile=protNSA_test)
 }

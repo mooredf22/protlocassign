@@ -48,12 +48,12 @@ protPepPlotfun <- function(protName, protProfile, Nspectra=TRUE,
   # if temp is not a matrix, can then test for being NA with no error returned
   if (!is.matrix(temp)) {
     if (is.na(temp)[1]) {
-      cat(paste(protName, " not found \n"))  # first element is Na
+      warning(paste(protName, " not found \n"))  # first element is Na
       return(temp)
     }
   }
   if (nrow(temp) > 1) {
-    cat(paste("more than one protein matches pattern \n"))
+    warning(paste("more than one protein matches pattern \n"))
     return(temp)
   }
   protPlot <- temp[1,1]   # works even if temp is a vector

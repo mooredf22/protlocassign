@@ -165,11 +165,11 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
             if (isSingular(result_k)) {
               lmerSingular <- TRUE
               if (singularList) {
-                cat(c("protein",prot_i," channel", k, "\n" ))
+                warning(c("protein",prot_i," channel", k, "\n" ))
               }
               ## The following is for diagnostics only
               ##  error handling is as planned
-              #cat("lmer matrix singular; recalculating average profile\n")
+              #warning("lmer matrix singular; recalculating average profile\n")
             }
             try(coef_est[k] <- fixef(result_k))
             try(secoef_est[k] <- sqrt(as.numeric(vcov(result_k))))
@@ -300,14 +300,14 @@ profileSummarize <- function(protsCombineCnew, numRefCols,
 
     if (!(outlierExclude %in% c("none", "spectra",
         "spectraAndPeptide"))) {
-        cat("outlierExclude must be one of none, spectra, or peptide\n")
-        stop()
+        stop("outlierExclude must be one of none, spectra, or peptide\n")
+        
     }
     if ((GroupBy == "peptideId") & (outlierExclude ==
         "spectraAndPeptide")) {
-        cat("if GroupBy == 'peptideId' then outlierExclude
+        stop("if GroupBy == 'peptideId' then outlierExclude
             cannot equal 'spectraAndPeptide' \n")
-        stop()
+        
     }
 
     # indList <- unique(uniqueLabel)

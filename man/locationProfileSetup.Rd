@@ -22,8 +22,9 @@ A matrix refLocationProfiles giving the abundance level profiles of
 Set up reference profiles for constrained proportional assignment
 }
 \examples{
-data(protNSA_AT5tmtMS2)
+#data(protNSA_AT5tmtMS2)
+data(protNSA_test)
 data(markerListJadot)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_AT5tmtMS2,
+refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
   markerList=markerListJadot, numDataCols=9)
 }

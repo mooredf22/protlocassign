@@ -10,9 +10,10 @@
 #' @import rmarkdown
 #' @export
 #' @examples
-#' data(protNSA_AT5tmtMS2)
+#' #data(protNSA_AT5tmtMS2)
+#' data(protNSA_test)
 #' data(markerListJadot)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_AT5tmtMS2,
+#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
 #'   markerList=markerListJadot, numDataCols=9)
 
 
@@ -34,22 +35,22 @@ locationProfileSetup <- function(profile, markerList,
     # corresponding subcelluar locations
 
     if (!is.data.frame(profile))
-        print("profile must be a data frame")
+        warning("profile must be a data frame")
     if (!is.data.frame(markerList))
-        print("markerList must be a data frame")
+        warning("markerList must be a data frame")
     if (is.null(names(markerList)[1]))
-        print("first markerList variable must be 'protName'")
+        warning("first markerList variable must be 'protName'")
     if (is.null(names(markerList)[2]))
-        print("second markerList variable must be 'referenceCompartment'")
+        warning("second markerList variable must be 'referenceCompartment'")
     if ({
         names(markerList)[1] != "protName"
     }) {
-        print("first markerList variable must be 'protName'")
+        warning("first markerList variable must be 'protName'")
     }
     if ({
         names(markerList)[2] != "referenceCompartment"
     }) {
-        print("second markerList variable must be 'referenceCompartment'")
+        warning("second markerList variable must be 'referenceCompartment'")
     }
     # make names all upper case
     protNamesUpper <- toupper(rownames(profile))
@@ -69,7 +70,7 @@ locationProfileSetup <- function(profile, markerList,
             by.y = "protName", all.x = FALSE, sort = FALSE)
     }
     if (nrow(meanReferenceProts) == 0) {
-        print("Error from locationProfileSetup; no protein found")
+        warning("Error from locationProfileSetup; no protein found")
     }
 
     # Find mean profiles for each sub-cellular
@@ -244,8 +245,8 @@ projSimplex <- function(y) {
 #' @export
 #' @return the protein name and its index (row in profile)
 #' @examples
-#' data(protNSA_AT5tmtMS2)
-#' protIndex('TLN1', profile=protNSA_AT5tmtMS2)
+#' data(protNSA_test)
+#' protIndex('TLN1', profile=protNSA_test)
 
 protIndex <- function(protName, profile, exactMatch = FALSE) {
     # return index of a protein name, or (if
@@ -270,7 +271,7 @@ protIndex <- function(protName, profile, exactMatch = FALSE) {
     }
     if (is.na(inx[1])) {
         result <- NA
-        cat("protein not found\n")
+        message("protein not found\n")
     }
     result
 }
@@ -355,7 +356,7 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
     startProps <- rep(1/n.compartments, n.compartments)
     if (!is.null(startProps)) {
         if (length(startProps) != n.compartments) {
-            cat("invalid startProps\n")
+            warning("invalid startProps\n")
         }
         if (length(startProps) == n.compartments)
             startVals <- startProps/sum(startProps)
@@ -440,7 +441,7 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
     }
     # nNoConverge.i <- 0
     if (convergeInd != 1)
-        cat(paste("cpa does not converge for a protein",
+        message(paste("cpa does not converge for a protein",
            "\n", "returning missing values for cpa estimates for that protein",
           "\n"))
 
@@ -533,9 +534,9 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
         assignProbs <- rbind(assignProbs, assignProbsI)
         if (showProgress) {
             if (i == 500)
-                print(paste(i, "profiles fit"))
+                message(paste(i, "profiles fit"))
             if ((i%%1000) == 0)
-                print(paste(i, "profiles fit"))
+                message(paste(i, "profiles fit"))
         }
     }
     # browser()

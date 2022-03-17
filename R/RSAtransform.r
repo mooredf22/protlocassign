@@ -31,7 +31,7 @@
 AcupFromNSA <- function(NSA, NstartMaterialFractions,
     totProt = NULL) {
     if (ncol(NSA) != length(totProt)) {
-        cat("Error from relAmtTransform:
+        warning("Error from relAmtTransform:
             no. of rows of NSA must match length of totProt\n")
     }
   # just differential fractions
@@ -81,7 +81,7 @@ RSAfromAcup <- function(Acup, NstartMaterialFractions,
     totProt = NULL) {
 
     if (ncol(Acup) != length(totProt)) {
-        cat("Error from RSAfromAcup: no. of rows of Acup
+        warning("Error from RSAfromAcup: no. of rows of Acup
               must match length of totProt\n")
     }
     # # # # # # # # rename variables # # # # # #
@@ -143,7 +143,7 @@ RSAfromNSA <- function(NSA, NstartMaterialFractions,
     missing.rows <- NSA[!complete.cases(NSA), ]
 
     if (ncol(NSA) != length(totProt)) {
-        cat("Error from rsaDirect: no. of rows of NSA
+        warning("Error from rsaDirect: no. of rows of NSA
             must match length of totProt\n")
     }
     # first columns of NSA

@@ -28,9 +28,9 @@ Compute distances between a particular protein or profile
  and list the nearest ones
 }
 \examples{
-data(protNSA_AT5tmtMS2)
-distUse <- dist(protNSA_AT5tmtMS2[,seq_len(9)], method='euclidean')
-protsUse <- names(protNSA_AT5tmtMS2)
+data(protNSA_test)
+distUse <- dist(protNSA_test[,seq_len(9)], method='euclidean')
+protsUse <- names(protNSA_test)
 nearestProts(protName='CTSD', n.nearest=10,  distProts=distUse,
-  protNames=protsUse, profile=protNSA_AT5tmtMS2[,seq_len(9)])
+  protNames=protsUse, profile=protNSA_test[,seq_len(9)])
 }

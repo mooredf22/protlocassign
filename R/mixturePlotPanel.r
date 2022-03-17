@@ -30,7 +30,7 @@ mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
                                totProt=totProt)
   refLocationProfilesNSA <- NSAfromRSA(refLocationProfilesRSA)
 
-  if (numCompart > 8) cat("Error: too many compartments to plot on one page\n")
+  if (numCompart > 8) warning("Error: too many compartments to plot on one page\n")
 
   # case where there are 7 or 8 compartments:
   if(numCompart == 8) {
