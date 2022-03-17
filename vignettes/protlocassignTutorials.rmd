@@ -46,38 +46,27 @@ We illustrate with an example. Tannous et al. (2020) presented an experiment (de
 
 ## Installing the protlocassign package
 
-To obtain the `protlocassign` package, first installing the `devtools` package from CRAN by typing:
-
-```
-install.packages("devtools")
-```
-
-Then install the protlocassign package from the Github repository by typing:
-
-```
-devtools::install_github("mooredf22/protlocassign")
-```
-
-Other packages may downloaded by using the Bioconductor repository. The first step is to install the "BiocManager" package from CRAN, by typing:
+First install the Bioconductor untility `BiocManager`:
 
 ```
 install.packages("BiocManager")
 ```
 
-Also, several libraries are required which may be downloaded from the CRAN respository by typing:
+Next, install the `protlocassign` package either from Bioconductor or, using `devtools`, from Github:
 
 ```
-BiocManager::install(c("BB", "pracma", "lme4", "outliers"))
+BiocManager::install("protlocassign")
+install.packages("devtools")
+devtools::install_github("mooredf22/protlocassign")
 ```
 
-Finally, the parallel processing package `BiocParallel` from the Bioconductor package is needed to use parallel processing. The following code will install the package if it is not already present:
-
+Finally, install other required packages:
 
 ```
-BiocManager::install("BiocParallel")
+BiocManager::install(c("BB", "pracma", "lme4", "outliers", "BiocParallel"))
 ```
 
-Once you have installed these packages, you do not need to re-install them the next time you start up R.
+Once you have installed these packages, you do not need to re-install them the next time you start up R. However, you will need to load them using `library` before use.
 
 ## Working with data
 
@@ -166,11 +155,11 @@ These new R data frames are identical to `protNSA_test` and `markerListJadot`. I
 If one desires to work with the full set of 7893 protein profiles in the Tannous et al. data set, we may download it from the MassIVE repository. To do so, execute the following code, first removing the comment character "#":
 
 ```
-# urlQuantPSMprot <-  "https://massive.ucsd.edu/ProteoSAFe/DownloadResultFile?file=f.MSV000083842/updates/2022-03-14_ablatannous_c39637a3/quant/protNSA_AT5tmtMS2.csv&forceDownload=true"
+# urlProtProfiles <-  "https://massive.ucsd.edu/ProteoSAFe/DownloadResultFile?file=f.MSV000083842/updates/2022-03-14_ablatannous_c39637a3/quant/protNSA_AT5tmtMS2.csv&forceDownload=true"
 
-# protNSA_AT5tmtMS2 <- read.csv(urlQuantPSMprot)
-# data(protNSA_AT5tmtMS2)
+# protNSA_AT5tmtMS2 <- read.csv(urlProtProfiles)
 # dim(protNSA_AT5tmtMS2)
+# head(protNSA_AT5tmtMS2)
 ```
 
 
@@ -251,15 +240,14 @@ protCPAfromNSA <- fitCPA(profile=protNSA,
                           refLocationProfiles=refLocationProfilesNSA, 
                           numDataCols=9)
 ```
-Note that the protein "AIF1" (protein 356) has all missing values, which is why the spg function returns an error for that one protein.
 
 We can view the structure of the output data file and see that the row names contain the protein names, and the next 8 columns contain the allocation proportions of each protein to the eight compartments. The last two columns are integers representing the numbers of peptides and spectra, which are carried over from the input `protProfileSummary` profile data, these are not essential for the CPA analysis.
 
 ```{r, echo=TRUE, eval=TRUE}
-round(tail(protCPAfromNSA), digits=2)
+round(head(protCPAfromNSA), digits=2)
 ```
 
-
+Note that the protein "AIF1" has all missing values, which is why the spg function returns an error for that one protein.
 
 We can look at the profile of, for example, the protein "TLN1". We first ensure that the protein is in the dataset:
 
@@ -1016,8 +1004,6 @@ errorMatAll
 Alternatively, we can visualize  `errorMatAll` as a heatmap, with darker colors indicating greater errors:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 2}
-#library(plot.matrix)
-#library("viridis")
 op <- par(mar=c(4,4,1,1))  # save default parameters in variable op
 
 col <- rev(viridis::magma(12))
@@ -1340,7 +1326,6 @@ We see that CPA performs well except for Cyto-Lyso and Cyto-PM:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
 
-#library(pracma)   # for trapz function
 par(mfrow=c(2,4))
 
 mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA12_5frac,
@@ -1378,7 +1363,6 @@ As described in the previous tutorial, we can look at a heatmap of the errors fo
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
-#install.packages(c("plot.matrix", "viridis", "grid", "gridExtra"))
 
 par(mfrow=c(1,1))
 errorMatAll <- mixtureHeatMap(Acup=refLocationProfilesAcup_5frac, 
@@ -1390,8 +1374,6 @@ We can also either print out overall errors (i.e., sum of all errors for each co
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 2}
 errorMatAll
-#library(plot.matrix)
-#library("viridis")
 op <- par(mar=c(4,4,1,1))  # save default parameters in variable op
 
 col <- rev(viridis::magma(16))
@@ -1571,24 +1553,9 @@ These can also be saved as tables as described in Tutorial 4.
 
 # Tutorial 6: Working with spectral-level data
 
-This package contains functions to identify outlier spectra and peptides and then to compute weighted averages of the spectral profiles to produce a single profile for each protein. Before we describe how to use these functions, we must cover some preliminary steps needed to use them.
+This package contains functions to identify outlier spectra and peptides and then to compute weighted averages of the spectral profiles to produce a single profile for each protein. If not already done, install the necessary packages as described in Tutorial 1.
 
-Start by installing the devtools package from CRAN, by typing:
-
-```
-install.packages("devtools")
-```
-
-If not yet installed, install the `protlocassign` package from the github repository by typing
-
-```
-devtools::install("protlocassign")
-<!-- BiocManager::install("protlocassign") -->
-```
-
-This will make the programs and data sets available, as well as installing needed libraries.
-
-The package requires that you attach these libraries:
+The following procedures require that you first attach these libraries:
 
 
 ```{r, echo=TRUE}
@@ -1599,9 +1566,7 @@ library(lme4)
 
 These libraries include the `lme4` package, which implements a set of routines for working with nested data. In this case, this specifically applies to the nesting of spectra within peptides and peptides within proteins. The `outliers` package implements a score-based outlier detection routine, which is one option we provide.
 
-Finally, be sure to install `BiocParallel` for parallel computing as described in Tutorial 1.
-
-The package `protlocassign` is required:
+As always, the package `protlocassign` is required:
 
 ```{r, echo=TRUE}
 library(protlocassign)
@@ -1659,6 +1624,7 @@ the MassIVE repository. The required code is as follows:
 
 ```
 urlQuantPSM <- "https://massive.ucsd.edu/ProteoSAFe/DownloadResultFile?file=f.MSV000083848/updates/2022-02-10_ablatannous_094fb41d/quant/QuantPSM.csv&forceDownload=true"
+
 QuantPSM <- read.csv(urlQuantPSM)
 str(QuantPSM, strict.width="cut", width=65)
 ```
@@ -1735,7 +1701,7 @@ sum(flagSpectraScore$outlier.num.spectra == 0)  # number of acceptable spectra
 sum(flagSpectraScore$outlier.num.spectra != 0)  # number of outlier spectra
 ```
 
-Note that in both examples shown above, the `randomError` argument was used (`randomError=TRUE`). The reason for invoking this argument is illustrated in the two examples below where we set the argument to `False` or `True` when we use the boxplot method with a very large range (`range=110`) where we intuitively would expect that there would be very few outliers.  However, if we use the `randomError=FALSE` argument we find that there are 56 outliers:
+Note that in both examples shown above, the `randomError` argument was used (`randomError=TRUE`). The reason for invoking this argument is illustrated in the two examples below where we set the argument to `False` or `True` when we use the boxplot method with a very large range (`range=110`) where we intuitively would expect that there would be very few outliers.  However, if we use the `randomError=FALSE` argument we find that there are 2 outliers:
 
 ```{r, echo=TRUE}
 flagSpectraBoxRange110ranErrF <- outlierFind(protClass=spectraNSA, 
@@ -1855,7 +1821,7 @@ sum(is.na(protNSA_2$M))
 sum(is.na(protNSA_3$M))
 ```
 
-We see that none are rejected in this test data frame. It is important to note that the outlier rejection process includes a random component, so that repeating the analysis on the embedded data set without specifically setting the seed for the random number generator could potentially result in a different number of proteins with missing profiles. 
+We see that one is rejected in `protNSA_1`. It is important to note that the outlier rejection process includes a random component, so that repeating the analysis on the embedded data set without specifically setting the seed for the random number generator could potentially result in a different number of proteins with missing profiles. 
 
 Taking the first option (rejecting outlier spectra within peptides as well as outlier peptides) as the preferred method, we then create a protein profile data frame in the same format as used in earlier tutorials by moving the protein names from a variable within the data frame to row names.  
 
@@ -1866,7 +1832,7 @@ rownames(protNSA_new) <- protNSA_1[,1]
 protNSA_new <- protNSA_new[,-1]  #delete first internal column containing protein names
 ```
 
-The data frame `protNSA_new` is essentially identical to the data set `protNSA_AT5tmtMS2` included in the `protlocassign` package. (The argument `countEQ=TRUE` causes the function to compute the mean error across all profiles, not just among those that differ.)
+The data frame `protNSA_new` is essentially identical to the data set `protNSA_test` included in the `protlocassign` package. (The argument `countEQ=TRUE` causes the function to compute the mean error across all profiles, not just among those that differ.)
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 data(protNSA_test)
@@ -1879,48 +1845,37 @@ In this section, we describe a function `protPepProfile` that creates a data fra
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 data.frame(names(flagPepsBox))
-protPepProfileNSA <- protPepProfile(flagPeps=flagPepsBox,
+protPepNSA <- protPepProfile(flagPeps=flagPepsBox,
                                  numRefCols=4, numDataCols=9, 
                                  protProfileData=protNSA_1)
-str(protPepProfileNSA, strict.width="cut", width=65)
+str(protPepNSA, strict.width="cut", width=65)
 ```
 
 Finally, for later CPA analysis, we need the data frame to contain a unique row name for each profile, which we obtain from the peptide column.  Here, for peptides this is a concatenation of the protein name and peptide sequence while for proteins this is the protein name alone.
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
-rownames(protPepProfileNSA) <- protPepProfileNSA$peptide
+rownames(protPepNSA) <- protPepNSA$peptide
 ```
 
 We examine the first few row names here:
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
-head(rownames(protPepProfileNSA))
+head(rownames(protPepNSA))
 ```
 
 
 
-We may use `protPepProfileNSA` in carrying out transformations and in calculating CPA estimates with the `fitCPA` function. These calculations, as well as transformations, are discussed in the next section.
+We may use `protPepNSA` in carrying out transformations and in calculating CPA estimates with the `fitCPA` function. These calculations, as well as transformations, are discussed in the next section.
 
 
 ## RSA transformations
 
 In this section we shall first calculate RSA transformed profiles for all proteins and peptides, and then compute the constrained proportional assignments (CPA) for all proteins and peptides in a form ready for export. Then we show how to use it to plot profiles for any protein and its component peptides, with outlier peptides labelled in the plot. 
 
-First, we attach the `protlocassign` package, which includes the `protPepProfile` data frame. Note that for rows containing proteins, the peptide column contains just the protein name while for rows containing peptides, the peptide column contains a concatenated protein and peptide sequence. As in previous tutorials, we rename the embedded data frames to remove experiment specific designations (e.g., AT5tmtMS2) for ease of presentation.
+Here we extract the NSA reference profiles from the nine profile columns of `protPepNSA`:
 
 ```{r, echo=TRUE, eval=TRUE}
-library(protlocassign)
-
 data(totProtAT5)
-protPepNSA <- protPepProfileNSA
-str(protPepNSA, strict.width="cut", width=65)
-totProt <- totProtAT5
-totProt
-```
-
-Next, we extract the NSA reference profiles from the nine profile columns of `protPepNSA`:
-
-```{r, echo=TRUE, eval=TRUE}
 data(markerListJadot)
 refLocationProfilesNSA <- locationProfileSetup(profile=protPepNSA[, 4 + (1:9)],
                           markerList=markerListJadot, numDataCols=9)
@@ -1994,7 +1949,7 @@ Note that the outlier peptides do not contribute to the CPA analysis of the prot
 ```{r, echo=TRUE, eval=TRUE}
 protPepCPAfromRSA <- fitCPA(profile=protPepRSA[,4 + 1:9],
                                refLocationProfiles=refLocationProfilesRSA, numDataCols=9)
-str(protPepCPAfromRSA, strict.width="cut", width=65)
+head(round(protPepCPAfromRSA, digits=4))
 ```
 We next assemble the final CPA values for the protein/peptide data along with ancillary information, ready for export. Then we output the data to C:\\temp\\myProteinOutput; users will select their own directory.
 
@@ -2031,14 +1986,13 @@ dev.off()
 
 ## Finding proteins with similar profiles
 
-We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first use the R function `dist` to create a distance matrix for the proteins in a list of mean profiles, such as `protProfileNSA_AT5tmtMS2`. For clarity of presentation, we rename the embedded data sets to remove experiment-specific labels.
+We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first use the R function `dist` to create a distance matrix for the proteins in a list of mean profiles. This will typically be done using a full data set, such as `protProfileNSA_AT5tmtMS2`, which can be downloaded as described in Tutorial 1. In this example we use the small embedded data set `protNSA_test`. For clarity of presentation, we rename the embedded data sets to remove experiment-specific labels.
 
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
-#data(protNSA_AT5tmtMS2)
-data("protNSA_test")
+data(protNSA_test)
 data(totProtAT5)
-#protNSA <- protNSA_AT5tmtMS2
+
 protNSA <- protNSA_test
 totProt <- totProtAT5
 distUseNSA <- dist(protNSA[,1:9], method="euclidean")
@@ -2079,13 +2033,13 @@ This matrix can be written to a local directory using standard procedures.
 
 
 
-## References
+# References
 
 Jadot, M.; Boonen, M.; Thirion, J.; Wang, N.; Xing, J.; Zhao, C.; Tannous, A.; Qian, M.; Zheng, H.; Everett, J. K., Accounting for protein subcellular localization: A compartmental map of the rat liver proteome. Molecular & Cellular Proteomics 2017, 16, (2), 194-212.
 
 Tannous, A.; Boonen, M.; Zheng, H.; Zhao, C.; Germain, C. J.; Moore, D. F.; Sleat, D. E.; Jadot, M.; Lobel, P., Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. J Proteome Res 2020, 19, (4), 1718-1730.
 
-## Reproducibility
+# Reproducibility
 
 Following is the output of the utility `sessionInfo`. This output contains details of the packages and version numbers used to generate these tutorials.
 

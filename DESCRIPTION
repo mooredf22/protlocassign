@@ -44,7 +44,7 @@ Imports:
     utils,
     methods,
     BiocParallel
-biocViews: Proteomics, MassSpectrometry
+biocViews: Proteomics, Mass Spectrometry
 VignetteBuilder: knitr
 URL: http//github.com/mooredf22/protlocassign
 Suggests: 
