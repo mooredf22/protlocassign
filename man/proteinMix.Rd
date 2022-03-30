@@ -2,7 +2,7 @@
 % Please edit documentation in R/proteinMix.r
 \name{proteinMix}
 \alias{proteinMix}
-\title{compute a mixture of proteins in two compartments}
+\title{Simulate mixture protein resident in two compartments}
 \usage{
 proteinMix(AcupRef, Loc1, Loc2, increment.prop = 0.1)
 }
@@ -20,7 +20,8 @@ amount of given protein in starting material}
 mixAmount relative amounts of proteins in the fractions
 }
 \description{
-compute a mixture of proteins in two compartments
+Compute the profile of proteins distributed between two compartments in
+ specified proportions
 }
 \examples{
 data(protNSA_test)

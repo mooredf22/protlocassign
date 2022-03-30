@@ -2,8 +2,7 @@
 % Please edit documentation in R/OutlierFind.R
 \name{outlierFind}
 \alias{outlierFind}
-\title{outlierFind to identify outliers in a matrix
-using both scoresMod and boxplotMod}
+\title{Identify outlier spectra in a series of proteins}
 \usage{
 outlierFind(
   protClass,
@@ -52,14 +51,14 @@ additional column of indicators of outlier peptides or outlier
            spectra for a set of proteins or peptides
 }
 \description{
-outlierFind to identify outliers in a matrix
-using both scoresMod and boxplotMod
+Identify outlier spectra profiles for a series of proteins or 
+  protein identifiers using both scoresMod and boxplotMod
 }
 \examples{
 set.seed(17356)
 eps <- 0.029885209
-data(TLN1_test)
-flagSpectraBox <- outlierFind(protClass=TLN1_test,
+data(spectraNSA_test)
+flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
                               outlierLevel='peptide', numRefCols=5,
                               numDataCols=9,
                               outlierMeth='boxplot', range=3, eps=eps,

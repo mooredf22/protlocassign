@@ -2,10 +2,7 @@
 % Please edit documentation in R/proteinDataPrep.R
 \name{proteinDataPrep}
 \alias{proteinDataPrep}
-\title{The program ensures that spectra are nested within peptides, and these
- are nested within proteins, and all peptide and protein data are
- contiguous. That is, not split up into separate locations
-This program should be run first on a comma-separeted data file}
+\title{Properly format a protein/spectral data set for further analysis}
 \usage{
 proteinDataPrep(protClass, numRefCols, numDataCols)
 }
@@ -22,6 +19,11 @@ data frame like the input, but with spectra and peptides
        nested within proteins in same location
 }
 \description{
+The program ensures that spectra are nested within peptides, and these
+ are nested within proteins, and all peptide and protein data are
+ contiguous. That is, not split up into separate locations.
+Assigns unique numbers to each protein and each peptide within protein.
+This program should be run first on a comma-separeted data file.
 The first column must contain prot name, and the second must be the peptide
 The columns after 'numRefCols' contain relative abundance levels
 There should be 'numDataCols' abundance level columns

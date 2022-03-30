@@ -3,9 +3,7 @@
 \docType{data}
 \name{protNSA_test}
 \alias{protNSA_test}
-\title{Test data set with  TLN1, TLN2, AIF1, NSA mean profiles
-  as well as mean profiles of all of the proteins 
-  listed in "markerListJadot".}
+\title{Spectral-level test data set}
 \format{
 a test data set
 
@@ -27,7 +25,10 @@ a test data set
 data(protNSA_test)
 }
 \description{
-Data from the TMT MS2 data, AT5 experiment; see Tannous et al
+Test data set with  TLN1, TLN2, AIF1, NSA mean profiles
+  as well as mean profiles of all of the proteins 
+  listed in "markerListJadot".
+  Data from the TMT MS2 data, AT5 experiment; see Tannous et al
 }
 \examples{
 data(protNSA_test)

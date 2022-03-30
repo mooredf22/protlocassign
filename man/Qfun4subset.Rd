@@ -2,8 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{Qfun4subset}
 \alias{Qfun4subset}
-\title{internal function; goodness-of-fit measure for
-subset of varying parameters}
+\title{constrained goodness-of-fit}
 \usage{
 Qfun4subset(
   pvec.vary,
@@ -39,7 +38,8 @@ value of goodness-of-fit function
 }
 \description{
 internal function; goodness-of-fit measure for
-subset of varying parameters
+subset of varying parameters while other parameters
+are fixed at zero.
 }
 \examples{
 # suppose there are four fractions and three compartments

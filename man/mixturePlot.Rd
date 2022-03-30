@@ -2,7 +2,7 @@
 % Please edit documentation in R/mixturePlot.r
 \name{mixturePlot}
 \alias{mixturePlot}
-\title{plot mixture of two compartment profiles}
+\title{Plot mixture of two compartment profiles}
 \usage{
 mixturePlot(
   mixProtiProtjCPA,
@@ -20,8 +20,10 @@ mixturePlot(
 \item{mixProtiProtjCPA}{data frame of CPA estimated proportions
 for each mixture}
 
-\item{NstartMaterialFractions}{Number of fractions that comprise
-the starting material}
+\item{NstartMaterialFractions}{Number of fractions that reconstitute 
+the starting material, e.g., a complete set of differential 
+centrifugation fractions.  For experiment AT5, it is 6 
+( N, M, L1, L2, P, and S).}
 
 \item{Loc1}{row number of subcellular location 1 of mixture}
 
@@ -42,7 +44,8 @@ Default is 0.1}
 plot of mixture of two compartment profiles
 }
 \description{
-plot mixture of two compartment profiles
+For a simulated mixture of any two proteins from different subcellular
+  locations, plot the CPA estimates and original mixture proportions.
 }
 \examples{
 data(protNSA_test)

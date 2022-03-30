@@ -2,8 +2,7 @@
 % Please edit documentation in R/mixtureHeatMap.r
 \name{mixtureHeatMap}
 \alias{mixtureHeatMap}
-\title{plot mixture of all two compartment profile combinations as panel;
-   assumes eight compartments}
+\title{Heat map of mixture CPA errors}
 \usage{
 mixtureHeatMap(Acup, totProt, NstartMaterialFractions = 6, eps = 0.001)
 }
@@ -13,7 +12,10 @@ compartment protein that ends up in a given centrifugation fraction}
 
 \item{totProt}{vector of amounts starting material in each fraction}
 
-\item{NstartMaterialFractions}{number of fractions in starting material}
+\item{NstartMaterialFractions}{Number of fractions that reconstitute 
+the starting material, e.g., a complete set of differential 
+centrifugation fractions.  For experiment AT5, it is 6 
+( N, M, L1, L2, P, and S).}
 
 \item{eps}{small positive constant to add before taking a log transformation}
 }
@@ -21,8 +23,8 @@ compartment protein that ends up in a given centrifugation fraction}
 color heat map of errors
 }
 \description{
-plot mixture of all two compartment profile combinations as panel;
-   assumes eight compartments
+Produce heat map of errors of mixture of all two compartment profile 
+combinations as panel; assumes eight compartments
 }
 \examples{
   # See See Vignette 4 for a full explanation

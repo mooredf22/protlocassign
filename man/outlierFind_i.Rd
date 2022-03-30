@@ -2,9 +2,7 @@
 % Please edit documentation in R/OutlierFind.R
 \name{outlierFind_i}
 \alias{outlierFind_i}
-\title{service function for outlierFind to identify
-outliers in a matrix using both scoresMod and
-boxplotMod}
+\title{Find outlier spectra within a protein}
 \usage{
 outlierFind_i(
   i,
@@ -50,19 +48,19 @@ additional indicator of outlier peptides or outlier
            spectra for a set of proteins or peptides
 }
 \description{
-service function for outlierFind to identify
-outliers in a matrix using both scoresMod and
+Service function for outlierFind to identify
+outlier spectra within a protein using both scoresMod and
 boxplotMod
 }
 \examples{
 set.seed(63561)
 eps <- 0.029885209
-data(TLN1_test)
-uniqueLabel <- TLN1_test$pepId[1]
+data(spectraNSA_test)
+uniqueLabel <- spectraNSA_test$pepId[1]
 flagSpectraBox <- outlierFind_i(i=uniqueLabel, protClass=TLN1_test,
                       outlierLevel='peptide', numRefCols=5, numDataCols=9,
                       outlierMeth='boxplot', range=3, proba=NA, eps=eps,
                       randomError=TRUE)
-flagSpectraBox
+str(flagSpectraBox)
 # examine numbers of spectra that are outliers
 }

@@ -2,8 +2,7 @@
 % Please edit documentation in R/RSAtransform.r
 \name{NSAfromAcup}
 \alias{NSAfromAcup}
-\title{Compute relative specific amount from
- relative amounts in protein fractions}
+\title{Convert Acup to NSA}
 \usage{
 NSAfromAcup(Acup, NstartMaterialFractions, totProt = NULL)
 }
@@ -11,8 +10,10 @@ NSAfromAcup(Acup, NstartMaterialFractions, totProt = NULL)
 \item{Acup}{amount of given protein in fraction /
 amount of that given protein in starting material}
 
-\item{NstartMaterialFractions}{Number of differential fractions,
-typically 6, for N, M, L1, L2, P, and S}
+\item{NstartMaterialFractions}{Number of fractions that reconstitute 
+the starting material, e.g., a complete set of differential 
+centrifugation fractions.  For experiment AT5, it is 6 
+( N, M, L1, L2, P, and S).}
 
 \item{totProt}{Total protein counts in each of the differential
 and nycodenz fractions; this is necessary to compute RSA's}
@@ -21,15 +22,15 @@ and nycodenz fractions; this is necessary to compute RSA's}
 NSA: normalized specific amount
 }
 \description{
-Compute relative specific amount from
- relative amounts in protein fractions
+Convert Acup (relative amount) profiles to NSA
+ (normalized specific amount) profiles
 }
 \examples{
 data(protNSA_test)
 data(totProtAT5)
 protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-            NstartMaterialFractions = 9, totProt=totProtAT5)
-protNSA <- NSAfromAcup(protAcup, NstartMaterialFractions = 9,
+            NstartMaterialFractions = 6, totProt=totProtAT5)
+protNSA <- NSAfromAcup(protAcup, NstartMaterialFractions = 6,
             totProt=totProtAT5)
 all.equal(protNSA, protNSA_test[,seq_len(9)])
 }

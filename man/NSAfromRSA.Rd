@@ -2,7 +2,7 @@
 % Please edit documentation in R/RSAtransform.r
 \name{NSAfromRSA}
 \alias{NSAfromRSA}
-\title{convert RSA to NSA}
+\title{Convert RSA to NSA}
 \usage{
 NSAfromRSA(RSA)
 }
@@ -17,14 +17,15 @@ NSA A matrix giving the specific amount
            or a list of many protein profiles
 }
 \description{
-convert RSA to NSA
+convert RSA (relative specific amount) profiles to NSA
+(normalized specific amount) profiles
 }
 \examples{
 data(protNSA_test)
 data(totProtAT5)
 protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-           NstartMaterialFractions = 9, totProt=totProtAT5)
-protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 9,
+           NstartMaterialFractions = 6, totProt=totProtAT5)
+protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
           totProt=totProtAT5)
 protNSA <- NSAfromRSA(protRSA)
 all.equal(protNSA, protNSA_test[,seq_len(9)] )

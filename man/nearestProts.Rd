@@ -2,9 +2,7 @@
 % Please edit documentation in R/protDistanceCompute.R
 \name{nearestProts}
 \alias{nearestProts}
-\title{Compute distances between a particular protein or profile
- and all other proteins,
- and list the nearest ones}
+\title{Compute distances between proteins}
 \usage{
 nearestProts(protName, n.nearest = 5, distProts, protNames, profile)
 }

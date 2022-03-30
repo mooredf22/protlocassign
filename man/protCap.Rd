@@ -2,7 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{protCap}
 \alias{protCap}
-\title{convert single protein name to capitalize first character only}
+\title{capitalize first character}
 \usage{
 protCap(x)
 }

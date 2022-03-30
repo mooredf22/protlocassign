@@ -2,7 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{locationProfileSetup}
 \alias{locationProfileSetup}
-\title{Set up reference profiles for constrained proportional assignment}
+\title{Reference profiles for CPA}
 \usage{
 locationProfileSetup(profile, markerList, numDataCols)
 }

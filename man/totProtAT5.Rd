@@ -1,8 +1,8 @@
 \name{totProtAT5}
 \alias{totProtAT5}
 \docType{data}
-\title{totProtAT5
-%%   ~~ data name/kind ... ~~
+\title{Amount of total protein in each fraction derived from
+a gram of tissue homogenate in experiment AT5 from Tannous et al. 2000
 }
 \description{
 Adjustment factors for the tmtMS2 data, to adjust the relative protein

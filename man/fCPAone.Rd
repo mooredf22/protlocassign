@@ -2,8 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{fCPAone}
 \alias{fCPAone}
-\title{Carry out constrained proportional assignment for protein i;
-   service function for fitCPA}
+\title{CPA for protein i}
 \usage{
 fCPAone(
   profile,
@@ -24,12 +23,13 @@ level profiles of the subcellular locations}
 
 \item{numDataCols}{Number of channels of abundance levels}
 
-\item{startProps}{starting valuese for proportional assignements;
+\item{startProps}{starting values for proportional assignments;
 set equal if this is null (default)}
 
 \item{maxit}{maximum number of iterations (default is 10000)}
 
-\item{ind.vary}{if not NULL, indexes of proportions allowed to vary}
+\item{ind.vary}{if not NULL, indexes of proportions allowed to vary with 
+others constrained to zero}
 
 \item{minVal}{default is false. If true, return minimum value of
 goodness of fit}

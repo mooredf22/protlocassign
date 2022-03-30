@@ -2,10 +2,7 @@
 % Please edit documentation in R/fCPAsubsets.r
 \name{fCPAsubsets}
 \alias{fCPAsubsets}
-\title{Carry out constrained proportional assignment for protein
- number i in profile
- with constraint being the number of compartments that are allowed to
- vary freely; other compartment proportions are fixed at zero}
+\title{constrained CPA}
 \usage{
 fCPAsubsets(
   profile,
@@ -27,7 +24,7 @@ of the subcellular locations}
 
 \item{numDataCols}{Number of channels of abundance levels}
 
-\item{startProps}{starting valuese for proportional assignements;
+\item{startProps}{starting values for proportional assignments;
 set equal if this is null (default)}
 
 \item{showProgress}{default is T}

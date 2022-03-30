@@ -2,8 +2,7 @@
 % Please edit documentation in R/mixtureAreaError.r
 \name{mixtureAreaError}
 \alias{mixtureAreaError}
-\title{Compute area-based error for mixture of two
-   compartment profiles}
+\title{Area-based error of mixtures}
 \usage{
 mixtureAreaError(
   mixProtiProtjCPA,
@@ -17,8 +16,10 @@ mixtureAreaError(
 \item{mixProtiProtjCPA}{data frame of CPA estimated proportions
 for each mixture}
 
-\item{NstartMaterialFractions}{Number of fractions that comprise
-the starting material}
+\item{NstartMaterialFractions}{Number of fractions that reconstitute 
+the starting material, e.g., a complete set of differential 
+centrifugation fractions.  For experiment AT5, it is 6 
+( N, M, L1, L2, P, and S).}
 
 \item{Loc1}{row number of subcellular location 1 of mixture}
 

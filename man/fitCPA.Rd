@@ -2,7 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{fitCPA}
 \alias{fitCPA}
-\title{Carry out constrained proportional assignment on all proteins}
+\title{CPA for a set of proteins}
 \usage{
 fitCPA(
   profile,
@@ -24,14 +24,15 @@ profiles of the subcellular locations}
 
 \item{numDataCols}{Number of channels of abundance levels}
 
-\item{startProps}{starting valuese for proportional assignements;
+\item{startProps}{starting values for proportional assignments;
 set equal if this is null (default)}
 
 \item{maxit}{maximum number of iterations (default is 10000)}
 
 \item{showProgress}{print out progress if TRUE, the default}
 
-\item{ind.vary}{if not NULL, indexes of parameters to allow to vary}
+\item{ind.vary}{if not NULL, indexes of parameters to allow to vary; 
+remaining parameters are fixed at zero}
 
 \item{minVal}{default is false. If true, return minimum value of
 goodness of fit}
@@ -41,7 +42,8 @@ assignProbsOut  Data frame of proportional assignments
       of each protein to compartments
 }
 \description{
-Carry out constrained proportional assignment on all proteins
+Carry out constrained proportional assignment on a profiles
+ of set of proteins
 }
 \examples{
 data(protNSA_test)

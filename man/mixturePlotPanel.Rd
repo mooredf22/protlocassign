@@ -2,9 +2,7 @@
 % Please edit documentation in R/mixturePlotPanel.r
 \name{mixturePlotPanel}
 \alias{mixturePlotPanel}
-\title{plot mixture of all two compartment profile combinations as panel;
-  assumes eight compartments
-Also assumes that "refLocationProfilesRSA" has been previously defined}
+\title{Mixture plots of all pairwise simulated combinations}
 \usage{
 mixturePlotPanel(
   refLocationProfilesAcup,
@@ -22,7 +20,10 @@ compartment protein that ends up in a given centrifugation fraction}
 
 \item{totProt}{vector of amounts starting material in each fraction}
 
-\item{NstartMaterialFractions}{number of starting material fractions}
+\item{NstartMaterialFractions}{Number of fractions that reconstitute 
+the starting material, e.g., a complete set of differential 
+centrifugation fractions.  For experiment AT5, it is 6 
+( N, M, L1, L2, P, and S).}
 
 \item{errorReturn}{return all area-based errors if true}
 
@@ -36,9 +37,9 @@ compartment protein that ends up in a given centrifugation fraction}
 mixErrorMat a list of errors for all mixtures
 }
 \description{
-plot mixture of all two compartment profile combinations as panel;
-  assumes eight compartments
-Also assumes that "refLocationProfilesRSA" has been previously defined
+Plot mixture of all two compartment profile combinations as panel;
+  Assumes eight compartments.
+Assumes that "refLocationProfilesAcup" has been previously defined
 }
 \examples{
  # See Vignette 4 and Vignette 5 for a full explanation

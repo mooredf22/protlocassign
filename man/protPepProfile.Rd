@@ -2,7 +2,7 @@
 % Please edit documentation in R/protPepProfile.r
 \name{protPepProfile}
 \alias{protPepProfile}
-\title{put proteins and peptides together}
+\title{Interlace protein profiles and component peptide profiles}
 \usage{
 protPepProfile(flagPeps, numRefCols, numDataCols, protProfileData)
 }
@@ -19,7 +19,8 @@ protPepProfile(flagPeps, numRefCols, numDataCols, protProfileData)
 protein peptide data
 }
 \description{
-put proteins and peptides together
+Interlace profiles of proteins and their component peptides into a 
+single data frame.
 }
 \examples{
 set.seed(17356)

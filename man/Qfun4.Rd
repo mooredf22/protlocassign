@@ -2,7 +2,8 @@
 % Please edit documentation in R/cpaProgs.R
 \name{Qfun4}
 \alias{Qfun4}
-\title{internal function; goodness-of-fit measure}
+\title{goodness-of-fit
+internal function; goodness-of-fit measure}
 \usage{
 Qfun4(pvec, y, gmat, methodQ = "sumsquares")
 }
@@ -21,6 +22,7 @@ must sum to 1}
 value of goodness-of-fit function
 }
 \description{
+goodness-of-fit
 internal function; goodness-of-fit measure
 }
 \examples{

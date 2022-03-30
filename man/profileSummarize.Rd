@@ -2,10 +2,7 @@
 % Please edit documentation in R/profileSummarize.r
 \name{profileSummarize}
 \alias{profileSummarize}
-\title{protProfileSummarize calculates mean and SE for each channel in
-each prot using random effect model or arithmetic mean
-random effect model can avoid dominance of a sequence with
-too many spectra}
+\title{Calculate mean protein profiles and standard errors}
 \usage{
 profileSummarize(
   protsCombineCnew,
@@ -50,16 +47,16 @@ protProfileSummaryIdentity: mean or weighted mean normalized
          specific amount profiles
 }
 \description{
-protProfileSummarize calculates mean and SE for each channel in
-each prot using random effect model or arithmetic mean
+ProfileSummarize calculates mean and SE for each channel in
+each protein using random effect model or arithmetic mean
 random effect model can avoid dominance of a sequence with
 too many spectra
 }
 \examples{
 set.seed(17356)
 eps <- 0.029885209
-data(TLN1_test)
-flagSpectraBox <- outlierFind(protClass=TLN1_test,
+data(spectraNSA_test)
+flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
            outlierLevel='peptide', numRefCols=5, numDataCols=9,
            outlierMeth='boxplot', range=3, eps=eps,
            randomError=TRUE, cpus=1)

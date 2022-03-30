@@ -2,7 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{vectorizeAll}
 \alias{vectorizeAll}
-\title{normalize all rows of a matrix to have unit length}
+\title{unitize series of vectors}
 \usage{
 vectorizeAll(protMatOrig)
 }

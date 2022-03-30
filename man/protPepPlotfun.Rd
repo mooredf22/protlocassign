@@ -2,7 +2,7 @@
 % Please edit documentation in R/protPepProfilePlot.R
 \name{protPepPlotfun}
 \alias{protPepPlotfun}
-\title{Plot profiles of reference proteins}
+\title{Plot profile and peptide profiles with reference profiles}
 \usage{
 protPepPlotfun(
   protName,

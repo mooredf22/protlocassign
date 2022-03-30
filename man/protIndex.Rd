@@ -2,8 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{protIndex}
 \alias{protIndex}
-\title{return index of a protein name, or (if exactMatch=TRUE) indices of
-   proteins starting with the string given in 'protName'}
+\title{index of protein name}
 \usage{
 protIndex(protName, profile, exactMatch = FALSE)
 }

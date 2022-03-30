@@ -3,7 +3,7 @@
 \docType{data}
 \name{QuantPSM_test}
 \alias{QuantPSM_test}
-\title{Test data set with all spectra of QuantPSM_test profile}
+\title{Annotated peptide/spectra/protein test data set}
 \format{
 a test data set of NSA spectra
 
@@ -28,6 +28,8 @@ a test data set of NSA spectra
 data(QuantPSM_test)
 }
 \description{
+Test data set of annotated peptide spectrum matches and associated 
+NSA profiles, used to construct spectraNSA_test data set.
 Drawn from data from the TMT MS2 data, AT5 experiment; see Tannous et al
 }
 \examples{
