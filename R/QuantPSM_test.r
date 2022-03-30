@@ -1,5 +1,7 @@
-#' Test data set with all spectra of QuantPSM_test profile
-#'
+#' Annotated peptide/spectra/protein test data set
+#' 
+#' Test data set of annotated peptide spectrum matches and associated 
+#' NSA profiles, used to construct spectraNSA_test data set.
 #' Drawn from data from the TMT MS2 data, AT5 experiment; see Tannous et al
 #'
 #' @docType data

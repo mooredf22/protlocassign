@@ -1,5 +1,7 @@
-#' Set up RSA (relative specific amount) profiles for
-#'    constrained proportional assignment
+#' Convert NSA to Acup
+#' 
+#' Convert NSA (normalized specific amount) profiles to Acup 
+#' (relative amount) profiles
 #'
 #' @param NSA A matrix giving the specific amount or
 #'         normalized specific amount
@@ -7,8 +9,10 @@
 #'         'cpaSetup' (which requires
 #'         normalized specific amounts as input), or a list of
 #'         many protein profiles
-#' @param NstartMaterialFractions Number of differential fractions,
-#'         typically 6, for N, M, L1, L2, P, and S
+#' @param NstartMaterialFractions Number of fractions that reconstitute 
+#'       the starting material, e.g., a complete set of differential 
+#'       centrifugation fractions.  For experiment AT5, it is 6 
+#'       ( N, M, L1, L2, P, and S).
 #' @param totProt Total protein counts in each of the differential
 #'         and nycodenz fractions; this is necessary to compute RSA's
 #' @return Acup profiles
@@ -18,13 +22,13 @@
 #' data(protNSA_test)
 #' data(totProtAT5)
 #' protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-#'    NstartMaterialFractions = 9, totProt=totProtAT5)
-#'    protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 9,
+#'    NstartMaterialFractions = 6, totProt=totProtAT5)
+#' protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
 #'   totProt=totProtAT5)
 #' protNSA <- NSAfromRSA(protRSA)
 #' all.equal(protNSA, protNSA_test[,seq_len(9)] )
 #' protRSA2 <- RSAfromNSA(protNSA_test[,seq_len(9)],
-#'    NstartMaterialFractions = 9, totProt=totProtAT5)
+#'    NstartMaterialFractions = 6, totProt=totProtAT5)
 #' all.equal(protRSA, protRSA2)
 #' @export
 
@@ -58,12 +62,16 @@ AcupFromNSA <- function(NSA, NstartMaterialFractions,
 
 
 
-#' Compute relative specific amount from
-#'  relative amounts in protein fractions
+#' Convert Acup to RSA
+#' 
+#' Convert Acup (relative amount) profiles to RSA 
+#' (relative specific amount) profiles
 #' @param Acup amount of given protein in fraction /
 #'             amount of that given protein in starting material
-#' @param NstartMaterialFractions Number of differential fractions,
-#'       typically 6, for N, M, L1, L2, P, and S
+#' @param NstartMaterialFractions Number of fractions that reconstitute 
+#'       the starting material, e.g., a complete set of differential 
+#'       centrifugation fractions.  For experiment AT5, it is 6 
+#'       ( N, M, L1, L2, P, and S).
 #' @param totProt Total protein counts in each of the differential
 #'          and nycodenz fractions; this is necessary to compute RSA's
 #' @return rsa: relative specific amount
@@ -71,8 +79,8 @@ AcupFromNSA <- function(NSA, NstartMaterialFractions,
 #' data(protNSA_test)
 #' data(totProtAT5)
 #' protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-#'      NstartMaterialFractions = 9, totProt=totProtAT5)
-#' protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 9,
+#'      NstartMaterialFractions = 6, totProt=totProtAT5)
+#' protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
 #'      totProt=totProtAT5)
 #' protNSA <- NSAfromRSA(protRSA)
 #' all.equal(protNSA, protNSA_test[,seq_len(9)] )
@@ -107,20 +115,20 @@ RSAfromAcup <- function(Acup, NstartMaterialFractions,
 }
 
 
-
-
-
-#' Directly compute relative specific activity
-#'   from protProfileSummary
-#'   (or from markerProfiles)
+#' Convert NSA to RSA
+#' 
+#' Convert NSA (normalized specific amount) profiles to RSA
+#' (relative specific amount) profiles
 #' @param NSA A matrix giving the specific amount or
 #'           normalized specific amount
 #'           profiles, either marker profiles from 'cpaSetup'
 #'           (which requires
 #'           normalized specific amounts as input),
 #'           or a list of many protein profiles
-#' @param NstartMaterialFractions Number of differential fractions,
-#'           typically 6, for N, M, L1, L2, P, and S
+#' @param NstartMaterialFractions Number of fractions that reconstitute 
+#'       the starting material, e.g., a complete set of differential 
+#'       centrifugation fractions.  For experiment AT5, it is 6 
+#'       ( N, M, L1, L2, P, and S).
 #' @param totProt Total protein counts in each of the fractions;
 #'           this is necessary to compute RSA's
 #'
@@ -129,8 +137,8 @@ RSAfromAcup <- function(Acup, NstartMaterialFractions,
 #' data(protNSA_test)
 #' data(totProtAT5)
 #' protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-#'              NstartMaterialFractions = 9, totProt=totProtAT5)
-#' protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 9,
+#'              NstartMaterialFractions = 6, totProt=totProtAT5)
+#' protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
 #'              totProt=totProtAT5)
 #' protNSA <- NSAfromRSA(protRSA)
 #' all.equal(protNSA, protNSA_test[,seq_len(9)] )
@@ -164,7 +172,10 @@ RSAfromNSA <- function(NSA, NstartMaterialFractions,
     rsa
 }
 
-#' convert RSA to NSA
+#' Convert RSA to NSA
+#' 
+#' convert RSA (relative specific amount) profiles to NSA
+#' (normalized specific amount) profiles
 #' @param RSA relative specific activity
 #' @return NSA A matrix giving the specific amount
 #'        or normalized specific amount
@@ -175,8 +186,8 @@ RSAfromNSA <- function(NSA, NstartMaterialFractions,
 #' data(protNSA_test)
 #' data(totProtAT5)
 #' protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-#'            NstartMaterialFractions = 9, totProt=totProtAT5)
-#' protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 9,
+#'            NstartMaterialFractions = 6, totProt=totProtAT5)
+#' protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
 #'           totProt=totProtAT5)
 #' protNSA <- NSAfromRSA(protRSA)
 #' all.equal(protNSA, protNSA_test[,seq_len(9)] )
@@ -186,12 +197,16 @@ NSAfromRSA <- function(RSA) {
     NSA
 }
 
-#' Compute relative specific amount from
-#'  relative amounts in protein fractions
+#' Convert Acup to NSA
+#' 
+#' Convert Acup (relative amount) profiles to NSA
+#'  (normalized specific amount) profiles
 #' @param Acup amount of given protein in fraction /
 #'             amount of that given protein in starting material
-#' @param NstartMaterialFractions Number of differential fractions,
-#'         typically 6, for N, M, L1, L2, P, and S
+#' @param NstartMaterialFractions Number of fractions that reconstitute 
+#'       the starting material, e.g., a complete set of differential 
+#'       centrifugation fractions.  For experiment AT5, it is 6 
+#'       ( N, M, L1, L2, P, and S).
 #' @param totProt Total protein counts in each of the differential
 #'         and nycodenz fractions; this is necessary to compute RSA's
 #' @return NSA: normalized specific amount
@@ -199,8 +214,8 @@ NSAfromRSA <- function(RSA) {
 #' data(protNSA_test)
 #' data(totProtAT5)
 #' protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-#'             NstartMaterialFractions = 9, totProt=totProtAT5)
-#' protNSA <- NSAfromAcup(protAcup, NstartMaterialFractions = 9,
+#'             NstartMaterialFractions = 6, totProt=totProtAT5)
+#' protNSA <- NSAfromAcup(protAcup, NstartMaterialFractions = 6,
 #'             totProt=totProtAT5)
 #' all.equal(protNSA, protNSA_test[,seq_len(9)])
 #' @export
@@ -213,12 +228,16 @@ NSAfromAcup <- function(Acup, NstartMaterialFractions,
     NSA
 }
 
-#' Compute relative specific amount from
-#'  relative amounts in protein fractions
+#' Convert RSA to Acup
+#' 
+#' Convert RSA (relative specific amount) profiles to Acup
+#' (relative amount) profiles
 #' @param RSA amount of given protein in fraction /
 #'            amount of that given protein in starting material
-#' @param NstartMaterialFractions Number of differential fractions,
-#'            typically 6, for N, M, L1, L2, P, and S
+#' @param NstartMaterialFractions Number of fractions that reconstitute 
+#'       the starting material, e.g., a complete set of differential 
+#'       centrifugation fractions.  For experiment AT5, it is 6 
+#'       ( N, M, L1, L2, P, and S).
 #' @param totProt Total protein counts in each of the differential
 #'            and nycodenz fractions; this is necessary to compute RSA's
 #' @return Acup: relative amount
@@ -226,8 +245,8 @@ NSAfromAcup <- function(Acup, NstartMaterialFractions,
 #' data(protNSA_test)
 #' data(totProtAT5)
 #' protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-#'             NstartMaterialFractions = 9, totProt=totProtAT5)
-#' protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 9,
+#'             NstartMaterialFractions = 6, totProt=totProtAT5)
+#' protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
 #'             totProt=totProtAT5)
 #' protNSA <- NSAfromRSA(protRSA)
 #' all.equal(protNSA, protNSA_test[,seq_len(9)] )

@@ -1,10 +1,15 @@
-#' plot mixture of all two compartment profile combinations as panel;
-#'   assumes eight compartments
-#' Also assumes that "refLocationProfilesRSA" has been previously defined
+#' Mixture plots of all pairwise simulated combinations
+#' 
+#' Plot mixture of all two compartment profile combinations as panel;
+#'   Assumes eight compartments.
+#' Assumes that "refLocationProfilesAcup" has been previously defined
 #' @param refLocationProfilesAcup relative amount of a given cellular
 #'    compartment protein that ends up in a given centrifugation fraction
 #' @param totProt vector of amounts starting material in each fraction
-#' @param NstartMaterialFractions number of starting material fractions
+#' @param NstartMaterialFractions Number of fractions that reconstitute 
+#'       the starting material, e.g., a complete set of differential 
+#'       centrifugation fractions.  For experiment AT5, it is 6 
+#'       ( N, M, L1, L2, P, and S).
 #' @param errorReturn return all area-based errors if true
 #' @param fitType use RSA, NSA, or Acup
 #' @param log2Transf use log2-transformed values. Default is "FALSE"
@@ -105,7 +110,7 @@ mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
   x <- c(0,5)
   y <- c(0,1.1)
   par(mar=c(0,0,0,0))
-  plot(y ~ x,type="n",axes=FALSE,cex=1.9)
+  plot(y ~ x,type="n",axes=FALSE, cex=1.9, xlab="", ylab="")
   #aa <- 1.34
   #log2Transf <- F
   #log2Transf <- T
@@ -124,16 +129,16 @@ mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
   x <- c(0,5)
   y <- c(0,0.5)
   par(mar=c(0,0,0,0))
-  plot(y ~ x,type="n",axes=FALSE,cex=1)
+  plot(y ~ x,type="n",axes=FALSE, cex=1, xlab="", ylab="")
   #aa <- 1.34
 
-  text(x=2.5,y=0.3,"True proportion", cex=1.7)
+  text(x=2.5,y=0.3,"True proportion", cex=1.7, xlab="", ylab="")
 
   # create y-label on left side of plot (region 3)
   x <- c(0,5)
   y <- c(0,0.5)
   par(mar=c(0,0,0,0))
-  plot(y ~ x,type="n",axes=FALSE,cex=1.7)
+  plot(y ~ x,type="n",axes=FALSE,cex=1.7, xlab="", ylab="")
   #aa <- 1.34
 
   text(x=2.5,y=0.3,"Estimated proportion", cex=1.5, srt=90)

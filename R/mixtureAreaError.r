@@ -1,9 +1,13 @@
+#' Area-based error of mixtures
+#' 
 #' Compute area-based error for mixture of two
 #'    compartment profiles
 #' @param mixProtiProtjCPA data frame of CPA estimated proportions
 #'       for each mixture
-#' @param NstartMaterialFractions  Number of fractions that comprise
-#'       the starting material
+#' @param NstartMaterialFractions  Number of fractions that reconstitute 
+#'       the starting material, e.g., a complete set of differential 
+#'       centrifugation fractions.  For experiment AT5, it is 6 
+#'       ( N, M, L1, L2, P, and S).
 #' @param Loc1  row number of subcellular location 1 of mixture
 #' @param Loc2  row number of subcellular location 2 of mixture
 #' @param increment.prop  increment for computation; default is 0.1

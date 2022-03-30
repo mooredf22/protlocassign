@@ -1,4 +1,6 @@
-#' service function for profileSummarize
+#' Find mean profile for a protein
+#' 
+#' Service function for profileSummarize
 #'   find mean profiles for proteins, or for
 #'   protein-peptide combinations for specific peptide or protein
 #' @param i protID or pepID (only one)
@@ -21,19 +23,20 @@
 #'      id for protein i
 #' @param singularList If true, list proteins and channels with singular
 #'          lmer fit results; default is FALSE
-#' @return estimated means for all channels, and peptide or protein info
+#' @return estimated means for all channels, their standard errors,
+#' and peptide or protein info
 #' @examples
 #' set.seed(17356)
 #' eps <- 0.029885209
-#' data(TLN1_test)
-#' flagSpectraBox <- outlierFind(protClass=TLN1_test,
+#' data(spectraNSA_test)
+#' flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
 #'                               outlierLevel='peptide', numRefCols=5,
 #'                               numDataCols=9,
 #'                               outlierMeth='boxplot', range=3, eps=eps,
 #'                               randomError=TRUE)
 #' # examine numbers of spectra that are outliers
 #' table(flagSpectraBox$outlier.num.spectra)
-#' uniqueLabel <- flagSpectraBox$pepID
+#' uniqueLabel <- flagSpectraBox$pepId
 #' pepProfiles <- meansByProteins(i=uniqueLabel[1], uniqueLabel=uniqueLabel,
 #'           protsCombineCnew=flagSpectraBox,
 #'           numRefCols=6, numDataCols=9, GroupBy="peptideId",eps=eps,
@@ -232,8 +235,10 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 
 
 # ================================================================
-#' protProfileSummarize calculates mean and SE for each channel in
-#' each prot using random effect model or arithmetic mean
+#' Calculate mean protein profiles and standard errors
+#' 
+#' ProfileSummarize calculates mean and SE for each channel in
+#' each protein using random effect model or arithmetic mean
 #' random effect model can avoid dominance of a sequence with
 #' too many spectra
 #'
@@ -261,8 +266,8 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #' @examples
 #' set.seed(17356)
 #' eps <- 0.029885209
-#' data(TLN1_test)
-#' flagSpectraBox <- outlierFind(protClass=TLN1_test,
+#' data(spectraNSA_test)
+#' flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
 #'            outlierLevel='peptide', numRefCols=5, numDataCols=9,
 #'            outlierMeth='boxplot', range=3, eps=eps,
 #'            randomError=TRUE, cpus=1)

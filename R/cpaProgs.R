@@ -1,3 +1,5 @@
+#' Reference profiles for CPA
+#' 
 #' Set up reference profiles for constrained proportional assignment
 #'
 #' @param profile data frame of protein identifiers (protName)
@@ -107,7 +109,7 @@ locationProfileSetup <- function(profile, markerList,
     refLocationProfiles
 }
 
-
+#' goodness-of-fit
 
 #' internal function; goodness-of-fit measure
 #' @param pvec vector of assignment proportions to
@@ -140,8 +142,11 @@ Qfun4 <- function(pvec, y, gmat, methodQ = "sumsquares") {
         result <- sum(abs(resultA))
     result
 }
+#' constrained goodness-of-fit 
+#' 
 #' internal function; goodness-of-fit measure for
-#' subset of varying parameters
+#' subset of varying parameters while other parameters
+#' are fixed at zero.
 #' @param pvec.vary vector of assignment proportions to
 #'         compartments; to be estimated
 #' @param yy observed data for amounts of protein in
@@ -236,6 +241,8 @@ projSimplex <- function(y) {
 }
 
 
+#' index of protein name
+#' 
 #' return index of a protein name, or (if exactMatch=TRUE) indices of
 #'    proteins starting with the string given in 'protName'
 #' @param protName  name of protein to search for
@@ -276,6 +283,8 @@ protIndex <- function(protName, profile, exactMatch = FALSE) {
     result
 }
 
+#' CPA for protein i
+#' 
 #' Carry out constrained proportional assignment for protein i;
 #'    service function for fitCPA
 #' @param profile data frame of one protein name (row name) and
@@ -283,10 +292,11 @@ protIndex <- function(protName, profile, exactMatch = FALSE) {
 #' @param refLocationProfiles A matrix giving the abundance
 #'        level profiles of the subcellular locations
 #' @param numDataCols Number of channels of abundance levels
-#' @param startProps starting valuese for proportional assignements;
+#' @param startProps starting values for proportional assignments;
 #'        set equal if this is null (default)
 #' @param maxit maximum number of iterations (default is 10000)
-#' @param ind.vary if not NULL, indexes of proportions allowed to vary
+#' @param ind.vary if not NULL, indexes of proportions allowed to vary with 
+#'        others constrained to zero
 #' @param minVal default is false. If true, return minimum value of
 #'               goodness of fit
 #' @examples
@@ -478,18 +488,22 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
 
 
 
-#' Carry out constrained proportional assignment on all proteins
+#' CPA for a set of proteins
+#' 
+#' Carry out constrained proportional assignment on a profiles
+#'  of set of proteins
 #'
 #' @param profile a data frame of protein names (row names) and
 #'       relative abundance levels.
 #' @param refLocationProfiles A matrix giving the abundance level
 #'       profiles of the subcellular locations
 #' @param numDataCols Number of channels of abundance levels
-#' @param startProps starting valuese for proportional assignements;
+#' @param startProps starting values for proportional assignments;
 #'       set equal if this is null (default)
 #' @param maxit maximum number of iterations (default is 10000)
 #' @param showProgress print out progress if TRUE, the default
-#' @param ind.vary if not NULL, indexes of parameters to allow to vary
+#' @param ind.vary if not NULL, indexes of parameters to allow to vary; 
+#'        remaining parameters are fixed at zero
 #' @param minVal default is false. If true, return minimum value of
 #'       goodness of fit
 #' @export
@@ -585,6 +599,8 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
 }
 
 
+#' capitalize first character
+#' 
 #' convert single protein name to capitalize first character only
 #' @param x a protein name
 #' @return single protein name to capitalize first character only
@@ -602,7 +618,10 @@ protCap <- function(x) {
     paste(firstLetter, remainingLetters, sep = "")
 }
 
-#' assign proteins to a subcellular location using CPA estimates
+#' assign to subcellular locaction
+#' 
+#' assign proteins to the most prevalent subcellular location 
+#' (meeting a specific cutoff) using CPA estimates
 #'
 #' @param assignLocProps matrix of proportion estimates for each protein
 #' @param cutoff cutoff for assigning a protein to a location
@@ -647,6 +666,8 @@ assignCPAloc <- function(assignLocProps, cutoff = 0.8,
 }
 
 # unitize functions # # #
+#' unitize vector
+#' 
 #' normalize vector xx to have unit length
 #' @param xx vector
 #' @return nomalized vector of unit length
@@ -664,6 +685,8 @@ vecUnitize <- function(xx) {
     xx.norm
 }
 
+#' unitize series of vectors
+#' 
 #' normalize all rows of a matrix to have unit length
 #' @param protMatOrig matrix of profiles
 #' @return matrix with all rows having unit length

@@ -1,8 +1,14 @@
-#' plot mixture of two compartment profiles
+#' Plot mixture of two compartment profiles
+#' 
+#' For a simulated mixture of any two proteins from different subcellular
+#'   locations, plot the CPA estimates and original mixture proportions.
+#'   
 #' @param mixProtiProtjCPA data frame of CPA estimated proportions
 #'     for each mixture
-#' @param NstartMaterialFractions  Number of fractions that comprise
-#'     the starting material
+#' @param NstartMaterialFractions Number of fractions that reconstitute 
+#'       the starting material, e.g., a complete set of differential 
+#'       centrifugation fractions.  For experiment AT5, it is 6 
+#'       ( N, M, L1, L2, P, and S).
 #' @param Loc1  row number of subcellular location 1 of mixture
 #' @param Loc2  row number of subcellular location 2 of mixture
 #' @param increment.prop  increments in proportions of Loc1 vos Loc2;

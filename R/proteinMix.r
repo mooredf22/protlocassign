@@ -1,4 +1,8 @@
-#' compute a mixture of proteins in two compartments
+#' Simulate mixture protein resident in two compartments
+#' 
+#' Compute the profile of proteins distributed between two compartments in
+#'  specified proportions
+#'  
 #' @param AcupRef amount of given protein in fraction /
 #'                amount of given protein in starting material
 #' @param Loc1  row number of one compartment

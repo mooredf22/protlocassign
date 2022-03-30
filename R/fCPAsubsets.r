@@ -1,3 +1,5 @@
+#' constrained CPA
+#' 
 #' Carry out constrained proportional assignment for protein
 #'  number i in profile
 #'  with constraint being the number of compartments that are allowed to
@@ -8,7 +10,7 @@
 #' @param refLocationProfiles A matrix giving the abundance level profiles
 #'    of the subcellular locations
 #' @param numDataCols Number of channels of abundance levels
-#' @param startProps starting valuese for proportional assignements;
+#' @param startProps starting values for proportional assignments;
 #'    set equal if this is null (default)
 #' @param showProgress   default is T
 #' @param maxit maximum number of iterations (default is 10000)

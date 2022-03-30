@@ -1,4 +1,9 @@
-#' combine proteins and peptides; service function for protPepProfile
+#' Interlace protein profiles and component peptide profiles
+#' 
+#' Service function for protPepProfile.
+#' Interlace profiles of proteins and their component peptides into a 
+#' single data frame.
+#' 
 #' @param i protein i
 #' @param flagPeps indicator for outliers
 #' @param numRefCols  number of reference columns
@@ -90,7 +95,10 @@ protPepProfile_i <- function(i, flagPeps, numRefCols,
     protPepData.i
 }
 
-#' put proteins and peptides together
+#'Interlace protein profiles and component peptide profiles 
+#' 
+#' Interlace profiles of proteins and their component peptides into a 
+#' single data frame.
 #' @param flagPeps indicator for outliers
 #' @param numRefCols  number of reference olumns
 #' @param numDataCols Number of data columns

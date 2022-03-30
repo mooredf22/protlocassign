@@ -1,8 +1,10 @@
+#' Properly format a protein/spectral data set for further analysis
+#' 
 #' The program ensures that spectra are nested within peptides, and these
 #'  are nested within proteins, and all peptide and protein data are
-#'  contiguous. That is, not split up into separate locations
-#' This program should be run first on a comma-separeted data file
-#'
+#'  contiguous. That is, not split up into separate locations.
+#' Assigns unique numbers to each protein and each peptide within protein.
+#' This program should be run first on a comma-separeted data file.
 #' The first column must contain prot name, and the second must be the peptide
 #' The columns after 'numRefCols' contain relative abundance levels
 #' There should be 'numDataCols' abundance level columns

@@ -1,9 +1,6 @@
-# compute distances, and find nearest genes
 
-# first, create a distance matrix, n.genes by
-# n.genes
-
-
+#' Compute distances between proteins
+#' 
 #' Compute distances between a particular protein or profile
 #'  and all other proteins,
 #'  and list the nearest ones

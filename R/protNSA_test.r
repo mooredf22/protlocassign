@@ -1,8 +1,9 @@
+#' Spectral-level test data set
+#' 
 #' Test data set with  TLN1, TLN2, AIF1, NSA mean profiles
 #'   as well as mean profiles of all of the proteins 
 #'   listed in "markerListJadot".
-#'
-#' Data from the TMT MS2 data, AT5 experiment; see Tannous et al
+#'   Data from the TMT MS2 data, AT5 experiment; see Tannous et al
 #'
 #' @docType data
 #' @format a test data set

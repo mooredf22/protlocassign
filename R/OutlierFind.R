@@ -1,8 +1,9 @@
-
-
-#' service function for outlierFind to identify
-#' outliers in a matrix using both scoresMod and
+#' Find outlier spectra within a protein
+#' 
+#' Service function for outlierFind to identify
+#' outlier spectra within a protein using both scoresMod and
 #' boxplotMod
+#' 
 #' @param i unique identifier for protein i
 #' @param protClass a matrix of protein, peptide identifiers and
 #'         normalized specific amounts
@@ -24,13 +25,13 @@
 #' @examples
 #' set.seed(63561)
 #' eps <- 0.029885209
-#' data(TLN1_test)
-#' uniqueLabel <- TLN1_test$pepId[1]
+#' data(spectraNSA_test)
+#' uniqueLabel <- spectraNSA_test$pepId[1]
 #' flagSpectraBox <- outlierFind_i(i=uniqueLabel, protClass=TLN1_test,
 #'                       outlierLevel='peptide', numRefCols=5, numDataCols=9,
 #'                       outlierMeth='boxplot', range=3, proba=NA, eps=eps,
 #'                       randomError=TRUE)
-#' flagSpectraBox
+#' str(flagSpectraBox)
 #' # examine numbers of spectra that are outliers
 #' @importFrom graphics boxplot
 #' @importFrom outliers scores
@@ -157,8 +158,10 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 
 
 # ================================================================
-#' outlierFind to identify outliers in a matrix
-#' using both scoresMod and boxplotMod
+#' Identify outlier spectra in a series of proteins
+#' 
+#' Identify outlier spectra profiles for a series of proteins or 
+#'   protein identifiers using both scoresMod and boxplotMod
 #'
 #' @param     protClass a matrix of protein, peptide identifiers and
 #'            normalized specific amounts
@@ -181,8 +184,8 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 #' @examples
 #' set.seed(17356)
 #' eps <- 0.029885209
-#' data(TLN1_test)
-#' flagSpectraBox <- outlierFind(protClass=TLN1_test,
+#' data(spectraNSA_test)
+#' flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
 #'                               outlierLevel='peptide', numRefCols=5,
 #'                               numDataCols=9,
 #'                               outlierMeth='boxplot', range=3, eps=eps,

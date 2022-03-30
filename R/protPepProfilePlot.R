@@ -1,5 +1,5 @@
-#' Plot profiles of reference proteins
-#'
+#' Plot profile and peptide profiles with reference profiles
+#' 
 #' This function plots the average profiles of any protein in the dataset,
 #'   the peptide profiles, and also the reference profile for each compartment
 #'

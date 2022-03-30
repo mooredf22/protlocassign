@@ -1,7 +1,8 @@
+#' Protein test data set with spectral level profiles
+#' 
 #' Test data set with all spectra of TLN1, TLN2, AIF1, NSA profiles
 #'   as well as of all of the proteins listed in "markerListJadot".`
-#'
-#' Data from the TMT MS2 data, AT5 experiment; see Tannous et al
+#'  Data from the TMT MS2 data, AT5 experiment; see Tannous et al
 #'
 #' @docType data
 #' @format a test data set of all NSA spectra of TLN1
@@ -31,7 +32,7 @@
 #'  Sleat, D. E.; Jadot, M.; Lobel, P., Comparative Analysis of
 #'  Quantitative Mass Spectrometric Methods for Subcellular Proteomics.
 #'  J Proteome Res 2020, 19, (4), 1718-1730.
-#' @usage data(TLN1_test)
+#' @usage data(spectraNSA_test)
 #' @examples
 #' data(spectraNSA_test)
 #' str(spectraNSA_test)

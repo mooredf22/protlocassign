@@ -1,10 +1,16 @@
 
-#' plot mixture of all two compartment profile combinations as panel;
-#'    assumes eight compartments
+#' Heat map of mixture CPA errors
+#' 
+#' Produce heat map of errors of mixture of all two compartment profile 
+#' combinations as panel; assumes eight compartments
+#' 
 #' @param Acup relative amount of a given cellular
 #'    compartment protein that ends up in a given centrifugation fraction
 #' @param totProt vector of amounts starting material in each fraction
-#' @param NstartMaterialFractions number of fractions in starting material
+#' @param NstartMaterialFractions Number of fractions that reconstitute 
+#'       the starting material, e.g., a complete set of differential 
+#'       centrifugation fractions.  For experiment AT5, it is 6 
+#'       ( N, M, L1, L2, P, and S).
 #' @param eps small positive constant to add before taking a log transformation
 #' @return color heat map of errors
 #' @examples
