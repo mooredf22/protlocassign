@@ -1,11 +1,14 @@
 #' Protein test data set with spectral level profiles
 #' 
-#' Test data set with all spectra of TLN1, TLN2, AIF1, NSA profiles
-#'   as well as of all of the proteins listed in "markerListJadot".`
-#'  Data from the TMT MS2 data, AT5 experiment; see Tannous et al
+#' Test data set consisting of descriptive information and NSA profiles 
+#'   for all peptide-spectrum matches associated with
+#'   TLN1, TLN2, AIF1, NSA profiles
+#'   and proteins listed in "markerListJadot".`
+#'  Data from the TMT MS2 data, AT5 experiment; see Tannous et al.
 #'
 #' @docType data
-#' @format a test data set of all NSA spectra of TLN1
+#' @format a test data set of descriptive information and NSA 
+#'  profiles for spectra
 #'
 #' \describe{
 #'   \item{\code{prot}}{protein name}

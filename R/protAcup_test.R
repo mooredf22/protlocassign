@@ -1,13 +1,11 @@
-#' Protein-level test data set, NSA profiles
-#' 
-#' NSA profiles.  NSA refers to data in the form of normalized 
-#'   specific amounts, where a constant amount of total protein from each 
-#'   fraction is analyzed and the signal attributed to a specific protein 
-#'   in each fraction is scaled so the values sum to one (see Tutorial 3).  
-#'   The test data set was derived from TMT MS2 data from experiment 
-#'   AT5 of Tannous et al and consists of mean profiles for proteins
-#'   TLN1, TLN2, AIF1, and 
-#'   the proteins and listed in “markerListJadot”. 
+#' Protein-level test data set, Acup profiles
+#'
+#' Acup profiles.  Acup denotes relative amounts, which is the amount 
+#'   of given protein in a fraction / amount of that given protein 
+#'   in starting material (see Tutorial 3).  
+#'   The test set was derived from TMT MS2 data from experiment AT5 of 
+#'   Tannous et al and consists of mean profiles for proteins 
+#'   TLN1, TLN2, AIF1 and those listed in “markerListJadot”. 
 #' 
 #'
 #' @docType data
@@ -34,8 +32,8 @@
 #'  Quantitative Mass Spectrometric Methods for Subcellular Proteomics.
 #'  J Proteome Res 2020, 19, (4), 1718-1730.
 #'
-#' @usage data(protNSA_test)
+#' @usage data(protAcup_test)
 #' @examples
-#' data(protNSA_test)
-#' str(protNSA_test)
-"protNSA_test"
+#' data(protAcup_test)
+#' str(protAcup_test)
+"protAcup_test"

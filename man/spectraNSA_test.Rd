@@ -27,7 +27,7 @@ a test data set of all NSA spectra of TLN1
 }
 }
 \usage{
-data(TLN1_test)
+data(spectraNSA_test)
 }
 \description{
 Test data set with all spectra of TLN1, TLN2, AIF1, NSA profiles

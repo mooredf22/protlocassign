@@ -599,25 +599,6 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
 }
 
 
-#' capitalize first character
-#' 
-#' convert single protein name to capitalize first character only
-#' @param x a protein name
-#' @return single protein name to capitalize first character only
-#' @export
-#' @examples
-#' protCap('tpp1')
-protCap <- function(x) {
-    # convert single protein name to capitalize
-    # first character only Typically, human
-    # proteins are all in capitals and rat are
-    # capitalized (first character only) with the
-    # rest in lower case.
-    firstLetter <- toupper(substring(x, 1, 1))
-    remainingLetters <- tolower(substring(x, 2))
-    paste(firstLetter, remainingLetters, sep = "")
-}
-
 #' assign to subcellular locaction
 #' 
 #' assign proteins to the most prevalent subcellular location 
