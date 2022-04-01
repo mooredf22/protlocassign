@@ -138,13 +138,13 @@ locationProfileSetup <- function(profile, markerList,
 # make vector for candidate CPA value to be evaluated
 
 #' pvec1 <- c(1, 0, 0)  # 100% in compartment A, 0% in compartment B2,
-#'    0% in compartment C
+#'  #  0% in compartment C
 #' pvec2<-c(0, 1, 0)  # 0% in compartment A, 100% in compartment B2, 
-#'    0% in compartment C
+#'  #  0% in compartment C
 #' pvec3<-c(0,0,1)  # 0% in compartment A, 0% in compartment B2, 
-#'    100% in compartment C
+#'  #  100% in compartment C
 #' pvec4<-c(0.2, 0.3, 0.5) #20% in compartment A, 30% in compartment B2, 
-#'    50% in compartment C
+#'  #  50% in compartment C
 #' 
 #' Qfun4(pvec1, yy, gmat)
 #' Qfun4(pvec2, yy, gmat)
