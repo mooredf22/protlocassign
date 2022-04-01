@@ -13,7 +13,7 @@ but has been removed here.
 
 }
 \format{
-  A data frame with 39 observations on the following 2 variables.
+  A data frame with 37 observations on the following 2 variables.
   \describe{
     \item{\code{protName}}{a factor with levels \code{ACP2}
      \code{ATP1A1} \code{B4GALT1} \code{CANX}
@@ -43,6 +43,6 @@ doi:10.1074/mcp.M116.064527 PMCID: PMC5294208
 
 \examples{
 data(markerListJadot)
-str(markerListJadot)
+head(markerListJadot)
 }
 \keyword{datasets}

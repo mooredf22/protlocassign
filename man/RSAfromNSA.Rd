@@ -7,12 +7,8 @@
 RSAfromNSA(NSA, NstartMaterialFractions, totProt = NULL)
 }
 \arguments{
-\item{NSA}{A matrix giving the specific amount or
-normalized specific amount
-profiles, either marker profiles from 'cpaSetup'
-(which requires
-normalized specific amounts as input),
-or a list of many protein profiles}
+\item{NSA}{A matrix giving normalized specific amount profiles 
+(see help file for protNSA_test)}
 
 \item{NstartMaterialFractions}{Number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
@@ -23,7 +19,16 @@ centrifugation fractions.  For experiment AT5, it is 6
 this is necessary to compute RSA's}
 }
 \value{
-rsa: relative specific activity
+RSA profiles.  RSA is the ratio of two ratios: 
+   the numerator is the amount of a given protein in a particular 
+   fraction divided by the amount of that given protein in the 
+   starting material while the denominator is amount of total protein 
+   in a particular fraction divided by the amount of total protein 
+   in the starting material. The RSA describes the fold-enrichment 
+   (RSA>1) or depletion (RSA<1) of a protein during the 
+   fractionation process, and is analogous to the 
+   relative specific activity term used in classical 
+   analytical subcellular fractionation
 }
 \description{
 Convert NSA (normalized specific amount) profiles to RSA
@@ -32,10 +37,8 @@ Convert NSA (normalized specific amount) profiles to RSA
 \examples{
 data(protNSA_test)
 data(totProtAT5)
-protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-             NstartMaterialFractions = 6, totProt=totProtAT5)
-protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
+protRSA_out2 <- RSAfromNSA(protNSA_test[,seq_len(9)], 
+             NstartMaterialFractions = 6,
              totProt=totProtAT5)
-protNSA <- NSAfromRSA(protRSA)
-all.equal(protNSA, protNSA_test[,seq_len(9)] )
+round(head(protRSA_out2), digits=4)
 }

@@ -7,26 +7,27 @@
 NSAfromRSA(RSA)
 }
 \arguments{
-\item{RSA}{relative specific activity}
+\item{RSA}{profiles.  RSA is the ratio of two ratios: 
+the numerator is the amount of a given protein in a particular 
+fraction divided by the amount of that given protein in the 
+starting material while the denominator is amount of total protein 
+in a particular fraction divided by the amount of total protein 
+in the starting material. The RSA describes the fold-enrichment 
+(RSA>1) or depletion (RSA<1) of a protein during the 
+fractionation process, and is analogous to the 
+relative specific activity term used in classical 
+analytical subcellular fractionation.}
 }
 \value{
-NSA A matrix giving the specific amount
-       or normalized specific amount
-       profiles, either marker profiles from 'cpaSetup' (which requires
-       normalized specific amounts as input),
-           or a list of many protein profiles
+NSA A matrix giving normalized specific amount profiles 
+   (see help file for protNSA_test)
 }
 \description{
 convert RSA (relative specific amount) profiles to NSA
 (normalized specific amount) profiles
 }
 \examples{
-data(protNSA_test)
-data(totProtAT5)
-protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-           NstartMaterialFractions = 6, totProt=totProtAT5)
-protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
-          totProt=totProtAT5)
-protNSA <- NSAfromRSA(protRSA)
-all.equal(protNSA, protNSA_test[,seq_len(9)] )
+data(protRSA_test)
+protNSA_out2 <- NSAfromRSA(protRSA_test[,seq_len(9)])
+round(head(protNSA_out2), digits=4)
 }

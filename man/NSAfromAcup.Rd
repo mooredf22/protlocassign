@@ -7,30 +7,34 @@
 NSAfromAcup(Acup, NstartMaterialFractions, totProt = NULL)
 }
 \arguments{
-\item{Acup}{amount of given protein in fraction /
-amount of that given protein in starting material}
+\item{Acup}{profiles;
+amount of given protein in fraction /
+amount of that given protein in starting material
+(see help file for protAcup_test).}
 
 \item{NstartMaterialFractions}{Number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
 centrifugation fractions.  For experiment AT5, it is 6 
 ( N, M, L1, L2, P, and S).}
 
-\item{totProt}{Total protein counts in each of the differential
-and nycodenz fractions; this is necessary to compute RSA's}
+\item{totProt}{Number of fractions that reconstitute 
+the starting material, e.g., a complete set of differential 
+centrifugation fractions.  For experiment AT5, it is 6 
+( N, M, L1, L2, P, and S).}
 }
 \value{
-NSA: normalized specific amount
+NSA A matrix giving normalized specific amount profiles 
+   (see help file for protNSA_test)
 }
 \description{
 Convert Acup (relative amount) profiles to NSA
  (normalized specific amount) profiles
 }
 \examples{
-data(protNSA_test)
+data(protAcup_test)
 data(totProtAT5)
-protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-            NstartMaterialFractions = 6, totProt=totProtAT5)
-protNSA <- NSAfromAcup(protAcup, NstartMaterialFractions = 6,
+protNSA_out1 <- NSAfromAcup(protAcup_test[,seq_len(9)], 
+            NstartMaterialFractions = 6,
             totProt=totProtAT5)
-all.equal(protNSA, protNSA_test[,seq_len(9)])
+round(head(protNSA_out1), digits=4)
 }

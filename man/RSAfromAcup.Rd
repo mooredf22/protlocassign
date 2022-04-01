@@ -7,31 +7,42 @@
 RSAfromAcup(Acup, NstartMaterialFractions, totProt = NULL)
 }
 \arguments{
-\item{Acup}{amount of given protein in fraction /
-amount of that given protein in starting material}
+\item{Acup}{profiles;
+amount of given protein in fraction /
+amount of that given protein in starting material
+(see help file for protAcup_test).}
 
 \item{NstartMaterialFractions}{Number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
 centrifugation fractions.  For experiment AT5, it is 6 
 ( N, M, L1, L2, P, and S).}
 
-\item{totProt}{Total protein counts in each of the differential
-and nycodenz fractions; this is necessary to compute RSA's}
+\item{totProt}{Number of fractions that reconstitute 
+the starting material, e.g., a complete set of differential 
+centrifugation fractions.  For experiment AT5, it is 6 
+( N, M, L1, L2, P, and S).}
 }
 \value{
-rsa: relative specific amount
+RSA profiles.  RSA is the ratio of two ratios: 
+   the numerator is the amount of a given protein in a particular 
+   fraction divided by the amount of that given protein in the 
+   starting material while the denominator is amount of total protein 
+   in a particular fraction divided by the amount of total protein 
+   in the starting material. The RSA describes the fold-enrichment 
+   (RSA>1) or depletion (RSA<1) of a protein during the 
+   fractionation process, and is analogous to the 
+   relative specific activity term used in classical 
+   analytical subcellular fractionation
 }
 \description{
 Convert Acup (relative amount) profiles to RSA 
 (relative specific amount) profiles
 }
 \examples{
-data(protNSA_test)
+data(protAcup_test)
 data(totProtAT5)
-protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
-     NstartMaterialFractions = 6, totProt=totProtAT5)
-protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
+protRSA_out1 <- RSAfromAcup(protAcup_test[,seq_len(9)], 
+     NstartMaterialFractions = 6,
      totProt=totProtAT5)
-protNSA <- NSAfromRSA(protRSA)
-all.equal(protNSA, protNSA_test[,seq_len(9)] )
+round(head(protRSA_out1), digits=4)
 }

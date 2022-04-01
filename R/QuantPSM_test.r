@@ -1,12 +1,12 @@
-#' Annotated peptide/spectra/protein test data set
+#' Test data set containing spectral level profiles not yet 
+#'    formatted for use with prolocassign package
 #' 
-#' Test data frame that is the precursor for spectraNSA_test 
-#'   and is used as input for the function proteinDataPrep.  
-#'   It contains descriptive information and NSA profiles for all 
-#'   peptide-spectrum matches associated with with all spectra of 
-#'   TLN1, TLN2, AIF1 , NSA profiles as well as ofand all of the proteins 
-#'   listed in "markerListJadot".' 
-#'   Data from the TMT MS2 data, AT5 experiment; see Tannous et al
+#' Test data frame that is the precursor for spectraNSA_test and 
+#'    is used as input for the function proteinDataPrep.  
+#'    It contains descriptive information and NSA profiles for all 
+#'    peptide-spectrum matches associated with all spectra of 
+#'    TLN1, TLN2, AIF1 and the proteins listed in "markerListJadot".' 
+#'    Data are from the TMT MS2 data, AT5 experiment; see Tannous et al
 #'
 #' @docType data
 #' @format a test data set of NSA spectra

@@ -3,7 +3,7 @@
 \docType{data}
 \name{spectraNSA_test}
 \alias{spectraNSA_test}
-\title{Protein test data set with spectral level profiles}
+\title{Test data set with spectral level profiles}
 \format{
 a test data set of descriptive information and NSA 
  profiles for spectra
@@ -33,7 +33,7 @@ data(spectraNSA_test)
 \description{
 Test data set consisting of descriptive information and NSA profiles 
   for all peptide-spectrum matches associated with
-  TLN1, TLN2, AIF1, NSA profiles
+  TLN1, TLN2, AIF1, 
   and proteins listed in "markerListJadot".`
  Data from the TMT MS2 data, AT5 experiment; see Tannous et al.
 }

@@ -7,31 +7,31 @@
 AcupFromRSA(RSA, NstartMaterialFractions, totProt = NULL)
 }
 \arguments{
-\item{RSA}{amount of given protein in fraction /
-amount of that given protein in starting material}
+\item{RSA}{A matrix giving relative specific amount profiles 
+(see help file for protRSA_test).}
 
 \item{NstartMaterialFractions}{Number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
 centrifugation fractions.  For experiment AT5, it is 6 
 ( N, M, L1, L2, P, and S).}
 
-\item{totProt}{Total protein counts in each of the differential
-and nycodenz fractions; this is necessary to compute RSA's}
+\item{totProt}{Total protein amount (derived from a given amount of 
+starting material) in each of the fractions comprising the profile.
+See help file for totProtAT5.}
 }
 \value{
-Acup: relative amount
+Acup profiles: amount of given protein in fraction / 
+        amount of that given protein in starting material 
+        (see help file protAcup_test).
 }
 \description{
 Convert RSA (relative specific amount) profiles to Acup
 (relative amount) profiles
 }
 \examples{
-data(protNSA_test)
+data(protRSA_test)
 data(totProtAT5)
-protAcup <- AcupFromNSA(protNSA_test[,seq_len(9)],
+protAcup_out2 <- AcupFromRSA(protRSA_test[,seq_len(9)],
             NstartMaterialFractions = 6, totProt=totProtAT5)
-protRSA <- RSAfromAcup(protAcup, NstartMaterialFractions = 6,
-            totProt=totProtAT5)
-protNSA <- NSAfromRSA(protRSA)
-all.equal(protNSA, protNSA_test[,seq_len(9)] )
+head(protAcup_out2)
 }
