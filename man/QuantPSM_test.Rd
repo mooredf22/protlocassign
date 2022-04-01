@@ -3,9 +3,11 @@
 \docType{data}
 \name{QuantPSM_test}
 \alias{QuantPSM_test}
-\title{Annotated peptide/spectra/protein test data set}
+\title{Test data set containing spectral level profiles not yet 
+   formatted for use with prolocassign package}
 \format{
-a test data set of NSA spectra
+A data frame containing  NSA profiles and descriptive 
+       information for spectra
 
 \describe{
   \item{\code{Protein.Gene}}{protein name}
@@ -28,13 +30,12 @@ a test data set of NSA spectra
 data(QuantPSM_test)
 }
 \description{
-Test data frame that is the precursor for spectraNSA_test 
-  and is used as input for the function proteinDataPrep.  
-  It contains descriptive information and NSA profiles for all 
-  peptide-spectrum matches associated with with all spectra of 
-  TLN1, TLN2, AIF1 , NSA profiles as well as ofand all of the proteins 
-  listed in "markerListJadot".' 
-  Data from the TMT MS2 data, AT5 experiment; see Tannous et al
+Test data frame that is the precursor for spectraNSA_test and 
+   is used as input for the function proteinDataPrep.  
+   It contains descriptive information and NSA profiles for all 
+   peptide-spectrum matches associated with all spectra of 
+   TLN1, TLN2, AIF1 and the proteins listed in "markerListJadot".' 
+   Data are from the TMT MS2 data, AT5 experiment; see Tannous et al
 }
 \examples{
 data(QuantPSM_test)

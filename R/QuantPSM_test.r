@@ -9,7 +9,8 @@
 #'    Data are from the TMT MS2 data, AT5 experiment; see Tannous et al
 #'
 #' @docType data
-#' @format a test data set of NSA spectra
+#' @format A data frame containing  NSA profiles and descriptive 
+#'        information for spectra
 #'
 #' \describe{
 #'   \item{\code{Protein.Gene}}{protein name}
