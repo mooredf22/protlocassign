@@ -2,7 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{assignCPAloc}
 \alias{assignCPAloc}
-\title{assign to subcellular locaction}
+\title{assign to single subcellular locaction}
 \usage{
 assignCPAloc(assignLocProps, cutoff = 0.8, Locations)
 }
@@ -17,8 +17,9 @@ assignCPAloc(assignLocProps, cutoff = 0.8, Locations)
 protLoc assigned location of protein
 }
 \description{
-assign proteins to the most prevalent subcellular location 
-(meeting a specific cutoff) using CPA estimates
+Assign proteins to the most prevalent subcellular location 
+(meeting a specific cutoff) using CPA estimates,
+with minimum value being 0.5.
 }
 \examples{
 data(protNSA_test)

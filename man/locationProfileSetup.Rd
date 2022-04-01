@@ -15,16 +15,16 @@ and their relative abundance in centrifugation fractions.}
 \item{numDataCols}{Number of channels of abundance levels}
 }
 \value{
-A matrix refLocationProfiles giving the abundance level profiles of
+A data frame 'refLocationProfiles' of profiles of
         the subcellular locations
 }
 \description{
 Set up reference profiles for constrained proportional assignment
 }
 \examples{
-#data(protNSA_AT5tmtMS2)
 data(protNSA_test)
 data(markerListJadot)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
+refLocProfNSA_out <- locationProfileSetup(profile=protNSA_test,
   markerList=markerListJadot, numDataCols=9)
+round(head(refLocProfNSA_out), digits=4)
 }

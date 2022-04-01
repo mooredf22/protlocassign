@@ -2,37 +2,49 @@
 % Please edit documentation in R/cpaProgs.R
 \name{Qfun4}
 \alias{Qfun4}
-\title{goodness-of-fit
-internal function; goodness-of-fit measure}
+\title{goodness-of-fit internal function}
 \usage{
 Qfun4(pvec, y, gmat, methodQ = "sumsquares")
 }
 \arguments{
-\item{pvec}{vector of assignment proportions to
-compartments; to be estimated; must sum to 1}
+\item{pvec}{Vector of values between 0 and 1 summing to one 
+(length = number of compartments)}
 
-\item{y}{observed data for amounts of protein in fractions;
-must sum to 1}
+\item{y}{Specified profile}
 
-\item{gmat}{reference protein amounts}
+\item{gmat}{Matrix of reference profiles}
 
-\item{methodQ}{either 'sumsquares' (default) or 'sumabsvalue'}
+\item{methodQ}{Either 'sumsquares' (default) or 'sumabsvalue'}
 }
 \value{
 value of goodness-of-fit function
 }
 \description{
-goodness-of-fit
-internal function; goodness-of-fit measure
+An internal function used to assess the goodness-of-fit of a 
+ weighted mixture of reference profiles to a specified profile
 }
 \examples{
-# suppose there are four fractions and three compartments
-yy <- c(0.1, 0.2, 0.1, 0.6)
-gmat <- matrix(c(0,   0,   1,   # ref prot 1, all in compartment 3
-                 0,   1,   0,   # ref prot 2, all in compartment 2
-                 0,   0.5, 0.5, # ref prot 3, half in comp 2, half in 3)
-                 0.5, 0,   0.5),# ref prot 4, half in comp 1, half in 3
-                 ncol=3, byrow=TRUE )
-pvec <- c(0, 0.3, 0.7)  # 30\%  in comp 2, 70\% in comp 3
-Qfun4(pvec, yy, gmat)
+
+# Suppose a profile consists of four fractions and there are three
+#  reference compartment, designated A, B, and C
+
+A <-c(1, 0, 0, 0)
+B <- c(0, .5, 0.5,0)
+C <-c(0, 0, 0, 1)
+gmat<-cbind(A, B,C)
+yy <- c(0.2, 0.15, 0.15, 0.5)
+pvec1 <- c(1, 0, 0)  # 100\% in compartment A, 0\% in compartment B2,
+   0\% in compartment C
+pvec2<-c(0, 1, 0)  # 0\% in compartment A, 100\% in compartment B2, 
+   0\% in compartment C
+pvec3<-c(0,0,1)  # 0\% in compartment A, 0\% in compartment B2, 
+   100\% in compartment C
+pvec4<-c(0.2, 0.3, 0.5) #20\% in compartment A, 30\% in compartment B2, 
+   50\% in compartment C
+
+Qfun4(pvec1, yy, gmat)
+Qfun4(pvec2, yy, gmat)
+Qfun4(pvec3, yy, gmat)
+Qfun4(pvec4, yy, gmat)
+
 }

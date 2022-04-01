@@ -6,17 +6,17 @@
 #'        and their relative abundance in centrifugation fractions.
 #' @param markerList List of reference proteins and their subcellular locations
 #' @param numDataCols Number of channels of abundance levels
-#' @return A matrix refLocationProfiles giving the abundance level profiles of
+#' @return A data frame 'refLocationProfiles' of profiles of
 #'         the subcellular locations
 #' @import knitr
 #' @import rmarkdown
 #' @export
 #' @examples
-#' #data(protNSA_AT5tmtMS2)
 #' data(protNSA_test)
 #' data(markerListJadot)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
+#' refLocProfNSA_out <- locationProfileSetup(profile=protNSA_test,
 #'   markerList=markerListJadot, numDataCols=9)
+#' round(head(refLocProfNSA_out), digits=4)
 
 
 locationProfileSetup <- function(profile, markerList,
@@ -109,27 +109,48 @@ locationProfileSetup <- function(profile, markerList,
     refLocationProfiles
 }
 
-#' goodness-of-fit
-
-#' internal function; goodness-of-fit measure
-#' @param pvec vector of assignment proportions to
-#'             compartments; to be estimated; must sum to 1
-#' @param y observed data for amounts of protein in fractions;
-#'        must sum to 1
-#' @param gmat reference protein amounts
-#' @param methodQ either 'sumsquares' (default) or 'sumabsvalue'
+#' goodness-of-fit internal function
+#' 
+#' An internal function used to assess the goodness-of-fit of a 
+#'  weighted mixture of reference profiles to a specified profile
+#'  
+#' @param pvec Vector of values between 0 and 1 summing to one 
+#'   (length = number of compartments) 
+#' @param y Specified profile
+#' @param gmat Matrix of reference profiles
+#' @param methodQ Either 'sumsquares' (default) or 'sumabsvalue'
 #' @export
 #' @return value of goodness-of-fit function
 #' @examples
-#' # suppose there are four fractions and three compartments
-#' yy <- c(0.1, 0.2, 0.1, 0.6)
-#' gmat <- matrix(c(0,   0,   1,   # ref prot 1, all in compartment 3
-#'                  0,   1,   0,   # ref prot 2, all in compartment 2
-#'                  0,   0.5, 0.5, # ref prot 3, half in comp 2, half in 3)
-#'                  0.5, 0,   0.5),# ref prot 4, half in comp 1, half in 3
-#'                  ncol=3, byrow=TRUE )
-#' pvec <- c(0, 0.3, 0.7)  # 30%  in comp 2, 70% in comp 3
-#' Qfun4(pvec, yy, gmat)
+#' 
+#' # Suppose a profile consists of four fractions and there are three
+#' #  reference compartment, designated A, B, and C
+#'
+#' A <-c(1, 0, 0, 0)
+#' B <- c(0, .5, 0.5,0)
+#' C <-c(0, 0, 0, 1)
+#' gmat<-cbind(A, B,C)
+
+# make vector for a specified profile to be evaluated
+
+#' yy <- c(0.2, 0.15, 0.15, 0.5)
+
+# make vector for candidate CPA value to be evaluated
+
+#' pvec1 <- c(1, 0, 0)  # 100% in compartment A, 0% in compartment B2,
+#'    0% in compartment C
+#' pvec2<-c(0, 1, 0)  # 0% in compartment A, 100% in compartment B2, 
+#'    0% in compartment C
+#' pvec3<-c(0,0,1)  # 0% in compartment A, 0% in compartment B2, 
+#'    100% in compartment C
+#' pvec4<-c(0.2, 0.3, 0.5) #20% in compartment A, 30% in compartment B2, 
+#'    50% in compartment C
+#' 
+#' Qfun4(pvec1, yy, gmat)
+#' Qfun4(pvec2, yy, gmat)
+#' Qfun4(pvec3, yy, gmat)
+#' Qfun4(pvec4, yy, gmat)
+#' 
 Qfun4 <- function(pvec, y, gmat, methodQ = "sumsquares") {
     # Assign sub-cellular location probabilities
     # to each protein. We use the 'spg' function
@@ -142,42 +163,47 @@ Qfun4 <- function(pvec, y, gmat, methodQ = "sumsquares") {
         result <- sum(abs(resultA))
     result
 }
-#' constrained goodness-of-fit 
+#' constrained goodness-of-fit internal function
 #' 
-#' internal function; goodness-of-fit measure for
-#' subset of varying parameters while other parameters
-#' are fixed at zero.
-#' @param pvec.vary vector of assignment proportions to
-#'         compartments; to be estimated
-#' @param yy observed data for amounts of protein in
-#'           fractions
-#' @param gmat reference protein amounts
+#' An internal function used to assess the goodness-of-fit of a 
+#'   weighted mixture of reference profiles to a specified 
+#'   profile but with some proportions constrained to a
+#'   fixed value (typically 0). This function allows
+#'   a specified subset of parameters to vary while the 
+#'   remainder are fixed.
+#'   
+#' @param pvec.vary Vector of values between 0 and 1 summing to one
+#'  (length = number of compartments)
+#' @param yy Specified profile
+#' @param gmat Matrix of reference profiles
 #' @param methodQ either 'sumsquares' (default) or
 #'                'sumabsvalue'
 #' @param ind.vary if not NULL, indexes of varying parameters
-#' @param ind.fixed indexes of fixed parameters; all parameters
-#'                 must be one or the other
+#' @param ind.fixed indexes of fixed parameters; (complement of ind.vary)
 #' @param par.fixed values of fixed parameters; typically 0
 #' @export
 #' @return value of goodness-of-fit function
 #' @examples
-#' # suppose there are four fractions and three compartments
+#' 
+#' # Suppose a profile consists of four fractions and there are three
+#' #  reference compartment, designated a, B, and C
 #' yy <- c(0.1, 0.2, 0.1, 0.6)
-#' gmat <- matrix(c(0,   0,   1,   # ref prot 1, all in compartment 3
-#'                  0,   1,   0,   # ref prot 2, all in compartment 2
-#'                  0,   0.5, 0.5, # ref prot 3, half in comp 2, half in 3)
-#'                  0.5, 0,   0.5),# ref prot 4, half in comp 1, half in 3
-#'                  ncol=3, byrow=TRUE )
-#' pvec <- c(0, 0.3, 0.7)  # 30%  in comp 2, 70% in comp 3
-#' pvec.vary <- c(.3, 0.7)  # just the compartments that vary
+#' # Make matrix consisting of reference compartment profiles, 
+#' #  in this case, NSA values
+#' A <- c(0, 0, 0, 1)
+#' B <- c(0, 0.8, 0.2, 0)
+#' C <- c(0, 0.8, 0.2, 0)
+#' gmat <- cbind(A, B, C)
+#' # Make vector for a specified profile to be evaluated
+#' yy <- c(0.8, 0.0, 0, 0.2)
+#' # Make vector for a candidate CPA value to be evaluated
+#' pvec.vary <- c(0.3, 0.7)  # 30%  in compartment B, 70% in compartment C
 #' ind.vary <- c(2,3)  # compartments 2 and 3 may vary
 #' ind.fixed <- 1   # fix value of compartment 1
 #' par.fixed <- 0   # fix that value at 0
+#' 
 #' Qfun4subset(pvec.vary, yy, gmat, ind.vary=ind.vary,
 #'            ind.fixed=ind.fixed, par.fixed=par.fixed)
-#' # Now allow only compartments 1 and 3 to vary
-#' Qfun4subset(pvec.vary, yy, gmat, ind.vary=c(1,3),
-#'            ind.fixed=2, par.fixed=0)
 #'
 Qfun4subset <- function(pvec.vary, yy, gmat,
     methodQ = "sumsquares",
@@ -300,22 +326,21 @@ protIndex <- function(protName, profile, exactMatch = FALSE) {
 #' @param minVal default is false. If true, return minimum value of
 #'               goodness of fit
 #' @examples
-#' data(protNSA_test)
-#' data(markerListJadot)
-#' nTestProts <- nrow(protNSA_test)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-#'     markerList=markerListJadot, numDataCols=9)
-#' protCPAfromNSA_test <- fCPAone(profile=protNSA_test[1,],
-#'                           refLocationProfiles=refLocationProfilesNSA,
+#' data(protRSA_test)
+#' data(refLocProfRSA_test)
+#' 
+#' protCPAfromRSA_i_out1 <- fCPAone(profile=protRSA_test[1,],
+#'                           refLocationProfiles=refLocProfRSA,
 #'                           numDataCols=9, startProps=NULL,
 #'                           maxit=10000,
 #'                          ind.vary=NULL, minVal=FALSE)
+#' round(protCPAfromRSA_i_out1, digits=4)
 #' @export
-#' @return assignProbsOut  Data frame of proportionate assignments of
-#'    each protein to compartments. also nspectra and npeptides if in
-#'    profile input
-#'    If ind.vary specified, only the referenced proportion cpa
-#'    estimates are returned
+#' @return assignProbsOut  Vector of proportional assignments of
+#'    each protein to compartments. Also returns variables
+#'    nspectra and npeptides if they are included in the profile input.
+#'    If ind.vary is specified, only the 
+#'    referenced proportion CPA estimates are returned.
 
 # protLocAssign <- function(i, profile,
 # refLocationProfiles, numDataCols,
@@ -510,13 +535,12 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
 #' @return assignProbsOut  Data frame of proportional assignments
 #'       of each protein to compartments
 #' @examples
-#' data(protNSA_test)
-#' data(markerListJadot)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-#'        markerList=markerListJadot, numDataCols=9)
-#' protCPAfromNSA_test <- fitCPA(profile=protNSA_test,
-#'                            refLocationProfiles=refLocationProfilesNSA,
+#' data(protRSA_test)
+#' data(refLocProfRSA)
+#' protCPAfromRSA_out <- fitCPA(profile=protRSA_test,
+#'                            refLocationProfiles=refLocProfRSA,
 #'                            numDataCols=9)
+#' round(head(protCPAfromRSA_out), digits=4)                           
 
 fitCPA <- function(profile, refLocationProfiles, numDataCols,
     startProps = NULL, maxit = 10000, showProgress = TRUE,
@@ -599,10 +623,11 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
 }
 
 
-#' assign to subcellular locaction
+#' assign to single subcellular locaction
 #' 
-#' assign proteins to the most prevalent subcellular location 
-#' (meeting a specific cutoff) using CPA estimates
+#' Assign proteins to the most prevalent subcellular location 
+#' (meeting a specific cutoff) using CPA estimates,
+#' with minimum value being 0.5.
 #'
 #' @param assignLocProps matrix of proportion estimates for each protein
 #' @param cutoff cutoff for assigning a protein to a location

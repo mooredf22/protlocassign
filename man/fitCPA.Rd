@@ -46,11 +46,10 @@ Carry out constrained proportional assignment on a profiles
  of set of proteins
 }
 \examples{
-data(protNSA_test)
-data(markerListJadot)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-       markerList=markerListJadot, numDataCols=9)
-protCPAfromNSA_test <- fitCPA(profile=protNSA_test,
-                           refLocationProfiles=refLocationProfilesNSA,
+data(protRSA_test)
+data(refLocProfRSA)
+protCPAfromRSA_out <- fitCPA(profile=protRSA_test,
+                           refLocationProfiles=refLocProfRSA,
                            numDataCols=9)
+round(head(protCPAfromRSA_out), digits=4)                           
 }

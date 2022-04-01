@@ -2,7 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{Qfun4subset}
 \alias{Qfun4subset}
-\title{constrained goodness-of-fit}
+\title{constrained goodness-of-fit internal function}
 \usage{
 Qfun4subset(
   pvec.vary,
@@ -15,21 +15,19 @@ Qfun4subset(
 )
 }
 \arguments{
-\item{pvec.vary}{vector of assignment proportions to
-compartments; to be estimated}
+\item{pvec.vary}{Vector of values between 0 and 1 summing to one
+(length = number of compartments)}
 
-\item{yy}{observed data for amounts of protein in
-fractions}
+\item{yy}{Specified profile}
 
-\item{gmat}{reference protein amounts}
+\item{gmat}{Matrix of reference profiles}
 
 \item{methodQ}{either 'sumsquares' (default) or
 'sumabsvalue'}
 
 \item{ind.vary}{if not NULL, indexes of varying parameters}
 
-\item{ind.fixed}{indexes of fixed parameters; all parameters
-must be one or the other}
+\item{ind.fixed}{indexes of fixed parameters; (complement of ind.vary)}
 
 \item{par.fixed}{values of fixed parameters; typically 0}
 }
@@ -37,27 +35,33 @@ must be one or the other}
 value of goodness-of-fit function
 }
 \description{
-internal function; goodness-of-fit measure for
-subset of varying parameters while other parameters
-are fixed at zero.
+An internal function used to assess the goodness-of-fit of a 
+  weighted mixture of reference profiles to a specified 
+  profile but with some proportions constrained to a
+  fixed value (typically 0). This function allows
+  a specified subset of parameters to vary while the 
+  remainder are fixed.
 }
 \examples{
-# suppose there are four fractions and three compartments
+
+# Suppose a profile consists of four fractions and there are three
+#  reference compartment, designated a, B, and C
 yy <- c(0.1, 0.2, 0.1, 0.6)
-gmat <- matrix(c(0,   0,   1,   # ref prot 1, all in compartment 3
-                 0,   1,   0,   # ref prot 2, all in compartment 2
-                 0,   0.5, 0.5, # ref prot 3, half in comp 2, half in 3)
-                 0.5, 0,   0.5),# ref prot 4, half in comp 1, half in 3
-                 ncol=3, byrow=TRUE )
-pvec <- c(0, 0.3, 0.7)  # 30\%  in comp 2, 70\% in comp 3
-pvec.vary <- c(.3, 0.7)  # just the compartments that vary
+# Make matrix consisting of reference compartment profiles, 
+#  in this case, NSA values
+A <- c(0, 0, 0, 1)
+B <- c(0, 0.8, 0.2, 0)
+C <- c(0, 0.8, 0.2, 0)
+gmat <- cbind(A, B, C)
+# Make vector for a specified profile to be evaluated
+yy <- c(0.8, 0.0, 0, 0.2)
+# Make vector for a candidate CPA value to be evaluated
+pvec.vary <- c(0.3, 0.7)  # 30\%  in compartment B, 70\% in compartment C
 ind.vary <- c(2,3)  # compartments 2 and 3 may vary
 ind.fixed <- 1   # fix value of compartment 1
 par.fixed <- 0   # fix that value at 0
+
 Qfun4subset(pvec.vary, yy, gmat, ind.vary=ind.vary,
            ind.fixed=ind.fixed, par.fixed=par.fixed)
-# Now allow only compartments 1 and 3 to vary
-Qfun4subset(pvec.vary, yy, gmat, ind.vary=c(1,3),
-           ind.fixed=2, par.fixed=0)
 
 }

@@ -35,25 +35,24 @@ others constrained to zero}
 goodness of fit}
 }
 \value{
-assignProbsOut  Data frame of proportionate assignments of
-   each protein to compartments. also nspectra and npeptides if in
-   profile input
-   If ind.vary specified, only the referenced proportion cpa
-   estimates are returned
+assignProbsOut  Vector of proportional assignments of
+   each protein to compartments. Also returns variables
+   nspectra and npeptides if they are included in the profile input.
+   If ind.vary is specified, only the 
+   referenced proportion CPA estimates are returned.
 }
 \description{
 Carry out constrained proportional assignment for protein i;
    service function for fitCPA
 }
 \examples{
-data(protNSA_test)
-data(markerListJadot)
-nTestProts <- nrow(protNSA_test)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-    markerList=markerListJadot, numDataCols=9)
-protCPAfromNSA_test <- fCPAone(profile=protNSA_test[1,],
-                          refLocationProfiles=refLocationProfilesNSA,
+data(protRSA_test)
+data(refLocProfRSA_test)
+
+protCPAfromRSA_i_out1 <- fCPAone(profile=protRSA_test[1,],
+                          refLocationProfiles=refLocProfRSA,
                           numDataCols=9, startProps=NULL,
                           maxit=10000,
                          ind.vary=NULL, minVal=FALSE)
+round(protCPAfromRSA_i_out1, digits=4)
 }
