@@ -1,31 +1,29 @@
-#' Plot profile and peptide profiles with reference profiles
+#' Plot reference compartment profiles overlaid with the profile 
+#'   of a single protein and its component peptides
 #' 
-#' This function plots the average profiles of any protein in the dataset,
-#'   the peptide profiles, and also the reference profile for each compartment
+#' This function creates a panel of plots, one for each compartment.  
+#'      Each plot contains a reference compartment profile overlaid 
+#'      with the profiles of one protein of interest and its component
+#'       peptides as well as the CPA value for that compartment.
 #'
 #' @param protName Name of the protein to plot
-#' @param protProfile protein profile
-#' @param Nspectra indicator for if there are columns in profile for Nspectra
-#'         (number of spectra) and Npep (number of peptides)
-#' @param pepProfile peptide profiles
-#' @param numRefCols number of reference columns
+#' @param protProfile Data frame containing protein profiles
+#' @param Nspectra Data frame containing protein profile
+#' @param pepProfile Data frame containing peptide profiles
+#' @param numRefCols Number of reference columns
 #'        (preceding the data profile columns)
-#' @param numDataCols  number of fractions per protein
-#' @param n.compartments number of compartments (8 in Jadot data)
-#' @param refLocationProfiles A matrix refLocationProfiles giving the
-#'          abundance level profiles of the subcellular locations
-#'        n.compartments = 8 columns are subcellular locations, and
-#'        numDataCols rows are the fraction names
-#' @param assignPropsMat A matrix of assignment proportions, from the
-#'          constrained proportional assignment algorithm,
-#'        and optionally upper and lower 95 percent confidence limits
-#' @param propCI True if lower and upper confidence intervals
-#'            are included in assignPros
-#' @param transType label for transformation; default is ""
-#' @param yAxisLabel label for y-axis
+#' @param numDataCols  Number of fractions in a profile
+#' @param n.compartments Number of compartments
+#' @param refLocationProfiles A data frame containing profiles of the 
+#'        subcellular locations 
+#' @param assignPropsMat A data frame containing CPA values
+#' @param propCI TRUE if lower and upper confidence intervals are included 
+#'        in assignPropsMat (not currently implemented)
+#' @param transType Label for y-axis on each individual plot (default none))
+#' @param yAxisLabel Label for y-axis of entire panel
 #' @return plot of average, peptide, and reference profiles
 #' @examples
-#'   # See Vignette 6 for a full explanation
+#'   # See Tutorial 6 for a full explanation
 #' @importFrom graphics layout
 #' @export
 
@@ -73,8 +71,6 @@ protPepPlotfun <- function(protName, protProfile, Nspectra=TRUE,
   #  Do the following if "finalList" (the full list of peptides and spectra)
   #   are available
   # # # # # # # # # # # # # #
-
-  #if (!is.null(finalList)) {
 
 
   # # # # # # # # # # # # # #

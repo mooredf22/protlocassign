@@ -10,10 +10,10 @@ vecUnitize(xx)
 \item{xx}{vector}
 }
 \value{
-nomalized vector of unit length
+normalized vector of unit length
 }
 \description{
-normalize vector xx to have unit length
+normalize a vector to have unit length
 }
 \examples{
 xx <- c(0.5, 0.1, 0.6, 0.9)

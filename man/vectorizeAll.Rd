@@ -17,5 +17,5 @@ normalize all rows of a matrix to have unit length
 }
 \examples{
 data(protNSA_test)
-vectorizeAll(protNSA_test[,1:9])
+round(head(vectorizeAll(protNSA_test[,1:9])), digits=4)
 }

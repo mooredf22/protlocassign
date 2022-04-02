@@ -2,7 +2,8 @@
 % Please edit documentation in R/protPepProfilePlot.R
 \name{protPepPlotfun}
 \alias{protPepPlotfun}
-\title{Plot profile and peptide profiles with reference profiles}
+\title{Plot reference compartment profiles overlaid with the profile 
+  of a single protein and its component peptides}
 \usage{
 protPepPlotfun(
   protName,
@@ -22,43 +23,40 @@ protPepPlotfun(
 \arguments{
 \item{protName}{Name of the protein to plot}
 
-\item{protProfile}{protein profile}
+\item{protProfile}{Data frame containing protein profiles}
 
-\item{Nspectra}{indicator for if there are columns in profile for Nspectra
-(number of spectra) and Npep (number of peptides)}
+\item{Nspectra}{Data frame containing protein profile}
 
-\item{pepProfile}{peptide profiles}
+\item{pepProfile}{Data frame containing peptide profiles}
 
-\item{numRefCols}{number of reference columns
+\item{numRefCols}{Number of reference columns
 (preceding the data profile columns)}
 
-\item{numDataCols}{number of fractions per protein}
+\item{numDataCols}{Number of fractions in a profile}
 
-\item{n.compartments}{number of compartments (8 in Jadot data)}
+\item{n.compartments}{Number of compartments}
 
-\item{refLocationProfiles}{A matrix refLocationProfiles giving the
-  abundance level profiles of the subcellular locations
-n.compartments = 8 columns are subcellular locations, and
-numDataCols rows are the fraction names}
+\item{refLocationProfiles}{A data frame containing profiles of the 
+subcellular locations}
 
-\item{assignPropsMat}{A matrix of assignment proportions, from the
-  constrained proportional assignment algorithm,
-and optionally upper and lower 95 percent confidence limits}
+\item{assignPropsMat}{A data frame containing CPA values}
 
-\item{propCI}{True if lower and upper confidence intervals
-are included in assignPros}
+\item{propCI}{TRUE if lower and upper confidence intervals are included 
+in assignPropsMat (not currently implemented)}
 
-\item{transType}{label for transformation; default is ""}
+\item{transType}{Label for y-axis on each individual plot (default none))}
 
-\item{yAxisLabel}{label for y-axis}
+\item{yAxisLabel}{Label for y-axis of entire panel}
 }
 \value{
 plot of average, peptide, and reference profiles
 }
 \description{
-This function plots the average profiles of any protein in the dataset,
-  the peptide profiles, and also the reference profile for each compartment
+This function creates a panel of plots, one for each compartment.  
+     Each plot contains a reference compartment profile overlaid 
+     with the profiles of one protein of interest and its component
+      peptides as well as the CPA value for that compartment.
 }
 \examples{
-  # See Vignette 6 for a full explanation
+  # See Tutorial 6 for a full explanation
 }

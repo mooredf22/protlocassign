@@ -7,16 +7,18 @@
 protPepProfile(flagPeps, numRefCols, numDataCols, protProfileData)
 }
 \arguments{
-\item{flagPeps}{indicator for outliers}
+\item{flagPeps}{Data frame containing profiles for all spectra, 
+information mapping these to proteins and peptides, 
+and an indicator for outliers}
 
-\item{numRefCols}{number of reference olumns}
+\item{numRefCols}{Number of reference olumns}
 
 \item{numDataCols}{Number of data columns}
 
-\item{protProfileData}{data frame of data}
+\item{protProfileData}{Data frame containing protein profiles}
 }
 \value{
-protein peptide data
+Data frame containing protein and peptide profiles
 }
 \description{
 Interlace profiles of proteins and their component peptides into a 
@@ -25,30 +27,36 @@ single data frame.
 \examples{
 set.seed(17356)
 eps <- 0.029885209
-data(TLN1_test)
-flagSpectraBox <- outlierFind(protClass=TLN1_test,
+data(spectraNSA_test)
+flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
                     outlierLevel='peptide', numRefCols=5, numDataCols=9,
                     outlierMeth='boxplot', range=3, eps=eps,
                     randomError=TRUE)
+                    
  #examine numbers of spectra that are outliers
 table(flagSpectraBox$outlier.num.spectra)
 # find peptide-level profiles
 pepProfiles <- profileSummarize(protsCombineCnew=flagSpectraBox,
       numRefCols=6, numDataCols=9, refColsKeep=c(1,2,4),eps=eps,
       GroupBy="peptideId", outlierExclude="spectra")
+      
  # find oulier peptides
 flagPepsBox <- outlierFind(protClass=pepProfiles,
       outlierLevel="protein",
       numRefCols=3, numDataCols=9, eps=eps)
       str(flagPepsBox, strict.width="cut", width=65)
+      
  # combine the two types of outliers into one
 flagSpectraPeps <- merge(x=flagSpectraBox,
       y=flagPepsBox[,c(4,17)], by="pepId")
- # find CPA estimates of proteins
+      
+ # create protein profile from component peptide and spectra
 protNSA_1 <-
       profileSummarize(protsCombineCnew=flagSpectraPeps,
       numRefCols=7, numDataCols=9, eps=eps, GroupBy="protId",
       outlierExclude="spectraAndPeptide")
+      
+# combine protein and peptide profiles
 protPepProfileNSA <- protPepProfile(flagPeps=flagPepsBox,
       numRefCols=4, numDataCols=9,
       protProfileData=protNSA_1)

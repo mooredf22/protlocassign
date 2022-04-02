@@ -2,7 +2,8 @@
 % Please edit documentation in R/protProfilePlot.R
 \name{protPlotfun}
 \alias{protPlotfun}
-\title{Plot profiles of reference proteins}
+\title{Plot reference compartment profiles overlaid with the profile of 
+  a single protein}
 \usage{
 protPlotfun(
   protName,
@@ -19,50 +20,40 @@ protPlotfun(
 \arguments{
 \item{protName}{Name of the protein to plot}
 
-\item{profile}{Data frame of protein names and their relative
-abundance levels..}
+\item{profile}{Data frame containing protein profiles}
 
-\item{finalList}{spectrum-level abundance levels by protein and
-peptide; Ehis is NULL
-  if not available}
+\item{numDataCols}{Number of fractions per protein}
 
-\item{numDataCols}{number of fractions per protein}
+\item{n.compartments}{Number of compartments (8 in Jadot data)}
 
-\item{n.compartments}{number of compartments (8 in Jadot data)}
+\item{refLocationProfiles}{A data frame containing profiles for 
+the reference compartments}
 
-\item{refLocationProfiles}{A matrix refLocationProfiles giving
-the abundance level profiles of the subcellular locations
-n.compartments = 8 columns are subcellular locations,
-and numDataCols rows are the fraction names}
+\item{assignPropsMat}{A data frame containing CPA estimates}
 
-\item{assignPropsMat}{A matrix of assignment proportions
-for proteins of interest, from the constrained proportional
-assignment algorithm,
-and optionally upper and lower 95 percent confidence limits.
- Can be a single protein}
+\item{transType}{Label for y-axis on each individual plot (default none))}
 
-\item{transType}{type of transformation (for plot label)}
-
-\item{yAxisLabel}{label for y-axis if present}
+\item{yAxisLabel}{Label for y-axis of entire panel}
 }
 \value{
-plot of protein, peptide, and reference profiles
+A panel of profile plots
 }
 \description{
-This function plots the average profiles of any protein in the dataset,
-  the peptide profiles, and also the reference profile for each compartment
+This function creates a panel of plots, one for each compartment.  
+   Each plot contains a reference compartment profile overlaid with 
+   the profile of one protein of interest and its CPA 
+   value for that compartment.
 }
 \examples{
 data(protNSA_test)
 data(markerListJadot)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-        markerList=markerListJadot, numDataCols=9)
-protCPAfromNSA_test <- fitCPA(profile=protNSA_test,
-                              refLocationProfiles=refLocationProfilesNSA,
+data(refLocProfNSA)
+protCPAfromNSA_out <- fitCPA(profile=protNSA_test,
+                              refLocationProfiles=refLocProfNSA,
                               numDataCols=9)
 protPlotfun(protName="TLN1", profile=protNSA_test,
             numDataCols=9, n.compartments=8,
-            refLocationProfiles=refLocationProfilesNSA,
-            assignPropsMat=protCPAfromNSA_test,
+            refLocationProfiles=refLocProfNSA,
+            assignPropsMat=protCPAfromNSA_out,
             yAxisLabel="Normalized Specific Amount")
 }

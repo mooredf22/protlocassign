@@ -165,15 +165,14 @@ Qfun4 <- function(pvec, y, gmat, methodQ = "sumsquares") {
 }
 #' constrained goodness-of-fit internal function
 #' 
-#' An internal function used to assess the goodness-of-fit of a 
-#'   weighted mixture of reference profiles to a specified 
-#'   profile but with some proportions constrained to a
-#'   fixed value (typically 0). This function allows
-#'   a specified subset of parameters to vary while the 
-#'   remainder are fixed.
+#' An internal function used to assess the goodness-of-fit 
+#'   of a weighted mixture of reference profiles to a specified 
+#'   profile but with some proportions constrained to zero.  
+#'   There is a subset of varying parameters while other parameters are 
+#'   fixed at a particular value (typically zero).
 #'   
-#' @param pvec.vary Vector of values between 0 and 1 summing to one
-#'  (length = number of compartments)
+#' @param pvec.vary Vector of values between 0 and 1 summing to one 
+#'       (length = number of compartments)
 #' @param yy Specified profile
 #' @param gmat Matrix of reference profiles
 #' @param methodQ either 'sumsquares' (default) or
@@ -186,16 +185,19 @@ Qfun4 <- function(pvec, y, gmat, methodQ = "sumsquares") {
 #' @examples
 #' 
 #' # Suppose a profile consists of four fractions and there are three
-#' #  reference compartment, designated a, B, and C
-#' yy <- c(0.1, 0.2, 0.1, 0.6)
-#' # Make matrix consisting of reference compartment profiles, 
-#' #  in this case, NSA values
-#' A <- c(0, 0, 0, 1)
-#' B <- c(0, 0.8, 0.2, 0)
-#' C <- c(0, 0.8, 0.2, 0)
-#' gmat <- cbind(A, B, C)
-#' # Make vector for a specified profile to be evaluated
-#' yy <- c(0.8, 0.0, 0, 0.2)
+#' #  reference compartment, designated A, B, and C
+#'
+#' A <- c(1, 0, 0, 0)
+#' B <- c(0, .5, 0.5,0)
+#' C <- c(0, 0, 0, 1)
+#' gmat<-cbind(A, B,C)
+
+# make vector for a specified profile to be evaluated
+
+#' yy <- c(0.2, 0.15, 0.15, 0.5)
+
+# make vector for candidate CPA value to be evaluated
+
 #' # Make vector for a candidate CPA value to be evaluated
 #' pvec.vary <- c(0.3, 0.7)  # 30%  in compartment B, 70% in compartment C
 #' ind.vary <- c(2,3)  # compartments 2 and 3 may vary
@@ -674,9 +676,9 @@ assignCPAloc <- function(assignLocProps, cutoff = 0.8,
 # unitize functions # # #
 #' unitize vector
 #' 
-#' normalize vector xx to have unit length
+#' normalize a vector to have unit length
 #' @param xx vector
-#' @return nomalized vector of unit length
+#' @return normalized vector of unit length
 #' @examples
 #' xx <- c(0.5, 0.1, 0.6, 0.9)
 #' vecUnitize(xx)
@@ -698,7 +700,7 @@ vecUnitize <- function(xx) {
 #' @return matrix with all rows having unit length
 #' @examples
 #' data(protNSA_test)
-#' vectorizeAll(protNSA_test[,1:9])
+#' round(head(vectorizeAll(protNSA_test[,1:9])), digits=4)
 #' @export
 vectorizeAll <- function(protMatOrig) {
     protUnitMat <- NULL
