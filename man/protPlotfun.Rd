@@ -8,7 +8,6 @@
 protPlotfun(
   protName,
   profile,
-  finalList = NULL,
   numDataCols = 9,
   n.compartments = 8,
   refLocationProfiles,
@@ -18,22 +17,22 @@ protPlotfun(
 )
 }
 \arguments{
-\item{protName}{Name of the protein to plot}
+\item{protName}{name of the protein to plot}
 
-\item{profile}{Data frame containing protein profiles}
+\item{profile}{data frame of specified protein(row name) profiles}
 
-\item{numDataCols}{Number of fractions per protein}
+\item{numDataCols}{number of fractions in each profile}
 
-\item{n.compartments}{Number of compartments (8 in Jadot data)}
+\item{n.compartments}{number of compartments (8 in Jadot data)}
 
-\item{refLocationProfiles}{A data frame containing profiles for 
-the reference compartments}
+\item{refLocationProfiles}{data frame of profiles for the 
+reference compartments}
 
-\item{assignPropsMat}{A data frame containing CPA estimates}
+\item{assignPropsMat}{data frame containing CPA estimates}
 
-\item{transType}{Label for y-axis on each individual plot (default none))}
+\item{transType}{label for y-axis on each individual plot (default none))}
 
-\item{yAxisLabel}{Label for y-axis of entire panel}
+\item{yAxisLabel}{label for y-axis of entire panel}
 }
 \value{
 A panel of profile plots

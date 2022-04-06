@@ -2,7 +2,7 @@
 % Please edit documentation in R/mixturePlotPanel.r
 \name{mixturePlotPanel}
 \alias{mixturePlotPanel}
-\title{Mixture plots of all pairwise simulated combinations}
+\title{Panel of mixture plots of all pairwise simulated combinations}
 \usage{
 mixturePlotPanel(
   refLocationProfilesAcup,
@@ -15,10 +15,12 @@ mixturePlotPanel(
 )
 }
 \arguments{
-\item{refLocationProfilesAcup}{relative amount of a given cellular
-compartment protein that ends up in a given centrifugation fraction}
+\item{refLocationProfilesAcup}{data frame containing the Acup 
+profiles for the reference compartments}
 
-\item{totProt}{vector of amounts starting material in each fraction}
+\item{totProt}{vector of total protein amounts 
+(derived from a given amount of starting material) 
+in each of the fractions comprising the profile}
 
 \item{NstartMaterialFractions}{Number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
@@ -31,16 +33,17 @@ centrifugation fractions.  For experiment AT5, it is 6
 
 \item{log2Transf}{use log2-transformed values. Default is "FALSE"}
 
-\item{eps}{constant to avoid taking logs of zero}
+\item{eps}{small value to add so that log argument is greater than zero}
 }
 \value{
-mixErrorMat a list of errors for all mixtures
+Panel of plots and a list of errors for all mixtures
 }
 \description{
-Plot mixture of all two compartment profile combinations as panel;
-  Assumes eight compartments.
-Assumes that "refLocationProfilesAcup" has been previously defined
+For all sets of simulated proteins distributed between two compartments, 
+  plot the CPA estimates for a given type of profile versus true 
+  mixture proportions.; aAssumes eight or fewer compartments 
+  for proper formatting of the plots.
 }
 \examples{
- # See Vignette 4 and Vignette 5 for a full explanation
+# See Tutorial 4 for details.
 }

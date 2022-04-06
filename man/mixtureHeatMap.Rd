@@ -7,25 +7,41 @@
 mixtureHeatMap(Acup, totProt, NstartMaterialFractions = 6, eps = 0.001)
 }
 \arguments{
-\item{Acup}{relative amount of a given cellular
-compartment protein that ends up in a given centrifugation fraction}
+\item{Acup}{Acup profiles of reference compartments}
 
-\item{totProt}{vector of amounts starting material in each fraction}
+\item{totProt}{vector of total protein amounts (derived from a given 
+amount of starting material) in each of the fractions 
+comprising the profile}
 
 \item{NstartMaterialFractions}{Number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
 centrifugation fractions.  For experiment AT5, it is 6 
 ( N, M, L1, L2, P, and S).}
 
-\item{eps}{small positive constant to add before taking a log transformation}
+\item{eps}{small value to add so that log argument is greater than zero}
 }
 \value{
-color heat map of errors
+Plot of heat map of errors of CPA estimates for pairs of 
+      simulated protein mixtures represented by different types of 
+      profiles and a table of total errors for each type of transformation.
+        Errors are displayed in a 3x2 output where the top row of the 
+        left, middle and right columns represent RSA, NSA, 
+        and Acup profiles, respectively and the bottom row represents 
+        a log2-transformation of these profiles.
 }
 \description{
-Produce heat map of errors of mixture of all two compartment profile 
-combinations as panel; assumes eight compartments
+Produce heat map of errors in CPA estimates for fitting simulated 
+   proteins distributed between all pairs of compartments using 
+   different types of profiles (RSA, NSA, and Acup; 
+   linear and log2-transformed). 
+   Formatted for use with up to eight compartments , 
+   which produces 28 (8 chose 2) pairs of combinations of compartments. 
+   Also writes a table of total assignment errors for each type of 
+   transformation.
 }
 \examples{
-  # See See Vignette 4 for a full explanation
+data(totProtAT5)
+data(refLocProfAcup)
+par(mfrow=c(1,1))
+errorMatAll <- mixtureHeatMap(Acup=refLocProfAcup, totProt=totProtAT5) 
 }

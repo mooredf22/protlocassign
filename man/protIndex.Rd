@@ -2,23 +2,22 @@
 % Please edit documentation in R/cpaProgs.R
 \name{protIndex}
 \alias{protIndex}
-\title{index of protein name}
+\title{Index of protein name}
 \usage{
 protIndex(protName, profile, exactMatch = FALSE)
 }
 \arguments{
 \item{protName}{name of protein to search for}
 
-\item{profile}{data frame of protein identifiers (protName) and
-their relative abundance in centrifugation fractions}
+\item{profile}{data frame of specified protein(row name) profiles}
 
-\item{exactMatch}{default is F}
+\item{exactMatch}{default is FALSE}
 }
 \value{
-the protein name and its index (row in profile)
+The protein name and its index (row in profile)
 }
 \description{
-return index of a protein name, or (if exactMatch=TRUE) indices of
+Return index of a protein name, or (if exactMatch=TRUE) indices of
    proteins starting with the string given in 'protName'
 }
 \examples{

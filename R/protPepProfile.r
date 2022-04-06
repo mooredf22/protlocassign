@@ -5,12 +5,12 @@
 #'    its component peptide profiles.
 #' 
 #' @param i Protein i
-#' @param flagPeps Data frame containing profiles for all spectra, 
+#' @param flagPeps data frame containing profiles for all spectra, 
 #'         information mapping these to proteins and peptides, 
 #'         and an indicator for outliers
-#' @param numRefCols  Number of reference columns
-#' @param numDataCols Number of data columns
-#' @param protProfileData Data frame containing protein profiles
+#' @param numRefCols  number of reference columns
+#' @param numDataCols number of fractions in each profile
+#' @param protProfileData data frame containing protein profiles
 #' @return Data frame containing the profiles for a single protein 
 #'         and its component peptides
 #' @examples
@@ -18,9 +18,9 @@
 #' eps <- 0.029885209
 #' data(spectraNSA_test)
 #' flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
-#'                         outlierLevel='peptide', numRefCols=5, numDataCols=9,
-#'                         outlierMeth='boxplot', range=3, eps=eps,
-#'                         randomError=TRUE)
+#'                        outlierLevel='peptide', numRefCols=5, numDataCols=9,
+#'                        outlierMeth='boxplot', range=3, eps=eps,
+#'                        randomError=TRUE)
 #'                         
 #'  #examine numbers of spectra that are outliers
 #' table(flagSpectraBox$outlier.num.spectra)
@@ -109,12 +109,12 @@ protPepProfile_i <- function(i, flagPeps, numRefCols,
 #' 
 #' Interlace profiles of proteins and their component peptides into a 
 #' single data frame.
-#' @param flagPeps Data frame containing profiles for all spectra, 
+#' @param flagPeps data frame containing profiles for all spectra, 
 #'       information mapping these to proteins and peptides, 
 #'       and an indicator for outliers
-#' @param numRefCols  Number of reference olumns
-#' @param numDataCols Number of data columns
-#' @param protProfileData Data frame containing protein profiles
+#' @param numRefCols  number of reference columns
+#' @param numDataCols number of data columns
+#' @param protProfileData data frame containing protein profiles
 #' @return Data frame containing protein and peptide profiles
 #' @examples
 #' set.seed(17356)

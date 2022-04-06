@@ -6,22 +6,21 @@
 #'      with the profiles of one protein of interest and its component
 #'       peptides as well as the CPA value for that compartment.
 #'
-#' @param protName Name of the protein to plot
-#' @param protProfile Data frame containing protein profiles
-#' @param Nspectra Data frame containing protein profile
-#' @param pepProfile Data frame containing peptide profiles
-#' @param numRefCols Number of reference columns
+#' @param protName name of the protein to plot
+#' @param protProfile data frame containing protein profiles
+#' @param Nspectra number of spectra associated to a given peptide
+#' @param pepProfile data frame containing peptide profiles
+#' @param numRefCols number of reference columns
 #'        (preceding the data profile columns)
-#' @param numDataCols  Number of fractions in a profile
-#' @param n.compartments Number of compartments
-#' @param refLocationProfiles A data frame containing profiles of the 
-#'        subcellular locations 
-#' @param assignPropsMat A data frame containing CPA values
+#' @param numDataCols  number of fractions in each profile
+#' @param n.compartments number of compartments
+#' @param refLocationProfiles data frame of profiles for the  reference compartments
+#' @param assignPropsMat data frame containing CPA values
 #' @param propCI TRUE if lower and upper confidence intervals are included 
 #'        in assignPropsMat (not currently implemented)
-#' @param transType Label for y-axis on each individual plot (default none))
-#' @param yAxisLabel Label for y-axis of entire panel
-#' @return plot of average, peptide, and reference profiles
+#' @param transType label for y-axis on each individual plot (default none))
+#' @param yAxisLabel label for y-axis of entire panel
+#' @return Plot of protein, peptide, and reference profiles
 #' @examples
 #'   # See Tutorial 6 for a full explanation
 #' @importFrom graphics layout

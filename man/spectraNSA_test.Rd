@@ -5,7 +5,7 @@
 \alias{spectraNSA_test}
 \title{Test data set with spectral level profiles formatted for protlocassign}
 \format{
-a test data frame
+A test data frame
 
 \describe{
   \item{\code{prot}}{protein name}

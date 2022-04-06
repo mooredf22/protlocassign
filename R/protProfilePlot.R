@@ -6,15 +6,15 @@
 #'    the profile of one protein of interest and its CPA 
 #'    value for that compartment.
 #'
-#' @param protName Name of the protein to plot
-#' @param profile Data frame containing protein profiles
-#' @param numDataCols  Number of fractions per protein
-#' @param n.compartments Number of compartments (8 in Jadot data)
-#' @param refLocationProfiles A data frame containing profiles for 
-#'       the reference compartments
-#' @param assignPropsMat A data frame containing CPA estimates
-#' @param transType Label for y-axis on each individual plot (default none))
-#' @param yAxisLabel Label for y-axis of entire panel
+#' @param protName name of the protein to plot
+#' @param profile data frame of specified protein(row name) profiles
+#' @param numDataCols  number of fractions in each profile
+#' @param n.compartments number of compartments (8 in Jadot data)
+#' @param refLocationProfiles data frame of profiles for the 
+#'        reference compartments
+#' @param assignPropsMat data frame containing CPA estimates
+#' @param transType label for y-axis on each individual plot (default none))
+#' @param yAxisLabel label for y-axis of entire panel
 #' @return A panel of profile plots
 #' @export
 #' @examples
@@ -30,7 +30,7 @@
 #'             assignPropsMat=protCPAfromNSA_out,
 #'             yAxisLabel="Normalized Specific Amount")
 
-protPlotfun <- function(protName, profile, finalList=NULL,
+protPlotfun <- function(protName, profile, 
                         numDataCols=9, n.compartments=8,
                         refLocationProfiles, assignPropsMat,
                         transType="", yAxisLabel="") {
@@ -48,8 +48,7 @@ protPlotfun <- function(protName, profile, finalList=NULL,
   #      Column names are the subcellular fractions, Cytosol, ER, Golgi, etc.
   #      Row names are the names of the fractions: N, M, L1, L2, etc.
   #      Column and row names are required
-  # finalList contains all peptides AND spectra; option to be removed
-
+  
 
   oldpar <- par(no.readonly=TRUE)
   on.exit(par(oldpar))
@@ -87,49 +86,7 @@ protPlotfun <- function(protName, profile, finalList=NULL,
 
   fractions.list <- colnames(refLocationProfiles)
 
-  # # # # # # # # # # # # # #
-  #  Do the following if "finalList" (the full list of peptides and spectra)
-  #   is available
-  # # # # # # # # # # # # # #
-
-  if (!is.null(finalList)) {
-    finalList.i <- finalList[toupper(finalList$prot) == protName.i, ]
-
-    if (nrow(finalList.i) > 0) fractions.i <-
-                   finalList.i[,2 + seq_len(numDataCols)]
-    if (nrow(finalList.i) == 0) stop("no corresponding spectra in finalList")
-    Nspectra <- nrow(finalList.i)
-    Npeptides <- length(unique(finalList.i$peptide))
-
-    finalList.use.i <-  finalList.i
-
-    fractions.use.i <- finalList.use.i[,2+seq_len(numDataCols)]
-    outlierFlag.i <- finalList.use.i$outlierFlag
-    peptide.i <- as.character(finalList.use.i$peptide)
-    n.uniq.peptide.i <- length(unique(peptide.i))
-    uniq.peptides.list <- unique(peptide.i)
-    means.peptides.i <- matrix(NA, nrow=n.uniq.peptide.i, ncol=numDataCols)
-    outlierFlagVec.i <- rep(NA, n.uniq.peptide.i)
-    n.spectra.i <- rep(NA, n.uniq.peptide.i)
-  #browser()
-    # compute mean profiles for each peptide
-    for (jj in seq_len(n.uniq.peptide.i)) {
-      fractions.use.i.jj <-
-           fractions.use.i[uniq.peptides.list[jj] == peptide.i,]
-      if (!is.null(outlierFlag.i)) outlierFlag.i.jj <-
-           outlierFlag.i[uniq.peptides.list[jj] == peptide.i]
-      if (is.null(outlierFlag.i)) outlierFlag.i.jj <- nrow(fractions.use.i.jj)
-      means.peptides.i[jj,] <- apply(fractions.use.i.jj,2,mean)
-      outlierFlagVec.i[jj] <- mean(outlierFlag.i.jj)
-      n.spectra.i[jj] <- nrow(fractions.use.i.jj)
-    }
-    max.y <- max(means.peptides.i, na.rm=TRUE)
-    min.y <-0
-    n.assign <- nrow(assignPropsMat)
-
-
-    numDataCols.i <- nrow(fractions.i)
-  }
+  
 
   # just use the index number, the first element
   yy <- as.numeric(meanProteinLevels[index_profile[1],])
@@ -220,9 +177,10 @@ protPlotfun <- function(protName, profile, finalList=NULL,
     assignLong.i <- subCellNames[i]
 
     mean.i <- as.numeric(refLocationProfiles[i,])
-    if (!is.null(finalList)) max.y <-
-         max(c(max(means.peptides.i), max(refLocationProfiles[i,])))
-    if (is.null(finalList)) max.y <- max(c(mean.i,yy))
+   # if (!is.null(finalList)) max.y <-
+    #     max(c(max(means.peptides.i), max(refLocationProfiles[i,])))
+    #if (is.null(finalList)) 
+    max.y <- max(c(mean.i,yy))
     par(mar=c(2,4.1,2,1.5))
     plot(mean.i ~ xvals,  axes=FALSE, type="l",
          ylim=c(min.y, max.y), ylab=transType)
@@ -245,31 +203,7 @@ protPlotfun <- function(protName, profile, finalList=NULL,
     }
     axis(2)
 
-  if (!is.null(finalList)) {
-    for (j in seq_len(n.uniq.peptide.i)) {
-      lwdplot <- 1
-      colplot <- "cyan"
-      if (n.spectra.i[j] > 1) {
-        lwdplot <- 2
-        colplot <- "deepskyblue"
-      }
-      if (n.spectra.i[j] > 2) {
-        lwdplot <- 3
-        colplot <- "dodgerblue3"
-      }
-      if (n.spectra.i[j] > 5)   {
-        lwdplot <- 4
-        colplot <- "blue"
-      }
-
-      lines(as.numeric(means.peptides.i[j,]) ~ xvals, cex=0.5, lwd=lwdplot,
-            col=colplot)
-      if (outlierFlagVec.i[j] == 1) lines(as.numeric(means.peptides.i[j,]) ~
-                                            xvals,
-                                          cex=0.5, lwd=1, col="orange")
-
-    }
-  }
+  
 
 
 
@@ -288,23 +222,13 @@ protPlotfun <- function(protName, profile, finalList=NULL,
   y <- c(0,0.5)
   par(mar=c(0,0,0,0))
   plot(y ~ x, type="n", axes=FALSE)
-  if (!is.null(finalList)) {
-    legend(x=1, y=0.4, legend=c("Reference profile",
-                          "Average profile", "1 spectrum", "2 spectra",
-                          "3-5 spectra", "6+ spectra"),
-         col=c("black", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"),
-           lwd=c(5,2,1,2,3,4), lty=c(1,1,1,1,1,1))
-    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile",
-                      "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
-         col=c("yellow", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"),
-         lwd=c(2,2,1,2,3,4), lty=c(2,1,1,1,1,1))
-  }
-  if (is.null(finalList)) {
+  
+  #if (is.null(finalList)) {
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),
            col=c("black", "red"), lwd=c(5,2), lty=c(1,1))
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),
            col=c("yellow", "red"), lwd=c(2,2), lty=c(2,1))
-  }
+  #}
   x <- c(0,5)
   y <- c(0,0.5)
 

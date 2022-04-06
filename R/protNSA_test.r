@@ -11,7 +11,7 @@
 #' 
 #'
 #' @docType data
-#' @format a test data set
+#' @format A test data set
 #'
 #' \describe{
 #'   \item{\code{N}}{a numeric vector}

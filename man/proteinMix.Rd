@@ -2,13 +2,13 @@
 % Please edit documentation in R/proteinMix.r
 \name{proteinMix}
 \alias{proteinMix}
-\title{Simulate mixture protein resident in two compartments}
+\title{Simulate sets of protein profiles distributed between two compartments}
 \usage{
 proteinMix(AcupRef, Loc1, Loc2, increment.prop = 0.1)
 }
 \arguments{
-\item{AcupRef}{amount of given protein in fraction /
-amount of given protein in starting material}
+\item{AcupRef}{data frame containing Acup profiles for the 
+reference compartments}
 
 \item{Loc1}{row number of one compartment}
 
@@ -17,26 +17,18 @@ amount of given protein in starting material}
 \item{increment.prop}{fraction increment from 0 to 1}
 }
 \value{
-mixAmount relative amounts of proteins in the fractions
+A data frame containing Acup profiles for the simulated proteins
 }
 \description{
-Compute the profile of proteins distributed between two compartments in
- specified proportions
+Compute the profile of simulated proteins that are distributed 
+between two compartments in specified proportions
 }
 \examples{
-data(protNSA_test)
-data(markerListJadot)
-data(totProtAT5)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-                                markerList=markerListJadot, numDataCols=9)
-round(refLocationProfilesNSA, digits=3)
-# Convert NSA reference profiles to Acup to prepare for forming mixtures
-refLocationProfilesAcup <-
-     AcupFromNSA(NSA=refLocationProfilesNSA, NstartMaterialFractions=6,
-     totProt=totProtAT5)
-round(refLocationProfilesAcup, digits=4)
+
+data(refLocProfAcup)
+
 # Compute mixtures
-mixCytoLysoAcup <- proteinMix(AcupRef=refLocationProfilesAcup,
+mixCytoLysoAcup <- proteinMix(AcupRef=refLocProfAcup,
                               increment.prop=0.1,
                               Loc1=1, Loc2=4)
 }

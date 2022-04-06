@@ -1,8 +1,7 @@
-#' Find mean profile for a protein
+#' Find mean profile for a protein or peptide
 #' 
-#' Service function for profileSummarize
-#'   find mean profiles for proteins, or for
-#'   protein-peptide combinations for specific peptide or protein
+#' Service function for profileSummarize. Find mean profiles using a 
+#'   random effects model for nested data.
 #' @param i protID or pepID (only one)
 #' @param uniqueLabel vector of either
 #'   protId or pepId as specified by 'GroupBy' in
@@ -11,17 +10,17 @@
 #'   dataframe of protein profiles
 #' @param numRefCols
 #'   number of columns preceding the data
-#' @param numDataCols number of numerical values in a
-#'    profile
+#' @param numDataCols number of fractions in each profile
 #' @param GroupBy 'protId' if average by
 #'    protein; 'peptideId' if average by peptide
 #' @param eps small value to add so that log
 #'    argument is greater than zero
 #' @param outlierExclude none, spectra, or
-#'      spectraAndPeptide @return result_i coefficient
+#'      spectraAndPeptide 
+#' @return Coefficient
 #'      estimates, numbers of peptides and spectra, and
 #'      id for protein i
-#' @param singularList If true, list proteins and channels with singular
+#' @param singularList If TRUE, list proteins and channels with singular
 #'          lmer fit results; default is FALSE
 #' @return estimated means for all channels, their standard errors,
 #' and peptide or protein info
@@ -34,14 +33,14 @@
 #'                               numDataCols=9,
 #'                               outlierMeth='boxplot', range=3, eps=eps,
 #'                               randomError=TRUE)
-#' # examine numbers of spectra that are outliers
-#' table(flagSpectraBox$outlier.num.spectra)
+#'                               
 #' uniqueLabel <- flagSpectraBox$pepId
-#' pepProfiles <- meansByProteins(i=uniqueLabel[1], uniqueLabel=uniqueLabel,
+#' pepProfile_i_out <- meansByProteins(i=uniqueLabel[1], 
+#'           uniqueLabel=uniqueLabel,
 #'           protsCombineCnew=flagSpectraBox,
 #'           numRefCols=6, numDataCols=9, GroupBy="peptideId",eps=eps,
 #'           outlierExclude='spectra')
-#' str(pepProfiles, strict.width='cut', width=65)
+#' round(pepProfile_i_out, digits=3)
 #' @importFrom stats var
 #' @importFrom lme4 lmer
 #' @importFrom lme4 fixef
@@ -235,17 +234,17 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 
 
 # ================================================================
-#' Calculate mean protein profiles and standard errors
+#' Calculate mean protein or peptide profiles and standard errors
 #' 
-#' ProfileSummarize calculates mean and SE for each channel in
-#' each protein using random effect model or arithmetic mean
-#' random effect model can avoid dominance of a sequence with
-#' too many spectra
+#' ProfileSummarize calculates mean and SE for each channel in each 
+#'     protein or peptide profile using a random effect model (proteins)
+#'     or arithmetic mean (peptides).  A random effect model can avoid 
+#'     dominance of a peptide with a large number spectra.  
+#'     See Tutorial 6 for details.
 #'
-#' @param  protsCombineCnew a matrix of protein information and normalized
-#'          specific amounts and outlier information
-#' @param  numRefCols number of columns before Mass Spectrometry
-#'          data columns
+#' @param  protsCombineCnew a data frame containing profiles 
+#'       with outlier information
+#' @param  numRefCols number of fractions in each profile
 #' @param  numDataCols how many columns in MS data
 #' @param  refColsKeep  which reference (non-data) columns to keep
 #' @param  eps epsilon to avoid log(0)
@@ -256,13 +255,12 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #'          according to exclusion level
 #' @param     cpus 1 (default);
 #'            if cpus > 1 use BiocParallel with SnowParm(cpus)
-#' @param singularList If true, list proteins and channels with singular
-#'          lmer fit results; default is FALSE
+#' @param singularList if TRUE, list proteins and channels with singular fit 
+#'         from the random effects function lmer; default is FALSE
 #' @importFrom lme4 lmer
 #' @importFrom BiocParallel bplapply
 #' @export
-#' @return protProfileSummaryIdentity: mean or weighted mean normalized
-#'          specific amount profiles
+#' @return Mean or weighted mean NSA profiles
 #' @examples
 #' set.seed(17356)
 #' eps <- 0.029885209

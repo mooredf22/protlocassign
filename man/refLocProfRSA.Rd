@@ -5,7 +5,7 @@
 \alias{refLocProfRSA}
 \title{RSA reference profiles}
 \format{
-list of profiles
+List of profiles
 
 \describe{
   \item{\code{N}}{a numeric vector}

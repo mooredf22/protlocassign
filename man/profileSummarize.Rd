@@ -2,7 +2,7 @@
 % Please edit documentation in R/profileSummarize.r
 \name{profileSummarize}
 \alias{profileSummarize}
-\title{Calculate mean protein profiles and standard errors}
+\title{Calculate mean protein or peptide profiles and standard errors}
 \usage{
 profileSummarize(
   protsCombineCnew,
@@ -17,11 +17,10 @@ profileSummarize(
 )
 }
 \arguments{
-\item{protsCombineCnew}{a matrix of protein information and normalized
-specific amounts and outlier information}
+\item{protsCombineCnew}{a data frame containing profiles 
+with outlier information}
 
-\item{numRefCols}{number of columns before Mass Spectrometry
-data columns}
+\item{numRefCols}{number of fractions in each profile}
 
 \item{numDataCols}{how many columns in MS data}
 
@@ -39,18 +38,18 @@ if average by peptide}
 \item{cpus}{1 (default);
 if cpus > 1 use BiocParallel with SnowParm(cpus)}
 
-\item{singularList}{If true, list proteins and channels with singular
-lmer fit results; default is FALSE}
+\item{singularList}{if TRUE, list proteins and channels with singular fit 
+from the random effects function lmer; default is FALSE}
 }
 \value{
-protProfileSummaryIdentity: mean or weighted mean normalized
-         specific amount profiles
+Mean or weighted mean NSA profiles
 }
 \description{
-ProfileSummarize calculates mean and SE for each channel in
-each protein using random effect model or arithmetic mean
-random effect model can avoid dominance of a sequence with
-too many spectra
+ProfileSummarize calculates mean and SE for each channel in each 
+    protein or peptide profile using a random effect model (proteins)
+    or arithmetic mean (peptides).  A random effect model can avoid 
+    dominance of a peptide with a large number spectra.  
+    See Tutorial 6 for details.
 }
 \examples{
 set.seed(17356)

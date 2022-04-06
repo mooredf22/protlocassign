@@ -9,15 +9,15 @@ protPepProfile_i(i, flagPeps, numRefCols, numDataCols, protProfileData)
 \arguments{
 \item{i}{Protein i}
 
-\item{flagPeps}{Data frame containing profiles for all spectra, 
+\item{flagPeps}{data frame containing profiles for all spectra, 
 information mapping these to proteins and peptides, 
 and an indicator for outliers}
 
-\item{numRefCols}{Number of reference columns}
+\item{numRefCols}{number of reference columns}
 
-\item{numDataCols}{Number of data columns}
+\item{numDataCols}{number of fractions in each profile}
 
-\item{protProfileData}{Data frame containing protein profiles}
+\item{protProfileData}{data frame containing protein profiles}
 }
 \value{
 Data frame containing the profiles for a single protein 
@@ -33,9 +33,9 @@ set.seed(7336)
 eps <- 0.029885209
 data(spectraNSA_test)
 flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
-                        outlierLevel='peptide', numRefCols=5, numDataCols=9,
-                        outlierMeth='boxplot', range=3, eps=eps,
-                        randomError=TRUE)
+                       outlierLevel='peptide', numRefCols=5, numDataCols=9,
+                       outlierMeth='boxplot', range=3, eps=eps,
+                       randomError=TRUE)
                         
  #examine numbers of spectra that are outliers
 table(flagSpectraBox$outlier.num.spectra)

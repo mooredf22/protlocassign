@@ -5,14 +5,13 @@
 #' This function plots profiles of reference proteins
 #'    and also the average profile for each compartment
 #'
-#' @param refLoc  the name of the reference subcellular
+#' @param refLoc  name of the reference subcellular
 #'          compartment to plot
-#' @param markerList List of reference proteins
-#' @param profile data frame of protein names (as row names)
-#'          and relative abundance levels.
+#' @param markerList list of reference proteins
+#' @param profile data frame of specified protein (row name) profiles
 #' @param ylab label for y-axis of plot, e.g., NSA or RSA or Acup
-#' @param refLocationProfiles A matrix refLocationProfiles giving
-#'          the abundance level profiles of the subcellular locations
+#' @param refLocationProfiles data frame of profiles for the 
+#'       reference compartments
 #' @param ylab label for y=axis, eg, 'NSA'
 #' @param refProtPlot indices of reference proteins to plot; default is NULL
 #' @importFrom graphics par
@@ -21,15 +20,14 @@
 #' @importFrom graphics lines
 #' @importFrom graphics title
 #' @export
-#' @return plot of profiles of reference (marker) proteins
+#' @return Plot of profiles of reference (marker) proteins
 #' @examples
 #' data(protNSA_test)
 #' data(markerListJadot)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-#'    markerList=markerListJadot, numDataCols=9)
+#' data(refLocProfNSA)
 #' markerProfilePlot(refLoc='PM', profile=protNSA_test,
 #'    markerList=markerListJadot,
-#'    refLocationProfiles=refLocationProfilesNSA, ylab='NSA')
+#'    refLocationProfiles=refLocProfNSA, ylab='NSA')
 
 
 markerProfilePlot <- function(refLoc, profile, markerList,

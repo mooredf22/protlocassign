@@ -2,19 +2,20 @@
 % Please edit documentation in R/cpaProgs.R
 \name{assignCPAloc}
 \alias{assignCPAloc}
-\title{assign to single subcellular locaction}
+\title{Assign to single subcellular location}
 \usage{
 assignCPAloc(assignLocProps, cutoff = 0.8, Locations)
 }
 \arguments{
-\item{assignLocProps}{matrix of proportion estimates for each protein}
+\item{assignLocProps}{matrix of CPA estimates for each protein}
 
 \item{cutoff}{cutoff for assigning a protein to a location}
 
 \item{Locations}{list of subcellular locations}
 }
 \value{
-protLoc assigned location of protein
+Single compartment where most of protein resides, 
+       undefined if largest CPA value is <0.5
 }
 \description{
 Assign proteins to the most prevalent subcellular location 
@@ -24,12 +25,13 @@ with minimum value being 0.5.
 \examples{
 data(protNSA_test)
 data(markerListJadot)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-         markerList=markerListJadot, numDataCols=9)
+data(refLocProfNSA)
 protCPAfromNSA_test <- fitCPA(profile=protNSA_test,
-         refLocationProfiles=refLocationProfilesNSA,
+         refLocationProfiles=refLocProfNSA,
          numDataCols=9)
 Locations <- unique(markerListJadot$referenceCompartment)
+
+# write table listing predominant CPA assignment of each protein in data set
 table(apply(protCPAfromNSA_test[,1:8],1,assignCPAloc,
          cutoff=0.8, Locations=Locations))
 }

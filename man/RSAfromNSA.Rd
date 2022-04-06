@@ -7,7 +7,7 @@
 RSAfromNSA(NSA, NstartMaterialFractions, totProt = NULL)
 }
 \arguments{
-\item{NSA}{A matrix giving normalized specific amount profiles 
+\item{NSA}{data frame of specified protein(row name) NSA profiles
 (see help file for protNSA_test)}
 
 \item{NstartMaterialFractions}{Number of fractions that reconstitute 
@@ -15,8 +15,9 @@ the starting material, e.g., a complete set of differential
 centrifugation fractions.  For experiment AT5, it is 6 
 ( N, M, L1, L2, P, and S).}
 
-\item{totProt}{Total protein counts in each of the fractions;
-this is necessary to compute RSA's}
+\item{totProt}{vector of total protein amounts 
+(derived from a given amount of starting material) 
+in each of the fractions comprising the profile}
 }
 \value{
 RSA profiles.  RSA is the ratio of two ratios: 
@@ -41,4 +42,5 @@ protRSA_out2 <- RSAfromNSA(protNSA_test[,seq_len(9)],
              NstartMaterialFractions = 6,
              totProt=totProtAT5)
 round(head(protRSA_out2), digits=4)
+str(protRSA_out2)
 }

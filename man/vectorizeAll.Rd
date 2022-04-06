@@ -2,7 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{vectorizeAll}
 \alias{vectorizeAll}
-\title{unitize series of vectors}
+\title{Unitize series of vectors}
 \usage{
 vectorizeAll(protMatOrig)
 }
@@ -10,10 +10,10 @@ vectorizeAll(protMatOrig)
 \item{protMatOrig}{matrix of profiles}
 }
 \value{
-matrix with all rows having unit length
+Matrix with all rows having unit length
 }
 \description{
-normalize all rows of a matrix to have unit length
+Normalize all rows of a matrix to have unit length
 }
 \examples{
 data(protNSA_test)

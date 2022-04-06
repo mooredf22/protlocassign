@@ -1,28 +1,20 @@
-#' Simulate mixture protein resident in two compartments
+#' Simulate sets of protein profiles distributed between two compartments
 #' 
-#' Compute the profile of proteins distributed between two compartments in
-#'  specified proportions
+#' Compute the profile of simulated proteins that are distributed 
+#' between two compartments in specified proportions
 #'  
-#' @param AcupRef amount of given protein in fraction /
-#'                amount of given protein in starting material
+#' @param AcupRef data frame containing Acup profiles for the 
+#'      reference compartments
 #' @param Loc1  row number of one compartment
 #' @param Loc2  row number of other compartment
 #' @param increment.prop fraction increment from 0 to 1
-#' @return mixAmount relative amounts of proteins in the fractions
+#' @return A data frame containing Acup profiles for the simulated proteins
 #' @examples
-#' data(protNSA_test)
-#' data(markerListJadot)
-#' data(totProtAT5)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-#'                                 markerList=markerListJadot, numDataCols=9)
-#' round(refLocationProfilesNSA, digits=3)
-#' # Convert NSA reference profiles to Acup to prepare for forming mixtures
-#' refLocationProfilesAcup <-
-#'      AcupFromNSA(NSA=refLocationProfilesNSA, NstartMaterialFractions=6,
-#'      totProt=totProtAT5)
-#' round(refLocationProfilesAcup, digits=4)
+#' 
+#' data(refLocProfAcup)
+#' 
 #' # Compute mixtures
-#' mixCytoLysoAcup <- proteinMix(AcupRef=refLocationProfilesAcup,
+#' mixCytoLysoAcup <- proteinMix(AcupRef=refLocProfAcup,
 #'                               increment.prop=0.1,
 #'                               Loc1=1, Loc2=4)
 #' @export

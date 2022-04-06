@@ -12,8 +12,8 @@ A data frame containing  NSA profiles and descriptive
 \describe{
   \item{\code{Protein.Gene}}{protein name}
   \item{\code{PeptideSequence}}{peptide}
-  \item{\code{SpectrumId}}{identification label of spectrum}
-  \item{\code{PeptidesStartPostionInProtein}}{number of start position}
+  \item{\code{SpectrumID}}{identification label of spectrum}
+  \item{\code{PeptidesStartPositionInProtein}}{number of start position}
   \item{\code{modifications}}{peptide modification list}
   \item{\code{N}}{a numeric vector}
   \item{\code{M}}{a numeric vector}

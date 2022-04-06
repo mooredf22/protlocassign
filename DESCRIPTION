@@ -1,6 +1,6 @@
 Package: protlocassign
-Title: Compute constrained proportional assignments for 
-    fractionated protein abundance 
+Title: Estimation of protein distribution from quantitative subcellular 
+  fractionation experiments using a constrained proportional assignment model
 Version: 0.99.2
 Date: 2022-03-02
 Authors@R: 
@@ -12,14 +12,15 @@ Authors@R:
            family = "Moore",
            role = c("cre","aut"),
            email = "dirkfmoore@gmail.com")
-Description: This package fits a constrained proportional assignment (cpa)
-   model to mass spectrometry data 
-    to proportionally assign proteins to subcellular locations.
+Description: This package uses a constrained proportional assignment (CPA)
+   model to to estimate the distribution of proteins among 
+   different subcellular locations based of analytical 
+   subcellular fractionation data.
     The package includes transformations to 
     improve the accuracy of the assignments as well as
-    facilities for simulating mixtures and evaluating 
-    the perfomance of cpa on those mixtures.
-    Also included are facilities for summarizing spectral-level 
+    functions for simulating mixtures and evaluating 
+    the performance of CPA on those mixtures.
+    Also included are functions for summarizing spectral-level 
     data using random effects models to calculate average protein profiles.
 License: GPL-3
 Encoding: UTF-8

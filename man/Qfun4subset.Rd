@@ -2,7 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{Qfun4subset}
 \alias{Qfun4subset}
-\title{constrained goodness-of-fit internal function}
+\title{Constrained goodness-of-fit internal function}
 \usage{
 Qfun4subset(
   pvec.vary,
@@ -32,7 +32,7 @@ Qfun4subset(
 \item{par.fixed}{values of fixed parameters; typically 0}
 }
 \value{
-value of goodness-of-fit function
+Value of goodness-of-fit function
 }
 \description{
 An internal function used to assess the goodness-of-fit 

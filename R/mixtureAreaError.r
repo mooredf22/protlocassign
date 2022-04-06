@@ -1,8 +1,9 @@
 #' Area-based error of mixtures
 #' 
-#' Compute area-based error for mixture of two
-#'    compartment profiles
-#' @param mixProtiProtjCPA data frame of CPA estimated proportions
+#' Compute area-based error for accuracy of CPA estimates for 
+#'    sets of simulated proteins distributed between two compartments.
+#'    
+#' @param mixProtiProtjCPA data frame of CPA estimates
 #'       for each mixture
 #' @param NstartMaterialFractions  Number of fractions that reconstitute 
 #'       the starting material, e.g., a complete set of differential 
@@ -11,36 +12,27 @@
 #' @param Loc1  row number of subcellular location 1 of mixture
 #' @param Loc2  row number of subcellular location 2 of mixture
 #' @param increment.prop  increment for computation; default is 0.1
-#' @return error, the area between predicted and observed curves
+#' @return The area between predicted and observed curves
 #' @examples
-#' data(protNSA_test)
-#' data(markerListJadot)
+#' data(refLocProfAcup)
+#' data(refLocProfNSA)
 #' data(totProtAT5)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-#'                               markerList=markerListJadot, numDataCols=9)
-#' round(refLocationProfilesNSA, digits=3)
-#' # Convert NSA reference profiles to Acup to prepare for forming mixtures
-#' refLocationProfilesAcup <- AcupFromNSA(NSA=refLocationProfilesNSA,
-#'                NstartMaterialFractions=6,
-#'                totProt=totProtAT5)
-#' round(refLocationProfilesAcup, digits=4)
+#'
 #' # Compute mixtures
-#' mixCytoLysoAcup <- proteinMix(AcupRef=refLocationProfilesAcup,
+#' mixCytoLysoAcup <- proteinMix(AcupRef=refLocProfAcup,
 #'                               increment.prop=0.1,
 #'                               Loc1=1, Loc2=4)
+#'                               
 #' # Convert to relative specific amoounts
-#' mixCytoLysoRSA <- RSAfromAcup(Acup=mixCytoLysoAcup,
-#'                               NstartMaterialFractions=6, totProt=totProtAT5)
-#' # Find RSA transformed reference profiles
-#' refLocationProfilesRSA <- RSAfromNSA(refLocationProfilesNSA,
-#'                           NstartMaterialFractions=6,
-#'                           totProt=totProtAT5)
+#' mixCytoLysoNSA <- NSAfromAcup(Acup=mixCytoLysoAcup,
+#'                            NstartMaterialFractions=6, totProt=totProtAT5)
+#'                               
 #' # Find constrained proportional values
-#' mixCytoLysoCPAfromRSA <- fitCPA(profile=mixCytoLysoRSA,
-#'                                 refLocationProfiles=refLocationProfilesRSA,
+#' mixCytoLysoCPAfromNSA <- fitCPA(profile=mixCytoLysoNSA,
+#'                                 refLocationProfiles=refLocProfNSA,
 #'                                 numDataCols=9)
 #' # calculate the mixture error
-#' mixtureAreaError(mixProtiProtjCPA=mixCytoLysoCPAfromRSA,
+#' mixtureAreaError(mixProtiProtjCPA=mixCytoLysoCPAfromNSA,
 #'             NstartMaterialFractions=6, Loc1=1, Loc2=4,
 #'             increment.prop=0.1)
 #' @importFrom pracma trapz

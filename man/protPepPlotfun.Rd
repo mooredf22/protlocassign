@@ -21,35 +21,34 @@ protPepPlotfun(
 )
 }
 \arguments{
-\item{protName}{Name of the protein to plot}
+\item{protName}{name of the protein to plot}
 
-\item{protProfile}{Data frame containing protein profiles}
+\item{protProfile}{data frame containing protein profiles}
 
-\item{Nspectra}{Data frame containing protein profile}
+\item{Nspectra}{number of spectra associated to a given peptide}
 
-\item{pepProfile}{Data frame containing peptide profiles}
+\item{pepProfile}{data frame containing peptide profiles}
 
-\item{numRefCols}{Number of reference columns
+\item{numRefCols}{number of reference columns
 (preceding the data profile columns)}
 
-\item{numDataCols}{Number of fractions in a profile}
+\item{numDataCols}{number of fractions in each profile}
 
-\item{n.compartments}{Number of compartments}
+\item{n.compartments}{number of compartments}
 
-\item{refLocationProfiles}{A data frame containing profiles of the 
-subcellular locations}
+\item{refLocationProfiles}{data frame of profiles for the  reference compartments}
 
-\item{assignPropsMat}{A data frame containing CPA values}
+\item{assignPropsMat}{data frame containing CPA values}
 
 \item{propCI}{TRUE if lower and upper confidence intervals are included 
 in assignPropsMat (not currently implemented)}
 
-\item{transType}{Label for y-axis on each individual plot (default none))}
+\item{transType}{label for y-axis on each individual plot (default none))}
 
-\item{yAxisLabel}{Label for y-axis of entire panel}
+\item{yAxisLabel}{label for y-axis of entire panel}
 }
 \value{
-plot of average, peptide, and reference profiles
+Plot of protein, peptide, and reference profiles
 }
 \description{
 This function creates a panel of plots, one for each compartment.  

@@ -7,23 +7,23 @@
 NSAfromAcup(Acup, NstartMaterialFractions, totProt = NULL)
 }
 \arguments{
-\item{Acup}{profiles;
+\item{Acup}{data frame containing Acup profiles;
 amount of given protein in fraction /
 amount of that given protein in starting material
 (see help file for protAcup_test).}
 
-\item{NstartMaterialFractions}{Number of fractions that reconstitute 
+\item{NstartMaterialFractions}{number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
 centrifugation fractions.  For experiment AT5, it is 6 
 ( N, M, L1, L2, P, and S).}
 
-\item{totProt}{Number of fractions that reconstitute 
+\item{totProt}{number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
 centrifugation fractions.  For experiment AT5, it is 6 
 ( N, M, L1, L2, P, and S).}
 }
 \value{
-NSA A matrix giving normalized specific amount profiles 
+A data frame of NSA profiles 
    (see help file for protNSA_test)
 }
 \description{
@@ -37,4 +37,5 @@ protNSA_out1 <- NSAfromAcup(protAcup_test[,seq_len(9)],
             NstartMaterialFractions = 6,
             totProt=totProtAT5)
 round(head(protNSA_out1), digits=4)
+str(protNSA_out1)
 }

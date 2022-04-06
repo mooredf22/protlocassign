@@ -1,24 +1,28 @@
-#' Properly format a protein/spectral data set for further analysis
+#' Formats a data set of spectral profiles for use with protlocassign
 #' 
-#' The program ensures that spectra are nested within peptides, and these
-#'  are nested within proteins, and all peptide and protein data are
-#'  contiguous. That is, not split up into separate locations.
-#' Assigns unique numbers to each protein and each peptide within protein.
-#' This program should be run first on a comma-separeted data file.
-#' The first column must contain prot name, and the second must be the peptide
-#' The columns after 'numRefCols' contain relative abundance levels
-#' There should be 'numDataCols' abundance level columns
+#' The function sorts a data set of peptide-spectrum matches with
+#'    associated profiles and descriptive information, 
+#'    ensuring that spectra are nested within peptides and peptides 
+#'    are nested within proteins so that all peptide and protein data 
+#'    are contiguous. Peptide names (sequences) are prepended with 
+#'    the associated protein name. The function assigns 
+#'    unique numerical identifiers to each protein (protId) and 
+#'    each peptide (pepId). The input data frame must be formatted 
+#'    so that the first column contains protein names and the second 
+#'    peptide names (typically sequences).  
+#'    This is followed by a series of columns containing descriptive 
+#'    information and profile data.  
 
-#' @param protClass frame of protein and peptide names and
-#'         data as described above
-#' @param numRefCols number of reference columns
-#' @param numDataCols numer of data columns
-#' @return data frame like the input, but with spectra and peptides
-#'        nested within proteins in same location
+#' @param protClass data frame containing protein and peptide names, 
+#'        annotation data and profiles
+#' @param numRefCols number of reference columns  
+#'        (includes protein and peptide names)
+#' @param numDataCols number of fractions in each profile 
+#' @return Data frame properly formatted for protlocassign
 #' @examples
-#' data(TLN1_test)
-#' TLN1fixed <- proteinDataPrep(TLN1_test, numRefCols=5,numDataCols=9)
-#' head(TLN1fixed)
+#' data(QuantPSM_test)
+#' specNSA_out <- proteinDataPrep(QuantPSM_test, numRefCols=5,numDataCols=9)
+#' head(specNSA_out)
 #' @export
 
 proteinDataPrep <- function(protClass, numRefCols,

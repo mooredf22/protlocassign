@@ -2,7 +2,7 @@
 % Please edit documentation in R/profileSummarize.r
 \name{meansByProteins}
 \alias{meansByProteins}
-\title{Find mean profile for a protein}
+\title{Find mean profile for a protein or peptide}
 \usage{
 meansByProteins(
   i,
@@ -27,8 +27,7 @@ profileSummarize}
 
 \item{numRefCols}{number of columns preceding the data}
 
-\item{numDataCols}{number of numerical values in a
-profile}
+\item{numDataCols}{number of fractions in each profile}
 
 \item{GroupBy}{'protId' if average by
 protein; 'peptideId' if average by peptide}
@@ -37,21 +36,22 @@ protein; 'peptideId' if average by peptide}
 argument is greater than zero}
 
 \item{outlierExclude}{none, spectra, or
-spectraAndPeptide @return result_i coefficient
-estimates, numbers of peptides and spectra, and
-id for protein i}
+spectraAndPeptide}
 
-\item{singularList}{If true, list proteins and channels with singular
+\item{singularList}{If TRUE, list proteins and channels with singular
 lmer fit results; default is FALSE}
 }
 \value{
+Coefficient
+     estimates, numbers of peptides and spectra, and
+     id for protein i
+
 estimated means for all channels, their standard errors,
 and peptide or protein info
 }
 \description{
-Service function for profileSummarize
-  find mean profiles for proteins, or for
-  protein-peptide combinations for specific peptide or protein
+Service function for profileSummarize. Find mean profiles using a 
+  random effects model for nested data.
 }
 \examples{
 set.seed(17356)
@@ -62,12 +62,12 @@ flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
                               numDataCols=9,
                               outlierMeth='boxplot', range=3, eps=eps,
                               randomError=TRUE)
-# examine numbers of spectra that are outliers
-table(flagSpectraBox$outlier.num.spectra)
+                              
 uniqueLabel <- flagSpectraBox$pepId
-pepProfiles <- meansByProteins(i=uniqueLabel[1], uniqueLabel=uniqueLabel,
+pepProfile_i_out <- meansByProteins(i=uniqueLabel[1], 
+          uniqueLabel=uniqueLabel,
           protsCombineCnew=flagSpectraBox,
           numRefCols=6, numDataCols=9, GroupBy="peptideId",eps=eps,
           outlierExclude='spectra')
-str(pepProfiles, strict.width='cut', width=65)
+round(pepProfile_i_out, digits=3)
 }

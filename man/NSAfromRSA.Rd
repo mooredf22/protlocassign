@@ -7,7 +7,7 @@
 NSAfromRSA(RSA)
 }
 \arguments{
-\item{RSA}{profiles.  RSA is the ratio of two ratios: 
+\item{RSA}{data frame containing RSA profiles.  RSA is the ratio of two ratios: 
 the numerator is the amount of a given protein in a particular 
 fraction divided by the amount of that given protein in the 
 starting material while the denominator is amount of total protein 
@@ -19,15 +19,16 @@ relative specific activity term used in classical
 analytical subcellular fractionation.}
 }
 \value{
-NSA A matrix giving normalized specific amount profiles 
+A data frame of NSA profiles 
    (see help file for protNSA_test)
 }
 \description{
-convert RSA (relative specific amount) profiles to NSA
+Convert RSA (relative specific amount) profiles to NSA
 (normalized specific amount) profiles
 }
 \examples{
 data(protRSA_test)
 protNSA_out2 <- NSAfromRSA(protRSA_test[,seq_len(9)])
 round(head(protNSA_out2), digits=4)
+str(protNSA_out2)
 }

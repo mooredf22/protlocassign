@@ -2,7 +2,7 @@
 % Please edit documentation in R/cpaProgs.R
 \name{vecUnitize}
 \alias{vecUnitize}
-\title{unitize vector}
+\title{Unitize vector}
 \usage{
 vecUnitize(xx)
 }
@@ -13,7 +13,7 @@ vecUnitize(xx)
 normalized vector of unit length
 }
 \description{
-normalize a vector to have unit length
+Normalize a vector to have unit length
 }
 \examples{
 xx <- c(0.5, 0.1, 0.6, 0.9)

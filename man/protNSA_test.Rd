@@ -5,7 +5,7 @@
 \alias{protNSA_test}
 \title{Protein-level test data set, NSA profiles}
 \format{
-a test data set
+A test data set
 
 \describe{
   \item{\code{N}}{a numeric vector}

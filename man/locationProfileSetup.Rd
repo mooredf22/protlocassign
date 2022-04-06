@@ -7,15 +7,14 @@
 locationProfileSetup(profile, markerList, numDataCols)
 }
 \arguments{
-\item{profile}{data frame of protein identifiers (protName)
-and their relative abundance in centrifugation fractions.}
+\item{profile}{data frame of specified protein(row name) profiles}
 
-\item{markerList}{List of reference proteins and their subcellular locations}
+\item{markerList}{list of reference proteins and their subcellular locations}
 
-\item{numDataCols}{Number of channels of abundance levels}
+\item{numDataCols}{number of fractions in each profile}
 }
 \value{
-A data frame 'refLocationProfiles' of profiles of
+A data frame of profiles of
         the subcellular locations
 }
 \description{

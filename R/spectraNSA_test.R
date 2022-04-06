@@ -10,7 +10,7 @@
 #'   Data from the TMT MS2 data, AT5 experiment; see Tannous et
 #'
 #' @docType data
-#' @format a test data frame
+#' @format A test data frame
 #'
 #' \describe{
 #'   \item{\code{prot}}{protein name}

@@ -2,28 +2,29 @@
 % Please edit documentation in R/protDistanceCompute.R
 \name{nearestProts}
 \alias{nearestProts}
-\title{Compute distances between proteins}
+\title{Identifies proteins with profiles similar to that of a specified protein.}
 \usage{
 nearestProts(protName, n.nearest = 5, distProts, protNames, profile)
 }
 \arguments{
-\item{protName}{Name of protein to which distances are to be computed}
+\item{protName}{name of protein to which distances are to be computed}
 
-\item{n.nearest}{Number of nearest proteins to list}
+\item{n.nearest}{number of nearest proteins to list}
 
 \item{distProts}{distance matrix created by, for example}
 
-\item{protNames}{A list of all proteins in a dataset}
+\item{protNames}{list of all proteins in a dataset}
 
 \item{profile}{dataframe of profiles for proteins}
 }
 \value{
-List of the proteins in protName closest to protName or to profile
+List of the proteins in data set with profiles closest to 
+      that of specified protein (protName)
 }
 \description{
-Compute distances between a particular protein or profile
- and all other proteins,
- and list the nearest ones
+Uses a distance matrix to identify proteins with profiles nearest 
+   to that of a specified protein; can be used to identify proteins 
+   with similar subcellular locations.
 }
 \examples{
 data(protNSA_test)

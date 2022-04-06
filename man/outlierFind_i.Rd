@@ -20,47 +20,45 @@ outlierFind_i(
 \arguments{
 \item{i}{unique identifier for protein i}
 
-\item{protClass}{a matrix of protein, peptide identifiers and
-normalized specific amounts}
+\item{protClass}{a data frame containing profiles associated 
+with either spectra or peptides (see Tutorial 6)}
 
-\item{outlierLevel}{peptide for outlier spectra within peptides, or
-protein for outlier peptides within proteins`}
+\item{outlierLevel}{'peptide' for outlier spectra within peptides, or
+'protein' for outlier peptides within proteins}
 
-\item{numRefCols}{number of columns before Mass
-Spectrometry data columns}
+\item{numRefCols}{number of columns (variables) before data columns}
 
-\item{numDataCols}{how many columns in MS data}
+\item{numDataCols}{number of fractions in each profile}
 
-\item{outlierMeth}{boxplot (recommended), scores, or none}
+\item{outlierMeth}{boxplot (recommended), scores, or
+none (if no outliers are to be reported)}
 
-\item{range}{the range parameter used for identifying outliers}
+\item{range}{the range parameter used for identifying outliers
+using the boxplot method}
 
 \item{proba}{probability to exclude
 outlier for scores method}
 
-\item{eps}{value to add before log2 transfromations (to avoid
-taking log of zero)}
+\item{eps}{small value to add so that log argument is greater than zero}
 
 \item{randomError}{TRUE if allow it to be random}
 }
 \value{
-additional indicator of outlier peptides or outlier
-           spectra for a set of proteins or peptides
+New data frame with an additional column of indicators 
+          of outlier status
 }
 \description{
-Service function for outlierFind to identify
-outlier spectra within a protein using both scoresMod and
-boxplotMod
+Service function for outlierFind (see help function for outlierFind).
 }
 \examples{
 set.seed(63561)
 eps <- 0.029885209
 data(spectraNSA_test)
 uniqueLabel <- spectraNSA_test$pepId[1]
-flagSpectraBox <- outlierFind_i(i=uniqueLabel, protClass=TLN1_test,
+flagSpectraBox <- outlierFind_i(i=uniqueLabel, protClass=spectraNSA_test,
                       outlierLevel='peptide', numRefCols=5, numDataCols=9,
                       outlierMeth='boxplot', range=3, proba=NA, eps=eps,
                       randomError=TRUE)
 str(flagSpectraBox)
-# examine numbers of spectra that are outliers
+
 }

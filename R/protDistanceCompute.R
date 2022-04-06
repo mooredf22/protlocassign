@@ -1,16 +1,17 @@
 
-#' Compute distances between proteins
+#' Identifies proteins with profiles similar to that of a specified protein.
 #' 
-#' Compute distances between a particular protein or profile
-#'  and all other proteins,
-#'  and list the nearest ones
+#' Uses a distance matrix to identify proteins with profiles nearest 
+#'    to that of a specified protein; can be used to identify proteins 
+#'    with similar subcellular locations.
 #'
-#' @param protName  Name of protein to which distances are to be computed
-#' @param n.nearest Number of nearest proteins to list
+#' @param protName  name of protein to which distances are to be computed
+#' @param n.nearest number of nearest proteins to list
 #' @param distProts distance matrix created by, for example
-#' @param protNames A list of all proteins in a dataset
+#' @param protNames list of all proteins in a dataset
 #' @param profile dataframe of profiles for proteins
-#' @return List of the proteins in protName closest to protName or to profile
+#' @return List of the proteins in data set with profiles closest to 
+#'       that of specified protein (protName)
 #' @export
 #' @examples
 #' data(protNSA_test)

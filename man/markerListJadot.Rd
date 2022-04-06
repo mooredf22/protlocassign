@@ -1,15 +1,15 @@
 \name{markerListJadot}
 \alias{markerListJadot}
 \docType{data}
-\title{Reference proteins from Jadot et al. (2016)
+\title{Reference proteins derived from Jadot et al. (2016)
 
 }
 \description{
-These are the reference proteins curated by Jadot et al. (2016)
-for each of the subcellular locations Cytosol, ER, Golgi, Lysosome,
-Mitochondria, Nucleus, Peroxisomes, and Plasma Membrane.
-The protein "TPP1" was originally used as a reference for Lysosomes,
-but has been removed here.
+These are a subset of the reference proteins curated by Jadot et al. (2016)
+for each of the subcellular locations Cytosol (Cyto), 
+Endoplasmic Reticulum (ER), Golgi, Lysosome (Lyso),
+Mitochondria (Mito), Nucleus (Nuc), Peroxisomes (Perox), 
+and Plasma Membrane (PM).
 
 }
 \format{
@@ -25,9 +25,9 @@ but has been removed here.
     \code{PGM1} \code{PHYH} \code{POR} \code{RPN2} \code{SDHA}
     \code{ST6GAL1} \code{UGGT1} \code{UGT2B37} \code{UOX}}
     \item{\code{referenceCompartment}}{a factor with levels
-    \code{Cytosol} \code{ER} \code{Golgi} \code{Lysosome}
-    \code{Mitochondria} \code{Nucleus} \code{Peroxisomes}
-    \code{Plasma membrane}}
+    \code{Cyto} \code{ER} \code{Golgi} \code{Lyso}
+    \code{Mito} \code{Nuc} \code{Perox}
+    \code{PM}}
   }
 }
 

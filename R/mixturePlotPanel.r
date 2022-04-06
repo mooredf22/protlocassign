@@ -1,11 +1,15 @@
-#' Mixture plots of all pairwise simulated combinations
+#' Panel of mixture plots of all pairwise simulated combinations
 #' 
-#' Plot mixture of all two compartment profile combinations as panel;
-#'   Assumes eight compartments.
-#' Assumes that "refLocationProfilesAcup" has been previously defined
-#' @param refLocationProfilesAcup relative amount of a given cellular
-#'    compartment protein that ends up in a given centrifugation fraction
-#' @param totProt vector of amounts starting material in each fraction
+#' For all sets of simulated proteins distributed between two compartments, 
+#'   plot the CPA estimates for a given type of profile versus true 
+#'   mixture proportions.; aAssumes eight or fewer compartments 
+#'   for proper formatting of the plots. 
+#' 
+#' @param refLocationProfilesAcup data frame containing the Acup 
+#'        profiles for the reference compartments
+#' @param totProt vector of total protein amounts 
+#'        (derived from a given amount of starting material) 
+#'        in each of the fractions comprising the profile 
 #' @param NstartMaterialFractions Number of fractions that reconstitute 
 #'       the starting material, e.g., a complete set of differential 
 #'       centrifugation fractions.  For experiment AT5, it is 6 
@@ -13,15 +17,16 @@
 #' @param errorReturn return all area-based errors if true
 #' @param fitType use RSA, NSA, or Acup
 #' @param log2Transf use log2-transformed values. Default is "FALSE"
-#' @param eps constant to avoid taking logs of zero
+#' @param eps small value to add so that log argument is greater than zero
 #' @importFrom graphics par
 #' @importFrom graphics text
 #' @importFrom graphics legend
 #' @importFrom graphics layout
 #' @export
-#' @return mixErrorMat a list of errors for all mixtures
+#' @return Panel of plots and a list of errors for all mixtures
 #' @examples
-#'  # See Vignette 4 and Vignette 5 for a full explanation
+#' # See Tutorial 4 for details.
+
 mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
                              NstartMaterialFractions,
                              errorReturn=FALSE,
@@ -35,7 +40,10 @@ mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
                                totProt=totProt)
   refLocationProfilesNSA <- NSAfromRSA(refLocationProfilesRSA)
 
-  if (numCompart > 8) warning("Error: too many compartments to plot on one page\n")
+  if (numCompart > 8) {
+    warning("Error: too many compartments to plot on one page\n")
+    warning("Error: too many compartments to plot on one page\n")
+  }
 
   # case where there are 7 or 8 compartments:
   if(numCompart == 8) {
@@ -45,6 +53,8 @@ mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
                c(3,12,13,14,15),
                c(3,16,17,18,19),
                c(3,20,21,22,23),
+               c(3,20,21,22,23),
+               c(3,24,25,26,27),
                c(3,24,25,26,27),
                c(3,28,29,30,31),
                c(3,2,2,2,2)),

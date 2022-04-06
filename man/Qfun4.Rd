@@ -2,22 +2,22 @@
 % Please edit documentation in R/cpaProgs.R
 \name{Qfun4}
 \alias{Qfun4}
-\title{goodness-of-fit internal function}
+\title{Goodness-of-fit internal function}
 \usage{
 Qfun4(pvec, y, gmat, methodQ = "sumsquares")
 }
 \arguments{
-\item{pvec}{Vector of values between 0 and 1 summing to one 
+\item{pvec}{vector of values between 0 and 1 summing to one 
 (length = number of compartments)}
 
-\item{y}{Specified profile}
+\item{y}{specified profile}
 
-\item{gmat}{Matrix of reference profiles}
+\item{gmat}{matrix of reference profiles}
 
-\item{methodQ}{Either 'sumsquares' (default) or 'sumabsvalue'}
+\item{methodQ}{either 'sumsquares' (default) or 'sumabsvalue'}
 }
 \value{
-value of goodness-of-fit function
+Value of goodness-of-fit function
 }
 \description{
 An internal function used to assess the goodness-of-fit of a 

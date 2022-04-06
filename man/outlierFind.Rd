@@ -2,7 +2,7 @@
 % Please edit documentation in R/OutlierFind.R
 \name{outlierFind}
 \alias{outlierFind}
-\title{Identify outlier spectra in a series of proteins}
+\title{Identify outlier profiles}
 \usage{
 outlierFind(
   protClass,
@@ -19,25 +19,25 @@ outlierFind(
 )
 }
 \arguments{
-\item{protClass}{a matrix of protein, peptide identifiers and
-normalized specific amounts}
+\item{protClass}{a data frame containing profiles associated 
+with either spectra or peptides (see Tutorial 6)}
 
-\item{outlierLevel}{peptide for outlier spectra within peptides, or
-protein for outlier peptides within proteins`}
+\item{outlierLevel}{'peptide' for outlier spectra within peptides, or
+'protein' for outlier peptides within proteins}
 
-\item{numRefCols}{number of columns before Mass Spectrometry
-data columns}
+\item{numRefCols}{number of columns (variables) before data columns}
 
-\item{numDataCols}{how many columns in MS data}
+\item{numDataCols}{number of fractions in each profile}
 
-\item{outlierMeth}{boxplot (recommended), scores, or none}
+\item{outlierMeth}{boxplot (recommended), scores, or 
+none (if no outliers are to be reported)}
 
-\item{range}{the range parameter used for identifying outliers}
+\item{range}{the range parameter used for identifying outliers 
+using the boxplot method}
 
-\item{proba}{probability to exclude outler for scores method}
+\item{proba}{probability to exclude outlier for scores method}
 
-\item{eps}{value to add before log2 transfromations
-(to avoid taking log of zero)}
+\item{eps}{small value to add so that log argument is greater than zero}
 
 \item{randomError}{TRUE if allow it to be random}
 
@@ -47,12 +47,14 @@ data columns}
 if cpus > 1 use BiocParallel with SnowParm(cpus)}
 }
 \value{
-additional column of indicators of outlier peptides or outlier
-           spectra for a set of proteins or peptides
+New data frame with an additional column of indicators 
+          of outlier status
 }
 \description{
-Identify outlier spectra profiles for a series of proteins or 
-  protein identifiers using both scoresMod and boxplotMod
+Identify outlier profiles.  This can be done at the level of 
+    identifying outlier spectra when calculating peptide profiles or 
+    identifying outlier peptides when calculating protein profiles. 
+    See tutorial 6 for a description of outlier determination methods.
 }
 \examples{
 set.seed(17356)
@@ -63,6 +65,8 @@ flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
                               numDataCols=9,
                               outlierMeth='boxplot', range=3, eps=eps,
                               randomError=TRUE, cpus=2)
+                              
 # examine numbers of spectra that are outliers
 table(flagSpectraBox$outlier.num.spectra)
+
 }

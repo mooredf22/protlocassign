@@ -9,7 +9,7 @@
 #' 
 #'
 #' @docType data
-#' @format list of profiles
+#' @format List of profiles
 #'
 #' \describe{
 #'   \item{\code{N}}{a numeric vector}

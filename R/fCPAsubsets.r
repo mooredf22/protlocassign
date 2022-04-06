@@ -4,31 +4,27 @@
 #'  number i in profile
 #'  with constraint being the number of compartments that are allowed to
 #'  vary freely; other compartment proportions are fixed at zero
-#' @param profile one-row data frame of a protein name (in the row name) and
-#'     relative abundance levels.
-#'               Nspectra and Npep, if present, will be removed
-#' @param refLocationProfiles A matrix giving the abundance level profiles
-#'    of the subcellular locations
-#' @param numDataCols Number of channels of abundance levels
+#' @param profile a vector containing a specified protein (row name) 
+#'      profile ‘Nspectra’ and ‘Npep’, if present, will be removed
+#' @param refLocationProfiles data frame of profiles for the  
+#'      reference compartments
+#' @param numDataCols number of fractions in each profile
 #' @param startProps starting values for proportional assignments;
 #'    set equal if this is null (default)
-#' @param showProgress   default is T
+#' @param showProgress   default is TRUE
 #' @param maxit maximum number of iterations (default is 10000)
 #' @param nCPAcomparts number of compartments to fit restricted CPA;
 #'        remaining proportions are fixed at zero
-#' @return data frame with CPA estimates for every combination
+#' @return Data frame with CPA estimates for every combination
 #'        ordered by value, with best fit listed first
 
 #' @examples
-#' data(protNSA_test)
-#' data(markerListJadot)
-#' nTestProts <- nrow(protNSA_test)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-#'     markerList=markerListJadot, numDataCols=9)
-#' protCPAfromNSA_test <- fCPAsubsets(profile=protNSA_test[1,],
-#'                          refLocationProfiles=refLocationProfilesNSA,
+#' data(protRSA_test)
+#' data(refLocProfRSA)
+#' protCPAfromRSA_out2 <- fCPAsubsets(profile=protRSA_test[1,],
+#'                          refLocationProfiles=refLocProfRSA,
 #'                          numDataCols=9, startProps=NULL, nCPAcomparts=2)
-#' head(protCPAfromNSA_test)
+#' round(head(protCPAfromRSA_out2), digits=4)
 #' @importFrom utils combn
 #' @export
 #'

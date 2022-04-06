@@ -16,13 +16,12 @@ fitCPA(
 )
 }
 \arguments{
-\item{profile}{a data frame of protein names (row names) and
-relative abundance levels.}
+\item{profile}{data frame of specified protein(row name) profiles}
 
-\item{refLocationProfiles}{A matrix giving the abundance level
-profiles of the subcellular locations}
+\item{refLocationProfiles}{data frame of profiles for 
+the reference compartments}
 
-\item{numDataCols}{Number of channels of abundance levels}
+\item{numDataCols}{number of fractions in each profile}
 
 \item{startProps}{starting values for proportional assignments;
 set equal if this is null (default)}
@@ -34,12 +33,11 @@ set equal if this is null (default)}
 \item{ind.vary}{if not NULL, indexes of parameters to allow to vary; 
 remaining parameters are fixed at zero}
 
-\item{minVal}{default is false. If true, return minimum value of
+\item{minVal}{default is FALSE. If TRUE, return minimum value of
 goodness of fit}
 }
 \value{
-assignProbsOut  Data frame of proportional assignments
-      of each protein to compartments
+Data frame of CPA estimates for each protein
 }
 \description{
 Carry out constrained proportional assignment on a profiles

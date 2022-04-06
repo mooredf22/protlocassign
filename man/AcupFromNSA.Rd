@@ -7,15 +7,15 @@
 AcupFromNSA(NSA, NstartMaterialFractions, totProt = NULL)
 }
 \arguments{
-\item{NSA}{A matrix giving normalized specific amount profiles 
+\item{NSA}{matrix of normalized specific amount profiles 
 (see help file for protNSA_test)}
 
-\item{NstartMaterialFractions}{Number of fractions that reconstitute 
+\item{NstartMaterialFractions}{number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
 centrifugation fractions.  For experiment AT5, it is 6 
 ( N, M, L1, L2, P, and S).}
 
-\item{totProt}{Total protein amount (derived from a given amount 
+\item{totProt}{vector of total protein amounts (derived from a given amount 
 of starting material) in each of the fractions comprising the profile}
 }
 \value{
@@ -33,5 +33,6 @@ data(protNSA_test)
 data(totProtAT5)
 protAcup_out1 <- AcupFromNSA(protNSA_test[,seq_len(9)],
    NstartMaterialFractions = 6, totProt=totProtAT5)
-head(protAcup_out1)
+round(head(protAcup_out1), digits=4)
+str(protAcup_out1)
 }

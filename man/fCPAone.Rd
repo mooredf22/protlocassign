@@ -15,13 +15,12 @@ fCPAone(
 )
 }
 \arguments{
-\item{profile}{data frame of one protein name (row name) and
-relative abundance levels for that protein}
+\item{profile}{vector of a specified protein (row name) profile}
 
-\item{refLocationProfiles}{A matrix giving the abundance
-level profiles of the subcellular locations}
+\item{refLocationProfiles}{data frame of profiles for the 
+reference compartments}
 
-\item{numDataCols}{Number of channels of abundance levels}
+\item{numDataCols}{number of fractions in each profile}
 
 \item{startProps}{starting values for proportional assignments;
 set equal if this is null (default)}
@@ -31,15 +30,15 @@ set equal if this is null (default)}
 \item{ind.vary}{if not NULL, indexes of proportions allowed to vary with 
 others constrained to zero}
 
-\item{minVal}{default is false. If true, return minimum value of
+\item{minVal}{default is FALSE. If TRUE, return minimum value of 
 goodness of fit}
 }
 \value{
-assignProbsOut  Vector of proportional assignments of
+Vector of proportional assignments of
    each protein to compartments. Also returns variables
-   nspectra and npeptides if they are included in the profile input.
-   If ind.vary is specified, only the 
-   referenced proportion CPA estimates are returned.
+   'nspectra' and 'npeptides' if they are included in the profile input.
+   If 'ind.vary' is specified, only the 
+   referenced CPA estimates are returned.
 }
 \description{
 Carry out constrained proportional assignment for protein i;
@@ -47,7 +46,7 @@ Carry out constrained proportional assignment for protein i;
 }
 \examples{
 data(protRSA_test)
-data(refLocProfRSA_test)
+data(refLocProfRSA)
 
 protCPAfromRSA_i_out1 <- fCPAone(profile=protRSA_test[1,],
                           refLocationProfiles=refLocProfRSA,
@@ -55,4 +54,11 @@ protCPAfromRSA_i_out1 <- fCPAone(profile=protRSA_test[1,],
                           maxit=10000,
                          ind.vary=NULL, minVal=FALSE)
 round(protCPAfromRSA_i_out1, digits=4)
+
+protCPAfromRSA_i_out1b <- fCPAone(profile=protRSA_test[1,],
+          refLocationProfiles=refLocProfRSA,
+          numDataCols=9, startProps=NULL,
+          maxit=10000,
+          ind.vary=c(2,4), minVal=FALSE)
+round(protCPAfromRSA_i_out1b, digits=4)
 }

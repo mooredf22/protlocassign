@@ -2,11 +2,10 @@
 #' 
 #' Set up reference profiles for constrained proportional assignment
 #'
-#' @param profile data frame of protein identifiers (protName)
-#'        and their relative abundance in centrifugation fractions.
-#' @param markerList List of reference proteins and their subcellular locations
-#' @param numDataCols Number of channels of abundance levels
-#' @return A data frame 'refLocationProfiles' of profiles of
+#' @param profile data frame of specified protein(row name) profiles 
+#' @param markerList list of reference proteins and their subcellular locations
+#' @param numDataCols number of fractions in each profile
+#' @return A data frame of profiles of
 #'         the subcellular locations
 #' @import knitr
 #' @import rmarkdown
@@ -109,18 +108,18 @@ locationProfileSetup <- function(profile, markerList,
     refLocationProfiles
 }
 
-#' goodness-of-fit internal function
+#' Goodness-of-fit internal function
 #' 
 #' An internal function used to assess the goodness-of-fit of a 
 #'  weighted mixture of reference profiles to a specified profile
 #'  
-#' @param pvec Vector of values between 0 and 1 summing to one 
+#' @param pvec vector of values between 0 and 1 summing to one 
 #'   (length = number of compartments) 
-#' @param y Specified profile
-#' @param gmat Matrix of reference profiles
-#' @param methodQ Either 'sumsquares' (default) or 'sumabsvalue'
+#' @param y specified profile
+#' @param gmat matrix of reference profiles
+#' @param methodQ either 'sumsquares' (default) or 'sumabsvalue'
 #' @export
-#' @return value of goodness-of-fit function
+#' @return Value of goodness-of-fit function
 #' @examples
 #' 
 #' # Suppose a profile consists of four fractions and there are three
@@ -163,7 +162,7 @@ Qfun4 <- function(pvec, y, gmat, methodQ = "sumsquares") {
         result <- sum(abs(resultA))
     result
 }
-#' constrained goodness-of-fit internal function
+#' Constrained goodness-of-fit internal function
 #' 
 #' An internal function used to assess the goodness-of-fit 
 #'   of a weighted mixture of reference profiles to a specified 
@@ -181,7 +180,7 @@ Qfun4 <- function(pvec, y, gmat, methodQ = "sumsquares") {
 #' @param ind.fixed indexes of fixed parameters; (complement of ind.vary)
 #' @param par.fixed values of fixed parameters; typically 0
 #' @export
-#' @return value of goodness-of-fit function
+#' @return Value of goodness-of-fit function
 #' @examples
 #' 
 #' # Suppose a profile consists of four fractions and there are three
@@ -269,16 +268,15 @@ projSimplex <- function(y) {
 }
 
 
-#' index of protein name
+#' Index of protein name
 #' 
-#' return index of a protein name, or (if exactMatch=TRUE) indices of
+#' Return index of a protein name, or (if exactMatch=TRUE) indices of
 #'    proteins starting with the string given in 'protName'
 #' @param protName  name of protein to search for
-#' @param profile data frame of protein identifiers (protName) and
-#'        their relative abundance in centrifugation fractions
-#' @param exactMatch  default is F
+#' @param profile data frame of specified protein(row name) profiles
+#' @param exactMatch  default is FALSE
 #' @export
-#' @return the protein name and its index (row in profile)
+#' @return The protein name and its index (row in profile)
 #' @examples
 #' data(protNSA_test)
 #' protIndex('TLN1', profile=protNSA_test)
@@ -315,21 +313,20 @@ protIndex <- function(protName, profile, exactMatch = FALSE) {
 #' 
 #' Carry out constrained proportional assignment for protein i;
 #'    service function for fitCPA
-#' @param profile data frame of one protein name (row name) and
-#'        relative abundance levels for that protein
-#' @param refLocationProfiles A matrix giving the abundance
-#'        level profiles of the subcellular locations
-#' @param numDataCols Number of channels of abundance levels
+#' @param profile vector of a specified protein (row name) profile
+#' @param refLocationProfiles data frame of profiles for the 
+#'        reference compartments
+#' @param numDataCols number of fractions in each profile
 #' @param startProps starting values for proportional assignments;
 #'        set equal if this is null (default)
 #' @param maxit maximum number of iterations (default is 10000)
 #' @param ind.vary if not NULL, indexes of proportions allowed to vary with 
 #'        others constrained to zero
-#' @param minVal default is false. If true, return minimum value of
-#'               goodness of fit
+#' @param minVal default is FALSE. If TRUE, return minimum value of 
+#'        goodness of fit
 #' @examples
 #' data(protRSA_test)
-#' data(refLocProfRSA_test)
+#' data(refLocProfRSA)
 #' 
 #' protCPAfromRSA_i_out1 <- fCPAone(profile=protRSA_test[1,],
 #'                           refLocationProfiles=refLocProfRSA,
@@ -337,12 +334,20 @@ protIndex <- function(protName, profile, exactMatch = FALSE) {
 #'                           maxit=10000,
 #'                          ind.vary=NULL, minVal=FALSE)
 #' round(protCPAfromRSA_i_out1, digits=4)
+#' 
+#' protCPAfromRSA_i_out1b <- fCPAone(profile=protRSA_test[1,],
+#'           refLocationProfiles=refLocProfRSA,
+#'           numDataCols=9, startProps=NULL,
+#'           maxit=10000,
+#'           ind.vary=c(2,4), minVal=FALSE)
+#' round(protCPAfromRSA_i_out1b, digits=4)
+
 #' @export
-#' @return assignProbsOut  Vector of proportional assignments of
+#' @return Vector of proportional assignments of
 #'    each protein to compartments. Also returns variables
-#'    nspectra and npeptides if they are included in the profile input.
-#'    If ind.vary is specified, only the 
-#'    referenced proportion CPA estimates are returned.
+#'    'nspectra' and 'npeptides' if they are included in the profile input.
+#'    If 'ind.vary' is specified, only the 
+#'    referenced CPA estimates are returned.
 
 # protLocAssign <- function(i, profile,
 # refLocationProfiles, numDataCols,
@@ -520,22 +525,20 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
 #' Carry out constrained proportional assignment on a profiles
 #'  of set of proteins
 #'
-#' @param profile a data frame of protein names (row names) and
-#'       relative abundance levels.
-#' @param refLocationProfiles A matrix giving the abundance level
-#'       profiles of the subcellular locations
-#' @param numDataCols Number of channels of abundance levels
+#' @param profile data frame of specified protein(row name) profiles
+#' @param refLocationProfiles data frame of profiles for 
+#'        the reference compartments
+#' @param numDataCols number of fractions in each profile
 #' @param startProps starting values for proportional assignments;
 #'       set equal if this is null (default)
 #' @param maxit maximum number of iterations (default is 10000)
 #' @param showProgress print out progress if TRUE, the default
 #' @param ind.vary if not NULL, indexes of parameters to allow to vary; 
 #'        remaining parameters are fixed at zero
-#' @param minVal default is false. If true, return minimum value of
+#' @param minVal default is FALSE. If TRUE, return minimum value of
 #'       goodness of fit
 #' @export
-#' @return assignProbsOut  Data frame of proportional assignments
-#'       of each protein to compartments
+#' @return Data frame of CPA estimates for each protein
 #' @examples
 #' data(protRSA_test)
 #' data(refLocProfRSA)
@@ -625,25 +628,27 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
 }
 
 
-#' assign to single subcellular locaction
+#' Assign to single subcellular location
 #' 
 #' Assign proteins to the most prevalent subcellular location 
 #' (meeting a specific cutoff) using CPA estimates,
 #' with minimum value being 0.5.
 #'
-#' @param assignLocProps matrix of proportion estimates for each protein
+#' @param assignLocProps matrix of CPA estimates for each protein
 #' @param cutoff cutoff for assigning a protein to a location
 #' @param Locations list of subcellular locations
-#' @return protLoc assigned location of protein
+#' @return Single compartment where most of protein resides, 
+#'        undefined if largest CPA value is <0.5
 #' @examples
 #' data(protNSA_test)
 #' data(markerListJadot)
-#' refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-#'          markerList=markerListJadot, numDataCols=9)
+#' data(refLocProfNSA)
 #' protCPAfromNSA_test <- fitCPA(profile=protNSA_test,
-#'          refLocationProfiles=refLocationProfilesNSA,
+#'          refLocationProfiles=refLocProfNSA,
 #'          numDataCols=9)
 #' Locations <- unique(markerListJadot$referenceCompartment)
+#' 
+#' # write table listing predominant CPA assignment of each protein in data set
 #' table(apply(protCPAfromNSA_test[,1:8],1,assignCPAloc,
 #'          cutoff=0.8, Locations=Locations))
 #' @importFrom stats complete.cases
@@ -674,9 +679,9 @@ assignCPAloc <- function(assignLocProps, cutoff = 0.8,
 }
 
 # unitize functions # # #
-#' unitize vector
+#' Unitize vector
 #' 
-#' normalize a vector to have unit length
+#' Normalize a vector to have unit length
 #' @param xx vector
 #' @return normalized vector of unit length
 #' @examples
@@ -693,11 +698,11 @@ vecUnitize <- function(xx) {
     xx.norm
 }
 
-#' unitize series of vectors
+#' Unitize series of vectors
 #' 
-#' normalize all rows of a matrix to have unit length
+#' Normalize all rows of a matrix to have unit length
 #' @param protMatOrig matrix of profiles
-#' @return matrix with all rows having unit length
+#' @return Matrix with all rows having unit length
 #' @examples
 #' data(protNSA_test)
 #' round(head(vectorizeAll(protNSA_test[,1:9])), digits=4)

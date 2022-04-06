@@ -15,19 +15,18 @@ fCPAsubsets(
 )
 }
 \arguments{
-\item{profile}{one-row data frame of a protein name (in the row name) and
-relative abundance levels.
-          Nspectra and Npep, if present, will be removed}
+\item{profile}{a vector containing a specified protein (row name) 
+profile ‘Nspectra’ and ‘Npep’, if present, will be removed}
 
-\item{refLocationProfiles}{A matrix giving the abundance level profiles
-of the subcellular locations}
+\item{refLocationProfiles}{data frame of profiles for the
+reference compartments}
 
-\item{numDataCols}{Number of channels of abundance levels}
+\item{numDataCols}{number of fractions in each profile}
 
 \item{startProps}{starting values for proportional assignments;
 set equal if this is null (default)}
 
-\item{showProgress}{default is T}
+\item{showProgress}{default is TRUE}
 
 \item{maxit}{maximum number of iterations (default is 10000)}
 
@@ -35,7 +34,7 @@ set equal if this is null (default)}
 remaining proportions are fixed at zero}
 }
 \value{
-data frame with CPA estimates for every combination
+Data frame with CPA estimates for every combination
        ordered by value, with best fit listed first
 }
 \description{
@@ -45,13 +44,10 @@ Carry out constrained proportional assignment for protein
  vary freely; other compartment proportions are fixed at zero
 }
 \examples{
-data(protNSA_test)
-data(markerListJadot)
-nTestProts <- nrow(protNSA_test)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-    markerList=markerListJadot, numDataCols=9)
-protCPAfromNSA_test <- fCPAsubsets(profile=protNSA_test[1,],
-                         refLocationProfiles=refLocationProfilesNSA,
+data(protRSA_test)
+data(refLocProfRSA)
+protCPAfromRSA_out2 <- fCPAsubsets(profile=protRSA_test[1,],
+                         refLocationProfiles=refLocProfRSA,
                          numDataCols=9, startProps=NULL, nCPAcomparts=2)
-head(protCPAfromNSA_test)
+round(head(protCPAfromRSA_out2), digits=4)
 }

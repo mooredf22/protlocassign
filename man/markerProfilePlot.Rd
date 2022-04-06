@@ -14,23 +14,22 @@ markerProfilePlot(
 )
 }
 \arguments{
-\item{refLoc}{the name of the reference subcellular
+\item{refLoc}{name of the reference subcellular
 compartment to plot}
 
-\item{profile}{data frame of protein names (as row names)
-and relative abundance levels.}
+\item{profile}{data frame of specified protein (row name) profiles}
 
-\item{markerList}{List of reference proteins}
+\item{markerList}{list of reference proteins}
 
-\item{refLocationProfiles}{A matrix refLocationProfiles giving
-the abundance level profiles of the subcellular locations}
+\item{refLocationProfiles}{data frame of profiles for the 
+reference compartments}
 
 \item{ylab}{label for y=axis, eg, 'NSA'}
 
 \item{refProtPlot}{indices of reference proteins to plot; default is NULL}
 }
 \value{
-plot of profiles of reference (marker) proteins
+Plot of profiles of reference (marker) proteins
 }
 \description{
 This function plots profiles of reference proteins
@@ -39,9 +38,8 @@ This function plots profiles of reference proteins
 \examples{
 data(protNSA_test)
 data(markerListJadot)
-refLocationProfilesNSA <- locationProfileSetup(profile=protNSA_test,
-   markerList=markerListJadot, numDataCols=9)
+data(refLocProfNSA)
 markerProfilePlot(refLoc='PM', profile=protNSA_test,
    markerList=markerListJadot,
-   refLocationProfiles=refLocationProfilesNSA, ylab='NSA')
+   refLocationProfiles=refLocProfNSA, ylab='NSA')
 }

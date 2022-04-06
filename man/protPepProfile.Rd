@@ -7,15 +7,15 @@
 protPepProfile(flagPeps, numRefCols, numDataCols, protProfileData)
 }
 \arguments{
-\item{flagPeps}{Data frame containing profiles for all spectra, 
+\item{flagPeps}{data frame containing profiles for all spectra, 
 information mapping these to proteins and peptides, 
 and an indicator for outliers}
 
-\item{numRefCols}{Number of reference olumns}
+\item{numRefCols}{number of reference columns}
 
-\item{numDataCols}{Number of data columns}
+\item{numDataCols}{number of data columns}
 
-\item{protProfileData}{Data frame containing protein profiles}
+\item{protProfileData}{data frame containing protein profiles}
 }
 \value{
 Data frame containing protein and peptide profiles
