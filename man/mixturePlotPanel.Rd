@@ -41,9 +41,17 @@ Panel of plots and a list of errors for all mixtures
 \description{
 For all sets of simulated proteins distributed between two compartments, 
   plot the CPA estimates for a given type of profile versus true 
-  mixture proportions.; aAssumes eight or fewer compartments 
+  mixture proportions; assumes eight or fewer compartments 
   for proper formatting of the plots.
 }
 \examples{
-# See Tutorial 4 for details.
+data(refLocProfAcup)
+data(totProtAT5)
+mixturePlotPanel(refLocationProfilesAcup=
+                   refLocProfAcup, 
+                 totProt=totProtAT5, NstartMaterialFractions=6, 
+                 errorReturn = TRUE, 
+                 fitType="RSA", log2Transf=FALSE) 
+# It may be necessary to open a separate window to
+# properly display this panel of plots. Further details are in Tutorial 4.
 }

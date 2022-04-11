@@ -47,14 +47,15 @@ using the boxplot method}
 if cpus > 1 use BiocParallel with SnowParm(cpus)}
 }
 \value{
-New data frame with an additional column of indicators 
-          of outlier status
+New data frame with an additional column that indicates 
+          the number of fractions in a profile (spectra or peptide) 
+          that are outliers
 }
 \description{
 Identify outlier profiles.  This can be done at the level of 
     identifying outlier spectra when calculating peptide profiles or 
     identifying outlier peptides when calculating protein profiles. 
-    See tutorial 6 for a description of outlier determination methods.
+    See Tutorial 6 for a description of outlier determination methods.
 }
 \examples{
 set.seed(17356)
@@ -66,7 +67,8 @@ flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
                               outlierMeth='boxplot', range=3, eps=eps,
                               randomError=TRUE, cpus=2)
                               
-# examine numbers of spectra that are outliers
+# examine breakdown of spectral according to the number of fractions 
+#  in their profiles that are outliers
 table(flagSpectraBox$outlier.num.spectra)
 
 }

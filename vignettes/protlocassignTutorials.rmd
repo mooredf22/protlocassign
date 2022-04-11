@@ -253,7 +253,7 @@ We can view the structure of the output data file and see that the rows contain 
 round(head(protCPAfromNSA), digits=2)
 ```
 
-Note that the protein "AIF1" has all missing values, which is why an error is reported for that one protein.
+Note that the protein "AIF1" has all missing values, which is why an error is reported for that one protein. While AIF1 is the only one of the 7894 proteins in the full AT5tmtMS2 data set that has no profile, we include it in our 40 protein test data set to show that such cases can occur.
 
 We can look at the profile of, for example, the protein "TLN1". We first ensure that the protein is in the dataset:
 
@@ -1950,7 +1950,7 @@ The following commands generate a plot of TLN1 protein/peptides, with CPA estima
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
 #windows(width=7.5, height=10)  # open a window 7.5 by 10 inches
 protPepPlotfun(protName="TLN1", protProfile=protRSA[,5:15],
-               Nspectra=TRUE, pepProfile=pepRSA, numRefCols=4,
+               pepProfile=pepRSA, numRefCols=4,
                numDataCols=9, n.compartments=8, 
                refLocationProfiles=refLocationProfilesRSA,
                assignPropsMat=protCPAfromRSA, 

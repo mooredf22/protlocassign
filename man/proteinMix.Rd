@@ -14,13 +14,14 @@ reference compartments}
 
 \item{Loc2}{row number of other compartment}
 
-\item{increment.prop}{fraction increment from 0 to 1}
+\item{increment.prop}{increments in proportion residing in
+Loc1(from 0 to 1); Default is 0.1}
 }
 \value{
 A data frame containing Acup profiles for the simulated proteins
 }
 \description{
-Compute the profile of simulated proteins that are distributed 
+Compute the Acup profiles of simulated proteins that are distributed 
 between two compartments in specified proportions
 }
 \examples{
@@ -31,4 +32,5 @@ data(refLocProfAcup)
 mixCytoLysoAcup <- proteinMix(AcupRef=refLocProfAcup,
                               increment.prop=0.1,
                               Loc1=1, Loc2=4)
+round(mixCytoLysoAcup, digits=4)
 }

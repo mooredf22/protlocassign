@@ -2,7 +2,7 @@
 % Please edit documentation in R/profileSummarize.r
 \name{profileSummarize}
 \alias{profileSummarize}
-\title{Calculate mean protein or peptide profiles and standard errors}
+\title{Calculates a mean protein or peptide profiles and standard errors}
 \usage{
 profileSummarize(
   protsCombineCnew,
@@ -17,19 +17,20 @@ profileSummarize(
 )
 }
 \arguments{
-\item{protsCombineCnew}{a data frame containing profiles 
-with outlier information}
+\item{protsCombineCnew}{data frame of profiles (spectra or spectra 
+and peptides) with outlier information}
 
-\item{numRefCols}{number of fractions in each profile}
+\item{numRefCols}{number of columns preceding the profile data}
 
-\item{numDataCols}{how many columns in MS data}
+\item{numDataCols}{number of fractions in each profile}
 
-\item{refColsKeep}{which reference (non-data) columns to keep}
+\item{refColsKeep}{which reference columns to keep 
+(requires columns 1 and 2 for protein and peptide name)}
 
-\item{eps}{epsilon to avoid log(0)}
+\item{eps}{small value to add so that log argument is greater than zero}
 
-\item{GroupBy}{'protId' if average by protein; 'peptideId'
-if average by peptide}
+\item{GroupBy}{‘protId’ if average peptides to give mean protein profile; 
+‘peptideId’ if average spectra to give mean peptide profiles}
 
 \item{outlierExclude}{'none', 'spectra', or
 'spectraAndpeptide' (default)
@@ -38,8 +39,9 @@ if average by peptide}
 \item{cpus}{1 (default);
 if cpus > 1 use BiocParallel with SnowParm(cpus)}
 
-\item{singularList}{if TRUE, list proteins and channels with singular fit 
-from the random effects function lmer; default is FALSE}
+\item{singularList}{if TRUE, list fractions associated with a given 
+protein or peptide with singular fit from the random effects 
+function lmer; default is FALSE}
 }
 \value{
 Mean or weighted mean NSA profiles
@@ -59,8 +61,6 @@ flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
            outlierLevel='peptide', numRefCols=5, numDataCols=9,
            outlierMeth='boxplot', range=3, eps=eps,
            randomError=TRUE, cpus=1)
-# examine numbers of spectra that are outliers
-table(flagSpectraBox$outlier.num.spectra)
 pepProfiles <- profileSummarize(protsCombineCnew=flagSpectraBox,
            numRefCols=6, numDataCols=9, refColsKeep=c(1,2,4),eps=eps,
            GroupBy='peptideId', outlierExclude='spectra', cpus=1)

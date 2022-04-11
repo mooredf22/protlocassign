@@ -2,7 +2,7 @@
 % Please edit documentation in R/OutlierFind.R
 \name{outlierFind_i}
 \alias{outlierFind_i}
-\title{Find outlier spectra within a protein}
+\title{Find outlier spectra within a protein or pedtide i.}
 \usage{
 outlierFind_i(
   i,
@@ -44,8 +44,9 @@ outlier for scores method}
 \item{randomError}{TRUE if allow it to be random}
 }
 \value{
-New data frame with an additional column of indicators 
-          of outlier status
+New data frame for a single protein or peptide with an 
+      additional column that indicates the number of fractions in 
+      a profile (peptides or spectra) that are outliers
 }
 \description{
 Service function for outlierFind (see help function for outlierFind).
@@ -55,10 +56,10 @@ set.seed(63561)
 eps <- 0.029885209
 data(spectraNSA_test)
 uniqueLabel <- spectraNSA_test$pepId[1]
-flagSpectraBox <- outlierFind_i(i=uniqueLabel, protClass=spectraNSA_test,
+flagSpectraBox_i <- outlierFind_i(i=uniqueLabel, protClass=spectraNSA_test,
                       outlierLevel='peptide', numRefCols=5, numDataCols=9,
                       outlierMeth='boxplot', range=3, proba=NA, eps=eps,
                       randomError=TRUE)
-str(flagSpectraBox)
+str(flagSpectraBox_i)
 
 }

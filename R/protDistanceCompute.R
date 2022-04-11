@@ -7,9 +7,10 @@
 #'
 #' @param protName  name of protein to which distances are to be computed
 #' @param n.nearest number of nearest proteins to list
-#' @param distProts distance matrix created by, for example
+#' @param distProts distance matrix created by, for example, using the 'dist'
+#'     function in R
 #' @param protNames list of all proteins in a dataset
-#' @param profile dataframe of profiles for proteins
+#' @param profile data frame of profiles for proteins
 #' @return List of the proteins in data set with profiles closest to 
 #'       that of specified protein (protName)
 #' @export

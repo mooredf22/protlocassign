@@ -1,29 +1,30 @@
-#' Find mean profile for a protein or peptide
+#' Find mean and standard error of profile for a protein or peptide 
 #' 
 #' Service function for profileSummarize. Find mean profiles using a 
 #'   random effects model for nested data.
-#' @param i protID or pepID (only one)
+#' @param i protId or pepId (only one)
 #' @param uniqueLabel vector of either
 #'   protId or pepId as specified by 'GroupBy' in
 #'   profileSummarize
-#' @param protsCombineCnew
-#'   dataframe of protein profiles
+#' @param protsCombineCnew  data frame of profiles 
+#'      (spectra or spectra and peptides) with outlier information
 #' @param numRefCols
-#'   number of columns preceding the data
+#'   number of columns preceding the profile data
 #' @param numDataCols number of fractions in each profile
-#' @param GroupBy 'protId' if average by
-#'    protein; 'peptideId' if average by peptide
+#' @param GroupBy ‘protId’ if average peptides to give mean protein profile; 
+#'    ‘pepId’ if average spectra to give mean peptide profiles
 #' @param eps small value to add so that log
 #'    argument is greater than zero
 #' @param outlierExclude none, spectra, or
 #'      spectraAndPeptide 
-#' @return Coefficient
-#'      estimates, numbers of peptides and spectra, and
-#'      id for protein i
-#' @param singularList If TRUE, list proteins and channels with singular
-#'          lmer fit results; default is FALSE
-#' @return estimated means for all channels, their standard errors,
-#' and peptide or protein info
+#' @return estimated mean and standard error for a protein or peptide 
+#'      profile 
+#' @param singularList If TRUE, list fractions associated with a given 
+#'        protein or peptide with singular lmer fit results;
+#'        default is FALSE 
+#' @return Estimated mean and standard error (log2 scale) for a protein or
+#'     peptide profile, and Nspectra, Npep, protId, and pepId
+#'     
 #' @examples
 #' set.seed(17356)
 #' eps <- 0.029885209
@@ -234,7 +235,7 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 
 
 # ================================================================
-#' Calculate mean protein or peptide profiles and standard errors
+#' Calculates a mean protein or peptide profiles and standard errors
 #' 
 #' ProfileSummarize calculates mean and SE for each channel in each 
 #'     protein or peptide profile using a random effect model (proteins)
@@ -242,21 +243,23 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #'     dominance of a peptide with a large number spectra.  
 #'     See Tutorial 6 for details.
 #'
-#' @param  protsCombineCnew a data frame containing profiles 
-#'       with outlier information
-#' @param  numRefCols number of fractions in each profile
-#' @param  numDataCols how many columns in MS data
-#' @param  refColsKeep  which reference (non-data) columns to keep
-#' @param  eps epsilon to avoid log(0)
-#' @param  GroupBy 'protId' if average by protein; 'peptideId'
-#'         if average by peptide
+#' @param  protsCombineCnew data frame of profiles (spectra or spectra 
+#'       and peptides) with outlier information
+#' @param  numRefCols number of columns preceding the profile data
+#' @param  numDataCols number of fractions in each profile
+#' @param  refColsKeep  which reference columns to keep 
+#'        (requires columns 1 and 2 for protein and peptide name)
+#' @param  eps small value to add so that log argument is greater than zero
+#' @param  GroupBy ‘protId’ if average peptides to give mean protein profile; 
+#'       ‘peptideId’ if average spectra to give mean peptide profiles 
 #' @param  outlierExclude 'none', 'spectra', or
 #'         'spectraAndpeptide' (default)
 #'          according to exclusion level
 #' @param     cpus 1 (default);
 #'            if cpus > 1 use BiocParallel with SnowParm(cpus)
-#' @param singularList if TRUE, list proteins and channels with singular fit 
-#'         from the random effects function lmer; default is FALSE
+#' @param singularList if TRUE, list fractions associated with a given 
+#'         protein or peptide with singular fit from the random effects 
+#'         function lmer; default is FALSE 
 #' @importFrom lme4 lmer
 #' @importFrom BiocParallel bplapply
 #' @export
@@ -269,9 +272,6 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #'            outlierLevel='peptide', numRefCols=5, numDataCols=9,
 #'            outlierMeth='boxplot', range=3, eps=eps,
 #'            randomError=TRUE, cpus=1)
-#' # examine numbers of spectra that are outliers
-#' table(flagSpectraBox$outlier.num.spectra)
-
 #' pepProfiles <- profileSummarize(protsCombineCnew=flagSpectraBox,
 #'            numRefCols=6, numDataCols=9, refColsKeep=c(1,2,4),eps=eps,
 #'            GroupBy='peptideId', outlierExclude='spectra', cpus=1)

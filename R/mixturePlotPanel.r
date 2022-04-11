@@ -2,7 +2,7 @@
 #' 
 #' For all sets of simulated proteins distributed between two compartments, 
 #'   plot the CPA estimates for a given type of profile versus true 
-#'   mixture proportions.; aAssumes eight or fewer compartments 
+#'   mixture proportions; assumes eight or fewer compartments 
 #'   for proper formatting of the plots. 
 #' 
 #' @param refLocationProfilesAcup data frame containing the Acup 
@@ -25,7 +25,15 @@
 #' @export
 #' @return Panel of plots and a list of errors for all mixtures
 #' @examples
-#' # See Tutorial 4 for details.
+#' data(refLocProfAcup)
+#' data(totProtAT5)
+#' mixturePlotPanel(refLocationProfilesAcup=
+#'                    refLocProfAcup, 
+#'                  totProt=totProtAT5, NstartMaterialFractions=6, 
+#'                  errorReturn = TRUE, 
+#'                  fitType="RSA", log2Transf=FALSE) 
+#' # It may be necessary to open a separate window to
+#' # properly display this panel of plots. Further details are in Tutorial 4.
 
 mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
                              NstartMaterialFractions,
@@ -41,8 +49,8 @@ mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
   refLocationProfilesNSA <- NSAfromRSA(refLocationProfilesRSA)
 
   if (numCompart > 8) {
-    warning("Error: too many compartments to plot on one page\n")
-    warning("Error: too many compartments to plot on one page\n")
+    warning("too many compartments to plot on one page\n")
+    warning("too many compartments to plot on one page\n")
   }
 
   # case where there are 7 or 8 compartments:
@@ -53,8 +61,6 @@ mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
                c(3,12,13,14,15),
                c(3,16,17,18,19),
                c(3,20,21,22,23),
-               c(3,20,21,22,23),
-               c(3,24,25,26,27),
                c(3,24,25,26,27),
                c(3,28,29,30,31),
                c(3,2,2,2,2)),
@@ -156,6 +162,7 @@ mixturePlotPanel <- function(refLocationProfilesAcup, totProt,
 
   plotLables <- data.frame(loc.list, col.list, pch.list)
   par(mar=c(3,3,3,3))
+  #par(mar=c(2,2,2,2))
   kk <- 0
   mixErrorMat <- NULL
   for (i in seq_len((numCompart-1))) {

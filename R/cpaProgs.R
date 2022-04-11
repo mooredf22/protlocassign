@@ -71,7 +71,7 @@ locationProfileSetup <- function(profile, markerList,
             by.y = "protName", all.x = FALSE, sort = FALSE)
     }
     if (nrow(meanReferenceProts) == 0) {
-        warning("Error from locationProfileSetup; no protein found")
+        warning("from locationProfileSetup; no protein found")
     }
 
     # Find mean profiles for each sub-cellular
@@ -177,7 +177,7 @@ Qfun4 <- function(pvec, y, gmat, methodQ = "sumsquares") {
 #' @param methodQ either 'sumsquares' (default) or
 #'                'sumabsvalue'
 #' @param ind.vary if not NULL, indexes of varying parameters
-#' @param ind.fixed indexes of fixed parameters; (complement of ind.vary)
+#' @param ind.fixed indexes of fixed parameters; complement of ind.vary
 #' @param par.fixed values of fixed parameters; typically 0
 #' @export
 #' @return Value of goodness-of-fit function
@@ -270,8 +270,11 @@ projSimplex <- function(y) {
 
 #' Index of protein name
 #' 
-#' Return index of a protein name, or (if exactMatch=TRUE) indices of
-#'    proteins starting with the string given in 'protName'
+#' Return index of a protein name and (if exactMatch=FALSE, the default) 
+#' indices of proteins starting with characters that match the string 
+#' given in 'protName'. If exactMatch=TRUE, return only the index of 
+#' a protein name that exactly matches 'protName'.
+#' 
 #' @param protName  name of protein to search for
 #' @param profile data frame of specified protein(row name) profiles
 #' @param exactMatch  default is FALSE
@@ -280,6 +283,7 @@ projSimplex <- function(y) {
 #' @examples
 #' data(protNSA_test)
 #' protIndex('TLN1', profile=protNSA_test)
+#' protIndex('TLN', profile=protNSA_test)
 
 protIndex <- function(protName, profile, exactMatch = FALSE) {
     # return index of a protein name, or (if
@@ -483,9 +487,10 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
     }
     # nNoConverge.i <- 0
     if (convergeInd != 1)
-        message(paste("cpa does not converge for a protein",
-           "\n", "returning missing values for cpa estimates for that protein",
-          "\n"))
+        cpaError <- paste("cpa does not converge for a protein",
+        "\n", "returning missing values for cpa estimates for that protein",
+         "\n")
+        message(cpaError)
 
 
     if (!is.null(ind.vary)) {
@@ -576,10 +581,14 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
             maxit = maxit, ind.vary = ind.vary, minVal = minVal)
         assignProbs <- rbind(assignProbs, assignProbsI)
         if (showProgress) {
-            if (i == 500)
-                message(paste(i, "profiles fit"))
-            if ((i%%1000) == 0)
-                message(paste(i, "profiles fit"))
+            mess500 <- paste(i, "profiles fit")
+            if (i == 500) {
+                message(mess500)
+            }
+            if ((i%%1000) == 0) {
+                mess1000 <- paste(i, "profiles fit")
+                message(mess1000)
+            }
         }
     }
     # browser()
@@ -650,11 +659,11 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
 #' 
 #' # write table listing predominant CPA assignment of each protein in data set
 #' table(apply(protCPAfromNSA_test[,1:8],1,assignCPAloc,
-#'          cutoff=0.8, Locations=Locations))
+#'          cutoff=0.5, Locations=Locations))
 #' @importFrom stats complete.cases
 #' @export
 
-assignCPAloc <- function(assignLocProps, cutoff = 0.8,
+assignCPAloc <- function(assignLocProps, cutoff = 0.5,
     Locations) {
     # assign location to the one with a
     # proportion > cutoff assignLocProps <-

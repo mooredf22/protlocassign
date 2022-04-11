@@ -27,7 +27,7 @@
 AcupFromNSA <- function(NSA, NstartMaterialFractions,
     totProt = NULL) {
     if (ncol(NSA) != length(totProt)) {
-        warning("Error from relAmtTransform:
+        warning("from relAmtTransform:
             no. of rows of NSA must match length of totProt\n")
     }
   # just differential fractions
@@ -92,7 +92,7 @@ RSAfromAcup <- function(Acup, NstartMaterialFractions,
     totProt = NULL) {
 
     if (ncol(Acup) != length(totProt)) {
-        warning("Error from RSAfromAcup: no. of rows of Acup
+        warning("from RSAfromAcup: no. of rows of Acup
               must match length of totProt\n")
     }
     # # # # # # # # rename variables # # # # # #
@@ -159,7 +159,7 @@ RSAfromNSA <- function(NSA, NstartMaterialFractions,
     missing.rows <- NSA[!complete.cases(NSA), ]
 
     if (ncol(NSA) != length(totProt)) {
-        warning("Error from rsaDirect: no. of rows of NSA
+        warning("from rsaDirect: no. of rows of NSA
             must match length of totProt\n")
     }
     # first columns of NSA
@@ -184,7 +184,8 @@ RSAfromNSA <- function(NSA, NstartMaterialFractions,
 #' 
 #' Convert RSA (relative specific amount) profiles to NSA
 #' (normalized specific amount) profiles
-#' @param RSA data frame containing RSA profiles.  RSA is the ratio of two ratios: 
+#' @param RSA data frame containing RSA profiles.  
+#'    RSA is the ratio of two ratios: 
 #'    the numerator is the amount of a given protein in a particular 
 #'    fraction divided by the amount of that given protein in the 
 #'    starting material while the denominator is amount of total protein 
@@ -219,10 +220,9 @@ NSAfromRSA <- function(RSA) {
 #'       the starting material, e.g., a complete set of differential 
 #'       centrifugation fractions.  For experiment AT5, it is 6 
 #'       ( N, M, L1, L2, P, and S).
-#' @param totProt number of fractions that reconstitute 
-#'       the starting material, e.g., a complete set of differential 
-#'       centrifugation fractions.  For experiment AT5, it is 6 
-#'       ( N, M, L1, L2, P, and S).
+#' @param totProt vector of total protein amounts (derived from a given 
+#'        amount of starting material) in each of the fractions 
+#'        comprising the profile
 #' @return A data frame of NSA profiles 
 #'    (see help file for protNSA_test)
 #' @examples
@@ -247,8 +247,8 @@ NSAfromAcup <- function(Acup, NstartMaterialFractions,
 #' 
 #' Convert RSA (relative specific amount) profiles to Acup
 #' (relative amount) profiles
-#' @param RSA matrix of normalized specific amount profiles 
-#'      (see help file for protNSA_test)  
+#' @param RSA matrix of relative specific amount profiles 
+#'      (see help file for protRSA_test)  
 #' @param NstartMaterialFractions number of fractions that reconstitute 
 #'       the starting material, e.g., a complete set of differential 
 #'       centrifugation fractions.  For experiment AT5, it is 6 

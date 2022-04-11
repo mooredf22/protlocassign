@@ -8,7 +8,6 @@
 protPepPlotfun(
   protName,
   protProfile,
-  Nspectra = TRUE,
   pepProfile = NULL,
   numRefCols,
   numDataCols,
@@ -23,20 +22,21 @@ protPepPlotfun(
 \arguments{
 \item{protName}{name of the protein to plot}
 
-\item{protProfile}{data frame containing protein profiles}
-
-\item{Nspectra}{number of spectra associated to a given peptide}
+\item{protProfile}{data frame containing protein profiles
+followed by columns named Npep and Nspectra for
+the numbers of peptides and spectra, respectively}
 
 \item{pepProfile}{data frame containing peptide profiles}
 
-\item{numRefCols}{number of reference columns
+\item{numRefCols}{number of reference columns in 'pepProfile'
 (preceding the data profile columns)}
 
 \item{numDataCols}{number of fractions in each profile}
 
 \item{n.compartments}{number of compartments}
 
-\item{refLocationProfiles}{data frame of profiles for the  reference compartments}
+\item{refLocationProfiles}{data frame of profiles for the
+reference compartments}
 
 \item{assignPropsMat}{data frame containing CPA values}
 

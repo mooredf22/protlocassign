@@ -2,7 +2,7 @@
 % Please edit documentation in R/fCPAsubsets.r
 \name{fCPAsubsets}
 \alias{fCPAsubsets}
-\title{constrained CPA}
+\title{Restricted CPA}
 \usage{
 fCPAsubsets(
   profile,
@@ -38,10 +38,9 @@ Data frame with CPA estimates for every combination
        ordered by value, with best fit listed first
 }
 \description{
-Carry out constrained proportional assignment for protein
- number i in profile
- with constraint being the number of compartments that are allowed to
- vary freely; other compartment proportions are fixed at zero
+Carry out constrained proportional assignment for protein i, 
+  restricting the number of compartments that are allowed to vary 
+  freely and fixing the CPA values of the others at 0
 }
 \examples{
 data(protRSA_test)

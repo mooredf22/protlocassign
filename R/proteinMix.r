@@ -1,13 +1,14 @@
 #' Simulate sets of protein profiles distributed between two compartments
 #' 
-#' Compute the profile of simulated proteins that are distributed 
+#' Compute the Acup profiles of simulated proteins that are distributed 
 #' between two compartments in specified proportions
 #'  
 #' @param AcupRef data frame containing Acup profiles for the 
 #'      reference compartments
 #' @param Loc1  row number of one compartment
 #' @param Loc2  row number of other compartment
-#' @param increment.prop fraction increment from 0 to 1
+#' @param increment.prop increments in proportion residing in
+#'        Loc1(from 0 to 1); Default is 0.1
 #' @return A data frame containing Acup profiles for the simulated proteins
 #' @examples
 #' 
@@ -17,6 +18,7 @@
 #' mixCytoLysoAcup <- proteinMix(AcupRef=refLocProfAcup,
 #'                               increment.prop=0.1,
 #'                               Loc1=1, Loc2=4)
+#' round(mixCytoLysoAcup, digits=4)
 #' @export
 proteinMix <- function(AcupRef, Loc1, Loc2, increment.prop = 0.1) {
     # replace mix.df with input.prop throughout
@@ -29,7 +31,7 @@ proteinMix <- function(AcupRef, Loc1, Loc2, increment.prop = 0.1) {
         Loc2 <- Loc1orig
     }
     if (Loc2 > nrowRef)
-        warning("Error, not enough rows\n")
+        warning("not enough rows\n")
     LocNames <- row.names(AcupRef)
     prop.vec <- seq(0, 1, increment.prop)
     qrop.vec <- 1 - prop.vec

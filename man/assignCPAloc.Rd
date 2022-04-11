@@ -4,7 +4,7 @@
 \alias{assignCPAloc}
 \title{Assign to single subcellular location}
 \usage{
-assignCPAloc(assignLocProps, cutoff = 0.8, Locations)
+assignCPAloc(assignLocProps, cutoff = 0.5, Locations)
 }
 \arguments{
 \item{assignLocProps}{matrix of CPA estimates for each protein}
@@ -33,5 +33,5 @@ Locations <- unique(markerListJadot$referenceCompartment)
 
 # write table listing predominant CPA assignment of each protein in data set
 table(apply(protCPAfromNSA_test[,1:8],1,assignCPAloc,
-         cutoff=0.8, Locations=Locations))
+         cutoff=0.5, Locations=Locations))
 }

@@ -1,4 +1,4 @@
-#' Find outlier spectra within a protein
+#' Find outlier spectra within a protein or pedtide i.
 #' 
 #' Service function for outlierFind (see help function for outlierFind).  
 #' 
@@ -17,18 +17,19 @@
 #'         outlier for scores method
 #' @param eps small value to add so that log argument is greater than zero
 #' @param randomError TRUE if allow it to be random
-#' @return  New data frame with an additional column of indicators 
-#'           of outlier status
+#' @return  New data frame for a single protein or peptide with an 
+#'       additional column that indicates the number of fractions in 
+#'       a profile (peptides or spectra) that are outliers
 #' @examples
 #' set.seed(63561)
 #' eps <- 0.029885209
 #' data(spectraNSA_test)
 #' uniqueLabel <- spectraNSA_test$pepId[1]
-#' flagSpectraBox <- outlierFind_i(i=uniqueLabel, protClass=spectraNSA_test,
+#' flagSpectraBox_i <- outlierFind_i(i=uniqueLabel, protClass=spectraNSA_test,
 #'                       outlierLevel='peptide', numRefCols=5, numDataCols=9,
 #'                       outlierMeth='boxplot', range=3, proba=NA, eps=eps,
 #'                       randomError=TRUE)
-#' str(flagSpectraBox)
+#' str(flagSpectraBox_i)
 #' 
 #' @importFrom graphics boxplot
 #' @importFrom outliers scores
@@ -160,7 +161,7 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 #' Identify outlier profiles.  This can be done at the level of 
 #'     identifying outlier spectra when calculating peptide profiles or 
 #'     identifying outlier peptides when calculating protein profiles. 
-#'     See tutorial 6 for a description of outlier determination methods.
+#'     See Tutorial 6 for a description of outlier determination methods.
 #'
 #' @param     protClass a data frame containing profiles associated 
 #'            with either spectra or peptides (see Tutorial 6)
@@ -178,8 +179,9 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 #' @param     setSeed seed for random number generator
 #' @param     cpus 1 (default);
 #'            if cpus > 1 use BiocParallel with SnowParm(cpus)
-#' @return    New data frame with an additional column of indicators 
-#'           of outlier status
+#' @return    New data frame with an additional column that indicates 
+#'           the number of fractions in a profile (spectra or peptide) 
+#'           that are outliers
 #' @examples
 #' set.seed(17356)
 #' eps <- 0.029885209
@@ -190,7 +192,8 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 #'                               outlierMeth='boxplot', range=3, eps=eps,
 #'                               randomError=TRUE, cpus=2)
 #'                               
-#' # examine numbers of spectra that are outliers
+#' # examine breakdown of spectral according to the number of fractions 
+#' #  in their profiles that are outliers
 #' table(flagSpectraBox$outlier.num.spectra)
 #' 
 #' @importFrom BiocParallel bplapply

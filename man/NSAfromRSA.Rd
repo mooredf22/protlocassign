@@ -7,7 +7,8 @@
 NSAfromRSA(RSA)
 }
 \arguments{
-\item{RSA}{data frame containing RSA profiles.  RSA is the ratio of two ratios: 
+\item{RSA}{data frame containing RSA profiles.
+RSA is the ratio of two ratios: 
 the numerator is the amount of a given protein in a particular 
 fraction divided by the amount of that given protein in the 
 starting material while the denominator is amount of total protein 

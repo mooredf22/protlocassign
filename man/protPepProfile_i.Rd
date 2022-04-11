@@ -11,7 +11,7 @@ protPepProfile_i(i, flagPeps, numRefCols, numDataCols, protProfileData)
 
 \item{flagPeps}{data frame containing profiles for all spectra, 
 information mapping these to proteins and peptides, 
-and an indicator for outliers}
+and outlier indicators for spectra and peptides}
 
 \item{numRefCols}{number of reference columns}
 
@@ -36,9 +36,6 @@ flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
                        outlierLevel='peptide', numRefCols=5, numDataCols=9,
                        outlierMeth='boxplot', range=3, eps=eps,
                        randomError=TRUE)
-                        
- #examine numbers of spectra that are outliers
-table(flagSpectraBox$outlier.num.spectra)
 
 # find peptide-level profiles
 pepProfiles <- profileSummarize(protsCombineCnew=flagSpectraBox,
@@ -61,9 +58,9 @@ protNSA_1 <-
       outlierExclude="spectraAndPeptide")
       
 # combine protein and peptide profiles 
-protPepProfileNSA <- protPepProfile_i(i=1, flagPeps=flagPepsBox,
+protPepProfileNSA_i <- protPepProfile_i(i=1, flagPeps=flagPepsBox,
       numRefCols=4, numDataCols=9,
       protProfileData=protNSA_1)
-str(protPepProfileNSA, strict.width="cut", width=65)
+str(protPepProfileNSA_i, strict.width="cut", width=65)
 
 }

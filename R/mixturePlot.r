@@ -1,4 +1,4 @@
-#' Plot set of simulated proteins distributed between two compartments.
+#' Plot sets of simulated proteins distributed between two compartments.
 #' 
 #' For a set of simulated proteins distributed between two compartments, 
 #'       plot the CPA estimates from a given type of profile
@@ -12,9 +12,8 @@
 #'       ( N, M, L1, L2, P, and S).
 #' @param Loc1  row number of subcellular location 1 of mixture
 #' @param Loc2  row number of subcellular location 2 of mixture
-#' @param increment.prop  increments in proportion residing in 
-#'     (from 0 to 1);
-#'     Default is 0.1
+#' @param increment.prop  increments in proportion residing 
+#'      in Loc1 (from 0 to 1); Default is 0.1
 #' @param errorReturn  return area of error region if TRUE
 #' @param subTitle  subtitle for plot if present; NULL if not (default)
 #' @param xaxisLab  plot label for x-axis if TRUE

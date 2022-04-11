@@ -2,7 +2,7 @@
 % Please edit documentation in R/mixturePlot.r
 \name{mixturePlot}
 \alias{mixturePlot}
-\title{Plot set of simulated proteins distributed between two compartments.}
+\title{Plot sets of simulated proteins distributed between two compartments.}
 \usage{
 mixturePlot(
   mixProtiProtjCPA,
@@ -29,9 +29,8 @@ centrifugation fractions.  For experiment AT5, it is 6
 
 \item{Loc2}{row number of subcellular location 2 of mixture}
 
-\item{increment.prop}{increments in proportion residing in 
-(from 0 to 1);
-Default is 0.1}
+\item{increment.prop}{increments in proportion residing 
+in Loc1 (from 0 to 1); Default is 0.1}
 
 \item{errorReturn}{return area of error region if TRUE}
 

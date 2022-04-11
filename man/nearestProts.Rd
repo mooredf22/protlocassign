@@ -11,11 +11,12 @@ nearestProts(protName, n.nearest = 5, distProts, protNames, profile)
 
 \item{n.nearest}{number of nearest proteins to list}
 
-\item{distProts}{distance matrix created by, for example}
+\item{distProts}{distance matrix created by, for example, using the 'dist'
+function in R}
 
 \item{protNames}{list of all proteins in a dataset}
 
-\item{profile}{dataframe of profiles for proteins}
+\item{profile}{data frame of profiles for proteins}
 }
 \value{
 List of the proteins in data set with profiles closest to 

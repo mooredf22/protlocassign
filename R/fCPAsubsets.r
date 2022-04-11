@@ -1,9 +1,9 @@
-#' constrained CPA
+#' Restricted CPA
 #' 
-#' Carry out constrained proportional assignment for protein
-#'  number i in profile
-#'  with constraint being the number of compartments that are allowed to
-#'  vary freely; other compartment proportions are fixed at zero
+#' Carry out constrained proportional assignment for protein i, 
+#'   restricting the number of compartments that are allowed to vary 
+#'   freely and fixing the CPA values of the others at 0
+#'   
 #' @param profile a vector containing a specified protein (row name) 
 #'      profile ‘Nspectra’ and ‘Npep’, if present, will be removed
 #' @param refLocationProfiles data frame of profiles for the  

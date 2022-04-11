@@ -8,13 +8,15 @@
 #'
 #' @param protName name of the protein to plot
 #' @param protProfile data frame containing protein profiles
-#' @param Nspectra number of spectra associated to a given peptide
+#'    followed by columns named Npep and Nspectra for
+#'    the numbers of peptides and spectra, respectively
 #' @param pepProfile data frame containing peptide profiles
-#' @param numRefCols number of reference columns
+#' @param numRefCols number of reference columns in 'pepProfile'
 #'        (preceding the data profile columns)
 #' @param numDataCols  number of fractions in each profile
 #' @param n.compartments number of compartments
-#' @param refLocationProfiles data frame of profiles for the  reference compartments
+#' @param refLocationProfiles data frame of profiles for the  
+#'       reference compartments
 #' @param assignPropsMat data frame containing CPA values
 #' @param propCI TRUE if lower and upper confidence intervals are included 
 #'        in assignPropsMat (not currently implemented)
@@ -26,7 +28,7 @@
 #' @importFrom graphics layout
 #' @export
 
-protPepPlotfun <- function(protName, protProfile, Nspectra=TRUE,
+protPepPlotfun <- function(protName, protProfile, 
                    pepProfile=NULL, numRefCols, numDataCols, n.compartments=8,
                    refLocationProfiles, assignPropsMat, propCI=FALSE,
                    transType="", yAxisLabel="") {
@@ -45,12 +47,14 @@ protPepPlotfun <- function(protName, protProfile, Nspectra=TRUE,
   # if temp is not a matrix, can then test for being NA with no error returned
   if (!is.matrix(temp)) {
     if (is.na(temp)[1]) {
-      warning(paste(protName, " not found \n"))  # first element is Na
+      warnA <- paste(protName, " not found \n")
+      warning(warnA)  # first element is NA
       return(temp)
     }
   }
   if (nrow(temp) > 1) {
-    warning(paste("more than one protein matches pattern \n"))
+    warnB <- paste("more than one protein matches pattern \n")
+    warning(warnB)
     return(temp)
   }
   protPlot <- temp[1,1]   # works even if temp is a vector

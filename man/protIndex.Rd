@@ -17,10 +17,13 @@ protIndex(protName, profile, exactMatch = FALSE)
 The protein name and its index (row in profile)
 }
 \description{
-Return index of a protein name, or (if exactMatch=TRUE) indices of
-   proteins starting with the string given in 'protName'
+Return index of a protein name and (if exactMatch=FALSE, the default) 
+indices of proteins starting with characters that match the string 
+given in 'protName'. If exactMatch=TRUE, return only the index of 
+a protein name that exactly matches 'protName'.
 }
 \examples{
 data(protNSA_test)
 protIndex('TLN1', profile=protNSA_test)
+protIndex('TLN', profile=protNSA_test)
 }

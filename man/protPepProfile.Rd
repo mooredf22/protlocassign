@@ -9,7 +9,7 @@ protPepProfile(flagPeps, numRefCols, numDataCols, protProfileData)
 \arguments{
 \item{flagPeps}{data frame containing profiles for all spectra, 
 information mapping these to proteins and peptides, 
-and an indicator for outliers}
+and outlier indicators for spectra and peptides}
 
 \item{numRefCols}{number of reference columns}
 

@@ -13,8 +13,8 @@ mixtureAreaError(
 )
 }
 \arguments{
-\item{mixProtiProtjCPA}{data frame of CPA estimates
-for each mixture}
+\item{mixProtiProtjCPA}{data frame of CPA estimates for each set 
+of two compartment mixtures}
 
 \item{NstartMaterialFractions}{Number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
@@ -25,7 +25,8 @@ centrifugation fractions.  For experiment AT5, it is 6
 
 \item{Loc2}{row number of subcellular location 2 of mixture}
 
-\item{increment.prop}{increment for computation; default is 0.1}
+\item{increment.prop}{increments in proportion residing in Loc1
+(from 0 to 1); Default is 0.1}
 }
 \value{
 The area between predicted and observed curves
@@ -39,12 +40,13 @@ data(refLocProfAcup)
 data(refLocProfNSA)
 data(totProtAT5)
 
-# Compute mixtures
+# Compute relative amount of each theoretical protein that resides 
+#    in each fraction in a mixture set
 mixCytoLysoAcup <- proteinMix(AcupRef=refLocProfAcup,
                               increment.prop=0.1,
                               Loc1=1, Loc2=4)
                               
-# Convert to relative specific amoounts
+# Convert theoretical protein profiles to NSA
 mixCytoLysoNSA <- NSAfromAcup(Acup=mixCytoLysoAcup,
                            NstartMaterialFractions=6, totProt=totProtAT5)
                               

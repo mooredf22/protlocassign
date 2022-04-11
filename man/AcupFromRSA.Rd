@@ -7,8 +7,8 @@
 AcupFromRSA(RSA, NstartMaterialFractions, totProt = NULL)
 }
 \arguments{
-\item{RSA}{matrix of normalized specific amount profiles 
-(see help file for protNSA_test)}
+\item{RSA}{matrix of relative specific amount profiles 
+(see help file for protRSA_test)}
 
 \item{NstartMaterialFractions}{number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 

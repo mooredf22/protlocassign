@@ -2,7 +2,7 @@
 % Please edit documentation in R/profileSummarize.r
 \name{meansByProteins}
 \alias{meansByProteins}
-\title{Find mean profile for a protein or peptide}
+\title{Find mean and standard error of profile for a protein or peptide}
 \usage{
 meansByProteins(
   i,
@@ -17,20 +17,21 @@ meansByProteins(
 )
 }
 \arguments{
-\item{i}{protID or pepID (only one)}
+\item{i}{protId or pepId (only one)}
 
 \item{uniqueLabel}{vector of either
 protId or pepId as specified by 'GroupBy' in
 profileSummarize}
 
-\item{protsCombineCnew}{dataframe of protein profiles}
+\item{protsCombineCnew}{data frame of profiles 
+(spectra or spectra and peptides) with outlier information}
 
-\item{numRefCols}{number of columns preceding the data}
+\item{numRefCols}{number of columns preceding the profile data}
 
 \item{numDataCols}{number of fractions in each profile}
 
-\item{GroupBy}{'protId' if average by
-protein; 'peptideId' if average by peptide}
+\item{GroupBy}{‘protId’ if average peptides to give mean protein profile; 
+‘pepId’ if average spectra to give mean peptide profiles}
 
 \item{eps}{small value to add so that log
 argument is greater than zero}
@@ -38,16 +39,16 @@ argument is greater than zero}
 \item{outlierExclude}{none, spectra, or
 spectraAndPeptide}
 
-\item{singularList}{If TRUE, list proteins and channels with singular
-lmer fit results; default is FALSE}
+\item{singularList}{If TRUE, list fractions associated with a given 
+protein or peptide with singular lmer fit results;
+default is FALSE}
 }
 \value{
-Coefficient
-     estimates, numbers of peptides and spectra, and
-     id for protein i
+estimated mean and standard error for a protein or peptide 
+     profile
 
-estimated means for all channels, their standard errors,
-and peptide or protein info
+Estimated mean and standard error (log2 scale) for a protein or
+    peptide profile, and Nspectra, Npep, protId, and pepId
 }
 \description{
 Service function for profileSummarize. Find mean profiles using a 

@@ -17,10 +17,9 @@ the starting material, e.g., a complete set of differential
 centrifugation fractions.  For experiment AT5, it is 6 
 ( N, M, L1, L2, P, and S).}
 
-\item{totProt}{number of fractions that reconstitute 
-the starting material, e.g., a complete set of differential 
-centrifugation fractions.  For experiment AT5, it is 6 
-( N, M, L1, L2, P, and S).}
+\item{totProt}{vector of total protein amounts (derived from a given 
+amount of starting material) in each of the fractions 
+comprising the profile}
 }
 \value{
 A data frame of NSA profiles 

@@ -23,12 +23,12 @@ The function sorts a data set of peptide-spectrum matches with
    associated profiles and descriptive information, 
    ensuring that spectra are nested within peptides and peptides 
    are nested within proteins so that all peptide and protein data 
-   are contiguous. Peptide names (sequences) are prepended with 
+   are contiguous. Peptide names (typically sequences) are prepended with 
    the associated protein name. The function assigns 
    unique numerical identifiers to each protein (protId) and 
    each peptide (pepId). The input data frame must be formatted 
    so that the first column contains protein names and the second 
-   peptide names (typically sequences).  
+   peptide names.  
    This is followed by a series of columns containing descriptive 
    information and profile data.
 }

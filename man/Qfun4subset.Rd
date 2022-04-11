@@ -27,7 +27,7 @@ Qfun4subset(
 
 \item{ind.vary}{if not NULL, indexes of varying parameters}
 
-\item{ind.fixed}{indexes of fixed parameters; (complement of ind.vary)}
+\item{ind.fixed}{indexes of fixed parameters; complement of ind.vary}
 
 \item{par.fixed}{values of fixed parameters; typically 0}
 }

@@ -3,27 +3,29 @@
 #' Compute area-based error for accuracy of CPA estimates for 
 #'    sets of simulated proteins distributed between two compartments.
 #'    
-#' @param mixProtiProtjCPA data frame of CPA estimates
-#'       for each mixture
+#' @param mixProtiProtjCPA data frame of CPA estimates for each set 
+#'      of two compartment mixtures
 #' @param NstartMaterialFractions  Number of fractions that reconstitute 
 #'       the starting material, e.g., a complete set of differential 
 #'       centrifugation fractions.  For experiment AT5, it is 6 
 #'       ( N, M, L1, L2, P, and S).
 #' @param Loc1  row number of subcellular location 1 of mixture
 #' @param Loc2  row number of subcellular location 2 of mixture
-#' @param increment.prop  increment for computation; default is 0.1
+#' @param increment.prop  increments in proportion residing in Loc1
+#'         (from 0 to 1); Default is 0.1
 #' @return The area between predicted and observed curves
 #' @examples
 #' data(refLocProfAcup)
 #' data(refLocProfNSA)
 #' data(totProtAT5)
 #'
-#' # Compute mixtures
+#' # Compute relative amount of each theoretical protein that resides 
+#' #    in each fraction in a mixture set
 #' mixCytoLysoAcup <- proteinMix(AcupRef=refLocProfAcup,
 #'                               increment.prop=0.1,
 #'                               Loc1=1, Loc2=4)
 #'                               
-#' # Convert to relative specific amoounts
+#' # Convert theoretical protein profiles to NSA
 #' mixCytoLysoNSA <- NSAfromAcup(Acup=mixCytoLysoAcup,
 #'                            NstartMaterialFractions=6, totProt=totProtAT5)
 #'                               

@@ -66,12 +66,13 @@ protPlotfun <- function(protName, profile,
   # if temp is not a matrix, can then test for being NA with no error returned
   if (!is.matrix(index_profileT)) {
     if (is.na(index_profileT)[1]) {
-      warning(paste(protName, " not found \n"))  # first element is NA
+      warnD <- paste(protName, " not found \n")
+      warning(warnD)  # first element is NA
       return(index_profileT)
     }
   }
   if (nrow(index_profileT) > 1) {
-    warning(paste("more than one protein matches pattern \n"))
+    warning("more than one protein matches pattern \n")
     return(index_profileT)
   }
   index_profile <- as.numeric(index_profileT[1])
@@ -91,8 +92,9 @@ protPlotfun <- function(protName, profile,
   # just use the index number, the first element
   yy <- as.numeric(meanProteinLevels[index_profile[1],])
   if (anyNA(yy)) {
-    warning(paste(protName,
-    " contains missing values \n profile not plotted\n"))  # yy contains NA's
+    warnC <- paste(protName,
+                   " contains missing values \n profile not plotted\n")
+    warning(warnC)  # yy contains NA's
     return(protName.i)
   }
 
