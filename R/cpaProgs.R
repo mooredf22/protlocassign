@@ -486,12 +486,12 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
             "Successful convergence"))
     }
     # nNoConverge.i <- 0
-    if (convergeInd != 1)
+    if (convergeInd != 1) {
         cpaError <- paste("cpa does not converge for a protein",
         "\n", "returning missing values for cpa estimates for that protein",
          "\n")
         message(cpaError)
-
+    }
 
     if (!is.null(ind.vary)) {
         vals.order <- c(ind.vary, ind.fixed)
