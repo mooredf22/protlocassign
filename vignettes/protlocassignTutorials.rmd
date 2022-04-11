@@ -3,8 +3,8 @@ title: "protlocassign tutorials"
 author: "DFM & PL"
 date: "`r Sys.Date()`"
 output:
-  word_document:
-    toc: yes
+#  word_document:
+#    toc: yes
   html_document:
     toc: yes
     df_print: paged
@@ -1161,9 +1161,9 @@ sum(errorAllAcupLog2[,3])
 
 \newpage
 
-# Tutorial 5: Using five classical fractionation channels on CPA
+# Tutorial 5: CPA on a simulated five-fractin classical differential centrifugation experiment
 
-## Introduction and creation of five-channel data
+## Introduction and creation of five-fraction data
 
 In previous tutorials, we investigated CPA analysis using nine TMT-MS2 fractions representing the six differential fractions N, M, L1, L2, P, and S and Nyc1, 2 and 3 from a Nycodenz density gradient separation of the differential fraction L1. In this tutorial, we investigate the performance of CPA using only the five classical differential centrifugation fractions N, M, L, P, and S. We derive the five classical fractions by removing the Nyc fractions and combining L1 and L2 to make the L fraction. We load the `protlocassign` fraction and summarize the full nine-fraction data as follows:
 
@@ -1183,7 +1183,7 @@ protAcup_test_data <- AcupFromNSA(protNSA_test[,1:6],
                                        totProt=totProt[1:6])
 ```
 
-We complete the conversion to five-channel data as follows:
+We complete the conversion to five-fraction data as follows:
 
 ```{r, echo=TRUE}
 # take the first six fractions:
@@ -1200,7 +1200,7 @@ head(round(protAcup_5frac,3))
 
 
  We also must create a vector `totProt` with five values, corresponding to
-  N, M, L (=L1+L2), P, S. Here are the original values for total protein in each of the nine channels:
+  N, M, L (=L1+L2), P, S. Here are the original values for total protein in each of the nine fractions:
   
 ```{r, echo=TRUE}
 round(totProt, 3)
@@ -1217,9 +1217,9 @@ totProt_5frac <- totProtTemp[c(-4, -7, -8, -9)]
 round(totProt_5frac, 3)
 ```
 
-## Transformations of the five-channel data and reference profiles
+## Transformations of the five-fraction data and reference profiles
 
-Next we can convert the five-channel Acup data to NSA and also to RSA:
+Next we can convert the five-fraction Acup data to NSA and also to RSA:
 
 ```{r, echo=TRUE}
 protNSA_5frac <- NSAfromAcup(Acup=protAcup_5frac, NstartMaterialFractions=5, 
@@ -1261,7 +1261,7 @@ for (i in 1:n.loc) {
 }
 ```
 
-## Mixture simulations using five-channel data
+## Mixture simulations using five-fraction data
 
 One can generate any desired mixture and transformation by adjusting values of i and j.
 
@@ -1660,7 +1660,7 @@ Note that in `spectraNSA`, the first five columns in the data frame contain info
 
 ## Removal of outliers
 
-The first step is an outlier screen for each protein, which is performed at the spectrum level. For each spectrum, the normalized specific amount for each of the nine fractions is first log2 transformed via $y=log2(c+\epsilon)$ , where $\epsilon$ is an estimate of the background intensity in the abundance estimate $c$. A bacterial standard protein not found in mammalian cells was added to all channels except one and we estimated $\epsilon$ as the median NSA value attributed to this protein in the channel that lacks it. For the TMT-MS2 experiment we found $\epsilon = 0.029885$. The package provides a choice of two different outlier rejection methods that can be invoked to process the data. When all spectra assigned to a given protein are considered together, the “boxplot” method rejects any value that exceeds a specified multiple of the interquartile range below the first or above the third quartile. This method was used in Tannous et al. (2020) using three times the interquartile range, which we invoke here by specifying `outlierMeth="boxplot"` and `range=3`. The “scores” method used in Jadot et al (2017) calculates normal scores (differences between each value and the mean of those values, divided by their standard deviation) and rejects values in the tails of a standard normal distribution for a specified percentile, such as 0.99. It may be invoked by specifying `outlierMeth="scores"` and `proba=0.99`. Note that the outlier rejection procedure is conducted on each channel, and the number of outliers for each spectrum are reported in the variable `outlier.num.spectra`, which can range from zero (no outliers) to the number of fractions (in this case 9). This process is repeated for every peptide from every protein. We reject any spectrum where `outlier.num.spectra > 0`.
+The first step is an outlier screen for each protein, which is performed at the spectrum level. For each spectrum, the normalized specific amount for each of the nine fractions is first log2 transformed via $y=log2(c+\epsilon)$ , where $\epsilon$ is an estimate of the background intensity in the abundance estimate $c$. A bacterial standard protein not found in mammalian cells was added to all fractions except one and we estimated $\epsilon$ as the median NSA value attributed to this protein in the fraction that lacks it. For the TMT-MS2 experiment we found $\epsilon = 0.029885$. The package provides a choice of two different outlier rejection methods that can be invoked to process the data. When all spectra assigned to a given protein are considered together, the “boxplot” method rejects any value that exceeds a specified multiple of the interquartile range below the first or above the third quartile. This method was used in Tannous et al. (2020) using three times the interquartile range, which we invoke here by specifying `outlierMeth="boxplot"` and `range=3`. The “scores” method used in Jadot et al (2017) calculates normal scores (differences between each value and the mean of those values, divided by their standard deviation) and rejects values in the tails of a standard normal distribution for a specified percentile, such as 0.99. It may be invoked by specifying `outlierMeth="scores"` and `proba=0.99`. Note that the outlier rejection procedure is conducted on each fraction, and the number of outliers for each spectrum are reported in the variable `outlier.num.spectra`, which can range from zero (no outliers) to the number of fractions (in this case 9). This process is repeated for every peptide from every protein. We reject any spectrum where `outlier.num.spectra > 0`.
 
 We first process the data to identify outliers when grouping spectra to peptides using the function `outlierFind` and specifying that the outlier level is "peptide", meaning that profiles with outlier spectra within peptides (accepting all peptides unless they are composed entirely of spectra with outliers) will be flagged. The arguments `numRefCols = 5` and `numDataCols = 9` are used to identify position of the nine-element profile in the data frame.  The argument `randomError=TRUE` (which is the default) specifies that a small random number (uniform distribution ranging from zero to `eps`) will be added to profile elements that take the value zero. This addresses a problem that arises when there are a large number of zero-valued elements, i.e., both the first and third quartile, in which case the interquartile range will be zero. Without adding these random small amounts, too many "outliers" would be detected. We  specify a random number seed `setSeed` so that the results are exactly reproducible. (The `setSeed` parameter is ignored if cpus=1; in that case, use the `set.seed` function if reproducibility is required.) Note that routines to identify outliers with our example data set will take several minutes to complete. When the option `cpus` is set to 2 or greater the function uses the `BiocParallel` library from Bioconductor to carry out parallel processing. If `cpus=1` then no parallel processing is done. The following code will install the package if it is not already present:
 
@@ -1784,7 +1784,7 @@ sum({flagSpectraPeps$outlier.num.spectra == 0} &
 
 We now calculate the mean profile for each protein, using a random effects linear model where spectra are nested within peptides. In the three examples listed below, we examine cases where we: (1) reject the contribution of any outlying spectra and peptides; (2) reject the contribution of just outlier spectra within peptides; and (3) we do not reject any peptides or spectra. Here, the `outlierExclude` argument overrides the outlier specifications in the `flagSpectraPeps` file.  The resulting file contains the protein profile, indicating the number of peptides and spectra used to determine each protein profile using the rules above. The root portion of the name `protNSA` denotes that these values are normalized specific amounts (NSA) for protein profiles. 
 
-The `lmer` random effects function within `profileSummarize` will generate error messages for some channels within some proteins due to numerical singularity issues. To minimize these errors, the function requires two conditions to be met before calling the `lmer` function: There must be at least eight spectra and four peptides, and the ratio of numbers of spectra to peptides must exceed 4. If these conditions are not met the function calculates a standard (non-nested) average of all spectra to obtain a mean profile. Otherwise, the `lmer` random effects model is fitted. In some cases, for a given protein and channel, the `lmer` routine fails and reports a singularity in the model fit. In these cases, `profileSummarize` automatically re-calculates the profile average using standard (non-nested) averaging. If the option `singularList=TRUE` is specified, the function will list the specific protein and channel number (which here range from 1 to 9) where the `lmer` routine encountered the singularity. For example, "ACP2" has 41 spectra and 8 peptides. The `lmer` procedure converged for the first eight fractions but failed for the ninth one (Nyc3). The default is `singularList=FALSE`. 
+The `lmer` random effects function within `profileSummarize` will generate error messages for some fractions within some proteins due to numerical singularity issues. To minimize these errors, the function requires two conditions to be met before calling the `lmer` function: There must be at least eight spectra and four peptides, and the ratio of numbers of spectra to peptides must exceed 4. If these conditions are not met the function calculates a standard (non-nested) average of all spectra to obtain a mean profile. Otherwise, the `lmer` random effects model is fitted. In some cases, for a given protein and fraction, the `lmer` routine fails and reports a singularity in the model fit. In these cases, `profileSummarize` automatically re-calculates the profile average using standard (non-nested) averaging. If the option `singularList=TRUE` is specified, the function will list the specific protein and fraction number (which here range from 1 to 9) where the `lmer` routine encountered the singularity. For example, "ACP2" has 41 spectra and 8 peptides. The `lmer` procedure converged for the first eight fractions but failed for the ninth one (Nyc3). The default is `singularList=FALSE`. 
 
 ```{r, echo=TRUE, message=TRUE, warning=TRUE}
 protNSA_1 <- 
@@ -1826,7 +1826,7 @@ sum((protNSA_1$Npep))
 ```
 
 
-We can examine the number of proteins with missing profile values (caused by outlier rejection) in each of the three cases by choosing one fraction, e.g., "M"; all other channels will also be missing.
+We can examine the number of proteins with missing profile values (caused by outlier rejection) in each of the three cases by choosing one fraction, e.g., "M"; all other fractions will also be missing.
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 sum(is.na(protNSA_1$M))
@@ -1994,9 +1994,8 @@ dev.off()
 ```
 \newpage
 
-# Tutorial 7: Calculation of distances between proteins
+# Tutorial 7: Finding proteins with similar profiles
 
-## Finding proteins with similar profiles
 
 We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first use the R function `dist` to create a distance matrix for the proteins in a list of mean profiles. This will typically be done using a full data set, such as `protProfileNSA_AT5tmtMS2`, which can be downloaded as described in Tutorial 1. In this example we use the small embedded data set `protNSA_test`. For clarity of presentation, we rename the embedded data sets to remove experiment-specific labels.
 
