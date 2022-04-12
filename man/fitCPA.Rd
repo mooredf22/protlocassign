@@ -40,8 +40,8 @@ goodness of fit}
 Data frame of CPA estimates for each protein
 }
 \description{
-Carry out constrained proportional assignment on a profiles
- of set of proteins
+Carry out constrained proportional assignment on profiles
+ of a set of proteins
 }
 \examples{
 data(protRSA_test)
@@ -49,5 +49,7 @@ data(refLocProfRSA)
 protCPAfromRSA_out <- fitCPA(profile=protRSA_test,
                            refLocationProfiles=refLocProfRSA,
                            numDataCols=9)
+# Note that the profile of one protein, AIF1, contains missing values
+# which causes the cpa routine to generate a nonconvergence message                           
 round(head(protCPAfromRSA_out), digits=4)                           
 }

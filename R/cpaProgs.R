@@ -527,8 +527,8 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
 
 #' CPA for a set of proteins
 #' 
-#' Carry out constrained proportional assignment on a profiles
-#'  of set of proteins
+#' Carry out constrained proportional assignment on profiles
+#'  of a set of proteins
 #'
 #' @param profile data frame of specified protein(row name) profiles
 #' @param refLocationProfiles data frame of profiles for 
@@ -550,6 +550,8 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
 #' protCPAfromRSA_out <- fitCPA(profile=protRSA_test,
 #'                            refLocationProfiles=refLocProfRSA,
 #'                            numDataCols=9)
+#' # Note that the profile of one protein, AIF1, contains missing values
+#' # which causes the cpa routine to generate a nonconvergence message                           
 #' round(head(protCPAfromRSA_out), digits=4)                           
 
 fitCPA <- function(profile, refLocationProfiles, numDataCols,

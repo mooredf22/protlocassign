@@ -7,7 +7,7 @@
 #'   listed in "markerListJadot".' In addition, peptides names 
 #'   (amino acid sequences) are prepended by their associated protein 
 #'   name and there are unique protein and peptide numerical identifiers.  
-#'   Data from the TMT MS2 data, AT5 experiment; see Tannous et
+#'   Data from the TMT MS2 data, AT5 experiment; see Tannous et al.
 #'
 #' @docType data
 #' @format A test data frame

@@ -24,6 +24,9 @@
 #' protCPAfromNSA_out <- fitCPA(profile=protNSA_test,
 #'                               refLocationProfiles=refLocProfNSA,
 #'                               numDataCols=9)
+#' # Note that the profile of one protein, AIF1, contains missing values
+#' # which causes the cpa routine to generate a nonconvergence message 
+#' 
 #' protPlotfun(protName="TLN1", profile=protNSA_test,
 #'             numDataCols=9, n.compartments=8,
 #'             refLocationProfiles=refLocProfNSA,

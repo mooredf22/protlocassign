@@ -25,13 +25,13 @@ in each of the fractions comprising the profile}
 \item{NstartMaterialFractions}{Number of fractions that reconstitute 
 the starting material, e.g., a complete set of differential 
 centrifugation fractions.  For experiment AT5, it is 6 
-( N, M, L1, L2, P, and S).}
+(N, M, L1, L2, P, and S).}
 
 \item{errorReturn}{return all area-based errors if true}
 
 \item{fitType}{use RSA, NSA, or Acup}
 
-\item{log2Transf}{use log2-transformed values. Default is "FALSE"}
+\item{log2Transf}{use log2-transformed values. Default is FALSE}
 
 \item{eps}{small value to add so that log argument is greater than zero}
 }

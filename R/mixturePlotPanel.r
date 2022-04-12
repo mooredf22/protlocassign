@@ -13,10 +13,10 @@
 #' @param NstartMaterialFractions Number of fractions that reconstitute 
 #'       the starting material, e.g., a complete set of differential 
 #'       centrifugation fractions.  For experiment AT5, it is 6 
-#'       ( N, M, L1, L2, P, and S).
+#'       (N, M, L1, L2, P, and S).
 #' @param errorReturn return all area-based errors if true
 #' @param fitType use RSA, NSA, or Acup
-#' @param log2Transf use log2-transformed values. Default is "FALSE"
+#' @param log2Transf use log2-transformed values. Default is FALSE
 #' @param eps small value to add so that log argument is greater than zero
 #' @importFrom graphics par
 #' @importFrom graphics text

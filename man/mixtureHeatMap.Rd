@@ -43,5 +43,7 @@ Produce heat map of errors in CPA estimates for fitting simulated
 data(totProtAT5)
 data(refLocProfAcup)
 par(mfrow=c(1,1))
-errorMatAll <- mixtureHeatMap(Acup=refLocProfAcup, totProt=totProtAT5) 
+errorMatAll <- mixtureHeatMap(Acup=refLocProfAcup, totProt=totProtAT5)
+# Note that the profile of one protein, AIF1, contains missing values
+# which causes the cpa routine to generate a nonconvergence message 
 }

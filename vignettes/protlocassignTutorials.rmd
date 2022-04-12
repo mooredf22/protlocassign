@@ -3,8 +3,8 @@ title: "protlocassign tutorials"
 author: "DFM & PL"
 date: "`r Sys.Date()`"
 output:
-#  word_document:
-#    toc: yes
+  #word_document:
+  #  toc: yes
   html_document:
     toc: yes
     df_print: paged
@@ -40,7 +40,7 @@ Determining the locations of proteins in the cell is an important but complex pr
 
 This package implements a subcellular protein assignment procedure known as “constrained proportional assignment”, or CPA (Jadot et al, 2016). The basic concepts involved in CPA and analysis of subcellular proteomics data are described in the main paper. These tutorials serve as a basis for implementing CPA and various utilities for both experienced and beginner R users.
 
-There are two fundamental inputs for CPA.  The first is a file with information regarding the distribution of each protein or other species of interest to be analyzed across centrifugation fractions. Each row has a name that serves as a unique identifier, which we here refer to as a protein name, but one can use other identifiers, (e.g., protein group, protein isoform, gene name, accession number, etc.). For each protein (or other identifier), there are data that reflects its distribution among the centrifugal fractions, which represent a profile. The second is a file containing a list of single-compartment reference proteins (markers) and their associated subcellular locations. As an initial step, the package uses the markers to compute profiles for individual cellular compartments. Then, for each protein, it finds the best match for its profile using a linear combination of compartment profiles. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. 
+There are two fundamental inputs for CPA.  The first is a file with information regarding the distribution of each protein or other species of interest to be analyzed across centrifugation fractions. Each row has a name that serves as a unique identifier, which we here refer to as a protein name, but one can use other identifiers (e.g., protein group, protein isoform, gene name, accession number, etc.). For each protein (or other identifier), there are data that reflect its distribution among the centrifugal fractions, which represent a profile. The second is a file containing a list of single-compartment reference proteins (markers) and their associated subcellular locations. As an initial step, the package uses the markers to compute profiles for individual cellular compartments. Then, for each protein, it finds the best match for its profile using a linear combination of compartment profiles. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. 
 
 We illustrate with an example. Tannous et al. (2020) presented an experiment (designated here as AT5) analyzing abundance levels of proteins across a total of nine fractions: six fractions (N, M, L1, L2, P, and S) from differential centrifugation of a rat liver homogenate and three fractions (Nyc1, Nyc2, and Nyc3) from a Nycodenz density gradient centrifugation of the differential fraction L1. Eight subcellular compartments were considered: nucleus (Nuc), mitochondria (Mito), lysosomes (Lyso), peroxisomes (Perox), endoplasmic reticulum (ER), Golgi apparatus (Golgi), plasma membrane (PM), and cytosol (Cyto). The CPA method assigns each protein to one or more of these compartments, based on profiles from the set of reference proteins. 
 
@@ -70,7 +70,7 @@ Once you have installed these packages, you do not need to re-install them the n
 
 ## Working with data expressed as normalized specific amounts (NSA)
 
-To use this package, you will need two data sets as described above. One, the protein profile data set, contains rows with a unique identifier followed by data describing the profile associated with each identifier across a series of centrifugation fractions. In this tutorial, the profiles associated with each identifier are specific amounts with sums constrained to 1 (“normalized specific amounts” or NSA, see main Paper and Tutorial 3) but can be in a different form or further transformed to improve the quality of the fit (see Tutorials 2-4). The protein profile data set may contain two additional values representing the numbers of peptides and spectra that were used to compute the profile (see below).  The other data set consists of the list of reference proteins and their associated known subcellular compartments.
+To use this package, you will need two data sets as described above. One, the protein profile data set, contains rows with a unique identifier followed by data describing the profile associated with each identifier across a series of centrifugation fractions. In this tutorial, the profiles associated with each identifier are specific amounts with sums constrained to 1 (NSA, see main Paper and Tutorial 3) but can be in a different form or further transformed to improve the quality of the fit (see Tutorials 2-4). The protein profile data set may contain two additional values representing the numbers of peptides and spectra that were used to compute the profile (see below).  The other data set consists of the list of reference proteins and their associated known subcellular compartments.
 
 
 Consider for example a test data set drawn from the TMT MS2 data from Tannous et al. (2020) experiment AT5. The full data set has 7894 proteins but we use a small subset of these for purposes of illustration and to reduce processing time. To get started, load the package and attach the embedded test protein profile data set; we see that it has 40 rows and 11 columns: 
@@ -237,7 +237,7 @@ for (i in 1:n.loc) {
   }
 ```
 
-## Obtaining constrained proportional assignments (CPA) of proteins to compartments  
+## Obtaining CPA of proteins to compartments  
 
 Once we are satisfied with the marker set and compartment profiles, we can run the CPA routine which, for each protein in our data set, apportions its residency among the different specified compartments. Note that the command below uses default options.  It is also possible to specify optional parameters including writing out the obtained goodness of fit minimum (`minVal=T`, default is `minVal=FALSE`), setting initial parameters for each CPA value using an eight element vector specifying the starting proportions (`startProp`, if not specified the function will assign a value of 1/8 for each of the eight compartments), and by constraining the output CPA values for specified compartments to be zero (see help file, `?fitCPA`).
 
@@ -350,7 +350,7 @@ As explained in the Tutorial 1, we will demonstrate using two R data sets that a
 library(protlocassign)
 ```
 
-In Tutorial 1, we use `protNSA_test` and an untransformed average of reference protein profiles in the form of NSA for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSA).  As explained in the main text and elaborated in Tutorial 3, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material. The RSA describes the fold-enrichment (RSA>1) or depletion (RSA<1) of a protein during the fractionation process, and is analogous to the relative specific activity term used in classical analytical subcellular fractionation.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `totProtAT5` which is preloaded in `protlocassign`.  Note that the order and numbers of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `totProtAT5`) must correspond to those in the data set containing individual protein profiles (e.g., `protNSA_test`). For clarity of presentation, we rename `totProtAT5` and `protNSA_test` to `totProt` and `protNSA`, respectively.
+In Tutorial 1, we use `protNSA_test` and an untransformed average of reference protein profiles in the form of NSA for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as RSAs.  As explained in the main text and elaborated in Tutorial 3, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material. The RSA describes the fold-enrichment (RSA>1) or depletion (RSA<1) of a protein during the fractionation process, and is analogous to the relative specific activity term used in classical analytical subcellular fractionation.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `totProtAT5` which is preloaded in `protlocassign`.  Note that the order and numbers of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `totProtAT5`) must correspond to those in the data set containing individual protein profiles (e.g., `protNSA_test`). For clarity of presentation, we rename `totProtAT5` and `protNSA_test` to `totProt` and `protNSA`, respectively.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 data(protNSA_test)
@@ -412,7 +412,7 @@ as.matrix(all.equal(refLocationProfilesRSA, refLocationProfilesRSA_2,
                     precision=0, countEQ=TRUE))
 ```
 
-## Plotting RSA-transformed profiles, and finding RSA-based constrained proportional assignments
+## Plotting RSA-transformed profiles, and finding RSA-based CPA
 
 As in Tutorial 1, we can plot reference profiles, but this time using the RSA-transformed data. For example, here is a plot for all markers:
 
@@ -462,7 +462,7 @@ The x-axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, N
 
 ## Introduction
 
-As explained in the main text and in Tutorial 2, there are different ways to transform protein profile data.  Here, we describe a way to explore the effect of using transformed data with CPA.  Briefly, we conduct different data transformations on a set of theoretical proteins that have a range of distributions between two cellular compartments, and then conduct CPA and determine how well it predicts the original distribution. To create the theoretical proteins for our simulations, we use data from the experiment from Tannous et al which consists of a TMT-MS2 analysis of six differential fraction (N, M, L1, L2, P, and S) obtained from centrifugation of a rat liver homogenate and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3).
+As explained in the main text and in Tutorial 2, there are different ways to transform protein profile data.  Here, we describe a way to explore the effect of using transformed data with CPA.  Briefly, we conduct different data transformations on a set of theoretical proteins that have a range of distributions between two cellular compartments, and then conduct CPA and determine how well it predicts the original distribution. To create the theoretical proteins for our simulations, we use data from the experiment from Tannous et al. which consists of a TMT-MS2 analysis of six differential fractions (N, M, L1, L2, P, and S) obtained from centrifugation of a rat liver homogenate and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3).
 
 In our procedure, we first use the eight compartment profiles generated from the marker protein set to simulate a set of eight theoretical proteins that wholly reside in each of the respective compartments.  We then then create binary mixtures with defined combinations of the eight theoretical proteins to simulate proteins that are distributed in varying proportions between two compartments. Note that data from mass spectrometry experiments generally represent specific amounts ${s_{\alpha ,l}}$ of a protein $\alpha$ in fraction $l$, with the same amount of total protein being analyzed for each sample (fraction). For conducting our simulations, we first must transform this data into relative amounts, so that each protein has precisely the same total amount in the initial starting material used for fractionation.
 
@@ -484,7 +484,7 @@ In Tutorial 1 we used a normalized specific amount (NSA), denoted here as $\tild
 
 
 $$ {{\tilde{s}}_{\alpha ,l}}=\frac{{{s}_{\alpha ,l}}}{\sum\limits_{j=1}^{f}{{{s}_{\alpha ,j}}}} $$
-In some experiments, these are the only values available for using the CPA procedure. However, with appropriate experimental design and execution, using balance sheet analysis (“bookkeeping”), one can estimate the amounts of total protein present in different samples obtained from a set amount of starting material. These include the total protein content of the starting material (designated $t_h$) and the total protein content of any given fraction (designated $t_l$ for fraction $l$). We can use these to calculate the amount of protein in arbitrary units in fraction $l$ derived from a set amount of starting material as $a_l = s_l t_l$. Note that as $a_l$ is in arbitrary units, one can do the same calculation using either $s_l$ or ${\tilde s_l}$, as these will yield the same values when calculating relative amounts (see below).
+In some experiments, these are the only values available for using the CPA procedure. However, with appropriate experimental design and execution, using balance sheet analysis (“bookkeeping”), one can estimate the amounts of total protein present in different samples obtained from a set amount of starting material. These include the total protein content of the starting material (designated $t_h$) and the total protein content of any given fraction (designated $t_l$ for fraction $l$). We can use these to calculate the amount of protein in arbitrary units in fraction $l$ derived from a set amount of starting material as $a_l = s_l t_l$. Note that as $a_l$ is in arbitrary units, one can do the same calculation using either $s_l$ or ${\tilde s_l}$, as these will yield the same values when calculating relative amounts (Acup) (see below).
 
 To see how this works in `protlocassign`, let us consider the Jadot et al. reference protein profiles, which we generate using the `locationProfileSetup` function. As in earlier tutorials, we rename `protNSA_test` as `protNSA` and we tailor the output using the `round` function.
 
@@ -554,11 +554,11 @@ refLocationProfilesAcup <- AcupFromNSA(NSA=refLocationProfilesNSA, NstartMateria
 round(refLocationProfilesAcup, digits=4)
 ```
 
-The values in `refLocationProfilesAcup` represent, in principle, the relative amount of each cellular compartment distributed to each centrifugation fraction.
+The values in `refLocationProfilesAcup` represent, in principle, the relative amount (Acup) of each cellular compartment distributed to each centrifugation fraction.
  
 ## Computation of RSA from Acup
 
-When examining the distribution of a given protein in different fractions, it is particularly useful to consider its abundance relative to that of total protein.  We refer to this as a Relative Specific Amount (RSA or $r$), which can be calculated as ${r_{\alpha ,l}} = \breve{a}_{\alpha ,l}/ \breve{t}_l$, where the vector $\breve{\mathbf{t}}=\frac{\mathbf{t}}{t_h}=\frac{\mathbf{t}}{\sum_{1}^{6}t_i}$. 
+When examining the distribution of a given protein in different fractions, it is particularly useful to consider its abundance relative to that of total protein.  We refer to this as a RSA or $r$, which can be calculated as ${r_{\alpha ,l}} = \breve{a}_{\alpha ,l}/ \breve{t}_l$, where the vector $\breve{\mathbf{t}}=\frac{\mathbf{t}}{t_h}=\frac{\mathbf{t}}{\sum_{1}^{6}t_i}$. 
 For a protein $\alpha$ the RSA in fraction $l$ is given by:
 
 $r_{\alpha,l}=\frac{{\breve{a}}_{\alpha,l}}{{\breve{t}}_l}=\frac{\frac{{\widetilde{s}}_{\alpha,l}t_l}{\sum_{i=1}^{6}{{\widetilde{s}}_{\alpha,i}t_i}}}{\frac{t_l}{\sum_{i=1}^{6}t_i}}=\frac{s_{\alpha,l}\cdot\sum_{i=1}^{6}t_i}{\sum_{i=1}^{6}s_{\alpha,i}t_i}=\frac{{\widetilde{s}}_{\alpha,l}\cdot\sum_{i=1}^{6}t_i}{\sum_{i=1}^{6}{\widetilde{s}}_{\alpha,i}t_i}$
@@ -605,7 +605,7 @@ The available transformation functions are `AcupFromNSA`, `RSAfromAcup`, `RSAfro
 
 ## Simulating proteins resident in multiple subcellular locations
 
-We may simulate data from proteins with multiple residences using the `proteinMix` function. For example, to simulate data from proteins that are distributed in a range of proportions between cytosol and lysosomes, we use this function with relative amounts of their single-compartment profiles. Note that we need to use Acup-transformed data to create the mixtures so that the total amount of the given protein summed across all fractions will be invariant for all mixtures. By default, we vary the proportions by increments of 0.1, but different values can be specified using the argument `increment.prop` (e.g., `increment.prop=0.2` or `increment.prop=0.05`). We specify the mixing locations by the arguments `Loc1=1` and `Loc2=4`, which are the row numbers of the desired compartment profiles in `refLocationProfiles` (i.e. Cyto and Lyso):
+We may simulate data from proteins with multiple residences using the `proteinMix` function. For example, to simulate data from proteins that are distributed in a range of proportions between cytosol and lysosomes, we use this function with relative amounts (Acup) of their single-compartment profiles. Note that we need to use Acup-transformed data to create the mixtures so that the total amount of the given protein summed across all fractions will be invariant for all mixtures. By default, we vary the proportions by increments of 0.1, but different values can be specified using the argument `increment.prop` (e.g., `increment.prop=0.2` or `increment.prop=0.05`). We specify the mixing locations by the arguments `Loc1=1` and `Loc2=4`, which are the row numbers of the desired compartment profiles in `refLocationProfiles` (i.e. Cyto and Lyso):
 
 ```{r, echo=TRUE, eval=TRUE}
 
@@ -684,11 +684,11 @@ for (j in 2:8) {
    mixProtiProtjAcup <- proteinMix(Acup=refLocationProfilesAcup, 
                                    Loc1=i, Loc2=j)
 
-   # Tranform the mixtures to relative specific amounts
+   # Tranform the mixtures to RSAs
    mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtjAcup, 
                         NstartMaterialFractions=6, totProt=totProt)
     
-   # Find the constrained proportional assigments (CPA)                 
+   # Find the CPAs                
    mixProtiProtjCPAfromRSA <- fitCPA(profile=mixProtiProtjRSA,
                     refLocationProfiles=refLocationProfilesRSA, 
                     numDataCols=9)
@@ -738,7 +738,7 @@ refLocationProfilesAcup <- AcupFromNSA(refLocationProfilesNSA,
 ```
 
 
-Now create markers using refLocationProfilesAcup compartments Cyto (row 1) and Lyso (row 4) in the standard way, and transform the mixtures to relative specific amounts:
+Now create markers using refLocationProfilesAcup compartments Cyto (row 1) and Lyso (row 4) in the standard way, and transform the mixtures to RSAs:
 
 ```{r, echo=TRUE, eval=TRUE}
 i=1
@@ -1027,7 +1027,7 @@ par(op) # restore default parameters
 
 ```
 
-These heatmaps demonstrate that for all combinations of compartments, using relative specific amounts without any further log transformation for CPA results in the most accurate estimates of the true mixtures.
+These heatmaps demonstrate that for all combinations of compartments, using RSAs without any further log transformation for CPA results in the most accurate estimates of the true mixtures.
 
 ## Plotting all pairs of mixtures
 
@@ -1063,11 +1063,11 @@ sum(errorAllRSAlinear[,3])
 
 ## Appendix: CPA plots for all combinations of fit type and functional transformation
 
-Here we present code that will produce the remaining combinations of fit type (RSA, NSA, and Acup) and log transformation (True or False). First is RSA with log-transformed values (linear RSA having been plotted previously in the tutorial). 
+Here we present code that may be used to produce the remaining combinations of fit type (RSA, NSA, and Acup) and log transformation (True or False).  First is RSA with log-transformed values (linear RSA having been plotted previously in the tutorial). 
 
 
-```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 11}
-
+#```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 11}
+```
 
 
 fitType <- "RSA"
@@ -1136,10 +1136,10 @@ Then issue the desired calls to `mixturePlotsPanel` as above. All plots requeste
 dev.off()
 ```
 
-We may show the pairwise and overall errors for all transformations as follows:
+The following code may be used to show that the pairwise and overall errors for all transformations: 
 
-```{r, echo=TRUE, eval=TRUE}
-
+#```{r, echo=TRUE, eval=TRUE}
+```
 errorAllRSAlinear
 sum(errorAllRSAlinear[,3])
 
@@ -1478,6 +1478,7 @@ From this it is clear that the model is over-parameterized with multiple models 
 ## Appendix:  Plots of CPA assignments of all two-compartent simulated proteins using linear and log RSA, NSA, and Acup data 
 
 
+
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
 
 
@@ -1492,10 +1493,10 @@ errorAllRSAlinear_5frac <- mixturePlotPanel(refLocationProfilesAcup=
 
 The mixing simulations indicate that for mixtures involving Lyso or PM, there is a poor fit.
 
-Analysis of pairwise simulations using log2-transformed RSA profiles as well as NSA and Acup profiles (with and without log2 transformations) are displayed below.  Overall, the best results are obtained  using log-transformed NSA data. Here, we see that pairwise mixtures involving Lyso and PM are improved compared to the fits with untransformed RSA profiles but many other combinations involving Nuc and ER are worsened:
+Analysis of pairwise simulations using log2-transformed RSA profiles as well as NSA and Acup profiles (with and without log2 transformations) may be displayed using the code below.  Overall, the best results are obtained  using log-transformed NSA data. Here, we see that pairwise mixtures involving Lyso and PM are improved compared to the fits with untransformed RSA profiles but many other combinations involving Nuc and ER are worsened.
 
-```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
-
+#```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
+```
 errorAllRSAlog2_5frac <- mixturePlotPanel(refLocationProfilesAcup=
                                     refLocationProfilesAcup_5frac,
                                     totProt=totProt_5frac, 
@@ -1539,8 +1540,8 @@ If desired, these plots of pairwise mixtures may also be saved as pdf files as d
 
 Finally, we present the pairwise and overall errors for log2 RSA (errors for identity RSA are reported above), identity and log2 NSA, and identity and log2 Acup:
 
-```{r, echo=TRUE}
-
+#```{r, echo=TRUE}
+```
 errorAllRSAlinear_5frac 
 sum(errorAllRSAlinear_5frac[,3])
 
@@ -1736,7 +1737,7 @@ sum(flagSpectraBoxRange110ranErrT$outlier.num.spectra != 0)
 
 The procedure described is useful in eliminating outlying spectra for estimates of peptide profiles.  The next step is to create mean profiles for each peptide, and also to identify outlying peptide profiles.    
 
-## Compute means for each protein-peptide combination
+## Computing means for each protein-peptide combination
 
 The function `profileSummarize` with option `GroupBy="peptideId"` computes the mean profile of each peptide, eliminating spectra that have been identified as outliers. The input data, `flagSpectraBox` contains six reference columns (see above), specified by `numRefCols=6`. A portion of these can be kept and carried over to the output file, but note that since the function here is producing a profile for each peptide from its relevant component spectra, some of the reference columns from the input data may not be appropriate.  Here, the argument `refColsKeep=c(1,2,4)` causes the function to retain reference columns 1, 2, and 4, which correspond to "prot", "peptide", and "PeptidesStartPositionInProtein". If a field is kept which has multiple values across all spectra that contribute to a given peptide, only the single value from the first of these spectra is used.  The argument `refColsKeep` is only used in the case where `GroupBy` is set to `peptideId`, and if not specified, the default is to keep only the first two columns. We use the argument `outlierExclude="spectra"` to indicate that, when computing mean profiles, we exclude spectra that are identified as outliers within their respective peptides. Note that in the output, `Nspectra` reports the number of spectra (in this case, all non-outlier spectra) used to calculate the mean peptide profile.
 
@@ -1883,7 +1884,7 @@ We may use `protPepNSA` in carrying out transformations and in calculating CPA e
 
 ## RSA transformations
 
-In this section, we shall first calculate RSA transformed profiles for all proteins and peptides, and then compute the constrained proportional assignments (CPA) for all proteins and peptides in a form ready for export. Then we show how to use it to plot profiles for any protein and its component peptides, with outlier peptides labelled in the plot. 
+In this section, we shall first calculate RSA transformed profiles for all proteins and peptides, and then compute the CPA for all proteins and peptides in a form ready for export. Then we show how to use it to plot profiles for any protein and its component peptides, with outlier peptides labelled in the plot. 
 
 Here we extract the NSA reference profiles from the nine profile columns of `protPepNSA`:
 
@@ -1933,7 +1934,7 @@ pepRSA <- protPepRSA[!protRSA.ind,] # these are the data for peptides only
 data.frame(colnames(protRSA))
 ```
 
-Now we calculate the constrained proportional assignments on proteins only, using RSA-transformed profiles:
+Now we calculate the CPA on proteins only, using RSA-transformed profiles:
 
 ```{r, echo=TRUE, eval=TRUE}
 protCPAfromRSA <-  fitCPA(profile=protRSA[, 4+1:9],
