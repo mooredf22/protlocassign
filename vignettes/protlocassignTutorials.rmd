@@ -1161,7 +1161,7 @@ sum(errorAllAcupLog2[,3])
 
 \newpage
 
-# Tutorial 5: CPA on a simulated five-fractin classical differential centrifugation experiment
+# Tutorial 5: CPA on a simulated five-fraction classical differential centrifugation experiment
 
 ## Introduction and creation of five-fraction data
 
@@ -1475,7 +1475,7 @@ legend(x="topleft", legend=c("Cyto proportion", "Lyso proportion"),
 
 From this it is clear that the model is over-parameterized with multiple models that fit nearly as well yet give inaccurate CPA estimates. Further study of the properties of estimation methods when multiple models fit equally well is warranted.
 
-## Appendix:  Plots of CPA assignments of all two-compartent simulated proteins using linear and log RSA, NSA, and Acup data 
+## Appendix:  Plots of CPA assignments of all two-compartment simulated proteins using linear and log RSA, NSA, and Acup data 
 
 
 
