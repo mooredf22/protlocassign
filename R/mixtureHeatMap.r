@@ -19,6 +19,12 @@
 #'       centrifugation fractions.  For experiment AT5, it is 6 
 #'       ( N, M, L1, L2, P, and S).
 #' @param eps small value to add so that log argument is greater than zero
+#' @param errorListIn If not NULL, pre-computed errors are passed to the
+#'     function to save computing time for display purposes.
+#'      The format must be as
+#'     in the $errorList component in the output. Default is NULL
+#' @param errorListReturn  If TRUE, return data frame of mixture errors
+#'     if FALSE (the default) return matrix of total errors
 #' @return Plot of heat map of errors of CPA estimates for pairs of 
 #'       simulated protein mixtures represented by different types of 
 #'       profiles and a table of total errors for each type of transformation.
@@ -26,13 +32,20 @@
 #'         left, middle and right columns represent RSA, NSA, 
 #'         and Acup profiles, respectively and the bottom row represents 
 #'         a log2-transformation of these profiles. 
+#'         By default return a matrix total errors. If errorListShow=TRUE,
+#'         return data frame of mixture errors
+#'    
 #' @examples
+#' \dontrun{
 #' data(totProtAT5)
 #' data(refLocProfAcup)
 #' par(mfrow=c(1,1))
-#' errorMatAll <- mixtureHeatMap(Acup=refLocProfAcup, totProt=totProtAT5)
+#' errorResult <- mixtureHeatMap(Acup=refLocProfAcup, totProt=totProtAT5)
+#' round(head(errorResult), digits=3)
+#' }
 #' # Note that the profile of one protein, AIF1, contains missing values
 #' # which causes the cpa routine to generate a nonconvergence message 
+
 
 #' @importFrom graphics par
 #' @importFrom graphics text
@@ -44,10 +57,11 @@
 
 
 mixtureHeatMap <- function(Acup, totProt, NstartMaterialFractions = 6,
-    eps = 0.001) {
+    eps = 0.001, errorListIn=NULL, errorListReturn=FALSE) {
 
     numDataCols <- ncol(Acup)
     nCompart <- nrow(Acup)
+    compartNames <- rownames(Acup)
     refLocationProfilesAcup <- Acup
     refLocationProfilesNSA <- NSAfromAcup(refLocationProfilesAcup,
         NstartMaterialFractions = NstartMaterialFractions,
@@ -80,6 +94,8 @@ mixtureHeatMap <- function(Acup, totProt, NstartMaterialFractions = 6,
     # start with a 2 by 3 matrix of zeros; this
     # will contain the sum of all errors matrices
     errorMatAll <- matrix(0, nrow = 2, ncol = 3, byrow = TRUE)
+    errorList <- NULL
+    jj <- 0
     for (i in seq_len((nComp - 1))) {
         for (j in seq_len(nComp)) {
 
@@ -94,7 +110,7 @@ mixtureHeatMap <- function(Acup, totProt, NstartMaterialFractions = 6,
                     cex = 2)
             }
             if (j > i) {
-
+             if (is.null(errorListIn)) {
                 # i=1 j=4 create mixture
                 mixProtiProtjAcup <- proteinMix(refLocationProfilesAcup,
                     Loc1 = i, Loc2 = j)
@@ -176,11 +192,22 @@ mixtureHeatMap <- function(Acup, totProt, NstartMaterialFractions = 6,
         ae23 <- mixtureAreaError(mixProtiProtjCPA = mixProtiProtjPropAcupLog2,
                       NstartMaterialFractions = NstartMaterialFractions,
                   Loc1 = i, Loc2 = j, increment.prop = 0.1)
+                errorList_ij <- c(i, j, ae11, ae12, ae13, ae21, ae22, ae23)
+             
+               
                 errorMat <- matrix(c(ae11, ae12, ae13,
                     ae21, ae22, ae23), nrow = 2, byrow = TRUE)
+             }
+                if (!is.null(errorListIn)) {
+                  jj <- jj+1
+                  errorMat <- matrix(as.numeric(errorListIn[jj,]), nrow=2,
+                                     byrow=TRUE)
+                  errorList_ij <- as.numeric(c(i, j, errorListIn[jj,]))
+                }
                 # add up all errors
                 errorMatAll <- errorMatAll + errorMat
-
+                errorList <- rbind(errorList, errorList_ij)
+             
 
 
                errorMat1m <- 2 - errorMat  # so that higher errors are dark red
@@ -197,8 +224,19 @@ mixtureHeatMap <- function(Acup, totProt, NstartMaterialFractions = 6,
             }
         }
     }
+    errorListTemp <- data.frame(errorList)
+    list.i <- as.numeric(errorListTemp[,1])
+    list.j <- as.numeric(errorListTemp[,2])
+    mixNames <- paste(compartmentList[list.i], compartmentList[list.j])
+    errorList <- errorListTemp[,3:8]
+    names(errorList) <- c("RSA", "NSA", "Acup",
+                         "log RSA", "log NSA", "log Acup")
+    rownames(errorList) <- mixNames
     par(op)  # restore par
-    return(errorMatAll)
+    if (errorListReturn) result <- errorList
+    if (!errorListReturn) result <- errorMatAll
+    #result <- list(errorMatAll=errorMatAll, errorList=errorList)
+    return(result)
 }
 
 

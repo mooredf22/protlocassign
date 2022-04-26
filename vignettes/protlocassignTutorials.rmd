@@ -3,8 +3,8 @@ title: "protlocassign tutorials"
 author: "DFM & PL"
 date: "`r Sys.Date()`"
 output:
-  #word_document:
-  #  toc: yes
+#  word_document:
+#    toc: yes
   html_document:
     toc: yes
     df_print: paged
@@ -999,18 +999,24 @@ This function requires additional packages which should be installed prior to ru
 install.packages(c("plot.matrix", "viridis", "grid", "gridExtra"))
 ```
 
-In addition to plotting a heat map, the `mixtureHeatMap` function returns a two by three matrix of total errors, which comprise a sum across all 28 tables, which we write to a variable named `errorMatAll`:
+In addition to plotting a heat map, the `mixtureHeatMap` function returns a two by three matrix of total errors, which comprise a sum across all 28 tables, which we write to a variable named `errorMatAll`.
+In this tutorial the `mixtureHeatMap` function calls a pre-calculated data frame `errorList9` of errors.
+This is only to save computation time for showing the results for this example. In practice one would cause the function to calculate these
+errors anew by not including the argument `errorListIn`, since it will
+then take the default value `NULL`.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
 par(mfrow=c(1,1))
-errorMatAll <- mixtureHeatMap(Acup=refLocationProfilesAcup, totProt=totProt)
+data(errorList9)
+errorMatAll <- mixtureHeatMap(Acup=refLocationProfilesAcup, 
+                                 totProt=totProt, errorListIn=errorList9)
 ```
 
 
 We can view these total errors as follows:
 
 ```{r, echo=TRUE, eval=TRUE}
-errorMatAll 
+round(errorMatAll, digits=4)
 ```
 
 Alternatively, we can visualize  `errorMatAll` as a heatmap, with darker colors indicating greater errors:
@@ -1372,26 +1378,30 @@ mixturePlot(mixProtiProtjCPA=mixProtiProtjCPAfromRSA18_5frac,
 
 ```
 
-As described in the previous tutorial, we can look at a heatmap of the errors for the different pairwise mixtures and transformations.   As a reminder, these values are presented as a 2 by 3 array, with the three transformations as columns (RSA, left; NSA, center; Acup, right). The top row uses the original values (identity transformation), and the bottom row uses a log2 transformation of these values. The prediction errors are listed in each box with larger errors indicated by darker colors. CPA on mixtures involving Cyto and Lyso or PM have the highest error rates. The errors are reduced for these mixtures when conducting CPA on log-transformed NSA profiles but this has adverse effects on the fit for other compartments (see below, Appendix).   
+As described in the previous tutorial, we can look at a heatmap of the errors for the different pairwise mixtures and transformations.   As a reminder, these values are presented as a 2 by 3 array, with the three transformations as columns (RSA, left; NSA, center; Acup, right). The top row uses the original values (identity transformation), and the bottom row uses a log2 transformation of these values. The prediction errors are listed in each box with larger errors indicated by darker colors. CPA on mixtures involving Cyto and Lyso or PM have the highest error rates. The errors are reduced for these mixtures when conducting CPA on log-transformed NSA profiles but this has adverse effects on the fit for other compartments (see below, Appendix). In this tutorial (as explained in Tutorial 4) the `mixtureHeatMap` function calls a pre-calculated data frame `errorList5` of errors.
+This is only to save computation time for showing the results for this example. In practice one would cause the function to calculate these
+errors anew by not including the argument `errorListIn`, since it will
+then take the default value `NULL`.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
-
+data(errorList5)
 par(mfrow=c(1,1))
-errorMatAll <- mixtureHeatMap(Acup=refLocationProfilesAcup_5frac, 
-                        totProt=totProt_5frac, NstartMaterialFractions=5)
+errorMatAll_5 <- mixtureHeatMap(Acup=refLocationProfilesAcup_5frac, 
+                        totProt=totProt_5frac, NstartMaterialFractions=5,
+                        errorListIn=errorList5)
+round(errorMatAll_5, digits=4)
 
 ```
 
 We can also either print out overall errors (i.e., sum of all errors for each combination of data transformation method), or, alternatively, generate a heatmap of the overall errors.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 2}
-errorMatAll
 op <- par(mar=c(4,4,1,1))  # save default parameters in variable op
 
 col <- rev(viridis::magma(16))
 library(plot.matrix)
-plot(errorMatAll, col=col, breaks=seq(0, 15, 1), key=NULL, main="",
+plot(errorMatAll_5, col=col, breaks=seq(0, 15, 1), key=NULL, main="",
      axis.col=NULL, axis.row=NULL, 
      xlab="RSA                        NSA                       Acup", 
      ylab="Log2 Linear", digits=2, cex=2, cex.lab=1.1)

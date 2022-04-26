@@ -4,7 +4,14 @@
 \alias{mixtureHeatMap}
 \title{Heat map of mixture CPA errors}
 \usage{
-mixtureHeatMap(Acup, totProt, NstartMaterialFractions = 6, eps = 0.001)
+mixtureHeatMap(
+  Acup,
+  totProt,
+  NstartMaterialFractions = 6,
+  eps = 0.001,
+  errorListIn = NULL,
+  errorListReturn = FALSE
+)
 }
 \arguments{
 \item{Acup}{Acup profiles of reference compartments}
@@ -19,6 +26,14 @@ centrifugation fractions.  For experiment AT5, it is 6
 ( N, M, L1, L2, P, and S).}
 
 \item{eps}{small value to add so that log argument is greater than zero}
+
+\item{errorListIn}{If not NULL, pre-computed errors are passed to the
+function to save computing time for display purposes.
+ The format must be as
+in the $errorList component in the output. Default is NULL}
+
+\item{errorListReturn}{If TRUE, return data frame of mixture errors
+if FALSE (the default) return matrix of total errors}
 }
 \value{
 Plot of heat map of errors of CPA estimates for pairs of 
@@ -27,7 +42,9 @@ Plot of heat map of errors of CPA estimates for pairs of
         Errors are displayed in a 3x2 output where the top row of the 
         left, middle and right columns represent RSA, NSA, 
         and Acup profiles, respectively and the bottom row represents 
-        a log2-transformation of these profiles.
+        a log2-transformation of these profiles. 
+        By default return a matrix total errors. If errorListShow=TRUE,
+        return data frame of mixture errors
 }
 \description{
 Produce heat map of errors in CPA estimates for fitting simulated 
@@ -40,10 +57,13 @@ Produce heat map of errors in CPA estimates for fitting simulated
    transformation.
 }
 \examples{
+\dontrun{
 data(totProtAT5)
 data(refLocProfAcup)
 par(mfrow=c(1,1))
-errorMatAll <- mixtureHeatMap(Acup=refLocProfAcup, totProt=totProtAT5)
+errorResult <- mixtureHeatMap(Acup=refLocProfAcup, totProt=totProtAT5)
+round(head(errorResult), digits=3)
+}
 # Note that the profile of one protein, AIF1, contains missing values
 # which causes the cpa routine to generate a nonconvergence message 
 }
