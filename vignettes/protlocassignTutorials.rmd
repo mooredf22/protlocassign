@@ -3,8 +3,8 @@ title: "protlocassign tutorials"
 author: "DFM & PL"
 date: "`r Sys.Date()`"
 output:
-#  word_document:
-#    toc: yes
+  word_document:
+    toc: yes
   html_document:
     toc: yes
     df_print: paged
@@ -1072,7 +1072,7 @@ sum(errorAllRSAlinear[,3])
 Here we present code that may be used to produce the remaining combinations of fit type (RSA, NSA, and Acup) and log transformation (True or False).  First is RSA with log-transformed values (linear RSA having been plotted previously in the tutorial). 
 
 
-#```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 11}
+
 ```
 
 
@@ -1144,7 +1144,7 @@ dev.off()
 
 The following code may be used to show that the pairwise and overall errors for all transformations: 
 
-#```{r, echo=TRUE, eval=TRUE}
+
 ```
 errorAllRSAlinear
 sum(errorAllRSAlinear[,3])
@@ -1505,7 +1505,7 @@ The mixing simulations indicate that for mixtures involving Lyso or PM, there is
 
 Analysis of pairwise simulations using log2-transformed RSA profiles as well as NSA and Acup profiles (with and without log2 transformations) may be displayed using the code below.  Overall, the best results are obtained  using log-transformed NSA data. Here, we see that pairwise mixtures involving Lyso and PM are improved compared to the fits with untransformed RSA profiles but many other combinations involving Nuc and ER are worsened.
 
-#```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7.5, fig.height = 10}
+
 ```
 errorAllRSAlog2_5frac <- mixturePlotPanel(refLocationProfilesAcup=
                                     refLocationProfilesAcup_5frac,
@@ -1550,7 +1550,7 @@ If desired, these plots of pairwise mixtures may also be saved as pdf files as d
 
 Finally, we present the pairwise and overall errors for log2 RSA (errors for identity RSA are reported above), identity and log2 NSA, and identity and log2 Acup:
 
-#```{r, echo=TRUE}
+
 ```
 errorAllRSAlinear_5frac 
 sum(errorAllRSAlinear_5frac[,3])
