@@ -1,8 +1,8 @@
 Package: protlocassign
 Title: Estimation of protein distribution from quantitative subcellular 
   fractionation experiments using a constrained proportional assignment model
-Version: 0.99.3
-Date: 2022-03-25
+Version: 0.99.4
+Date: 2022-03-29
 Authors@R: 
     person(given = "Peter",
            family = "Lobel", 
