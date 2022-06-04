@@ -3,8 +3,6 @@ title: "Using protlocassign for constrained proportional assignment"
 author: "DFM & PL"
 date: "`r Sys.Date()`"
 output:
-  word_document:
-    toc: yes
   html_document:
     toc: yes
     df_print: paged
