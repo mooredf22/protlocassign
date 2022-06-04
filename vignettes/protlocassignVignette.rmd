@@ -3,13 +3,13 @@ title: "Using protlocassign for constrained proportional assignment"
 author: "DFM & PL"
 date: "`r Sys.Date()`"
 output:
+  word_document:
+    toc: yes
   html_document:
     toc: yes
     df_print: paged
-  word_document:
-    toc: yes
 vignette: |
-  %\VignetteIndexEntry{protlocassign tutorials}
+  %\VignetteIndexEntry{Using protlocassign for constrained proportional assignment}
   %\VignetteEngine{knitr::rmarkdown}
 ---
 
@@ -36,11 +36,11 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-This vignette provides an overview of using the protlocassign package for constrained proportional assignment. A more detailed guide is available in a companion set of seven tutorials in the package "protlocassigndoc"; details on installing that are given in the next section. Additional details may be found in a companion paper (DF Moore, D Sleat, and P Lobel, 2022).
+This vignette provides an overview of using the `protlocassign` package for constrained proportional assignment. A more detailed guide is available in a companion set of seven tutorials in the package "protlocassigndoc"; details on installing that are given in the next section. Additional details may be found in a companion paper (DF Moore, D Sleat, and P Lobel, 2022).
 
 Determining the locations of proteins in the cell is an important but complex problem. A frequently employed approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribution of different proteins among the centrifugation fractions. The location of proteins of interest in the cellular compartments are then inferred by comparing their distributions across the centrifugation fractions to the distributions of a set of reference proteins (markers) with known cellular locations.
 
-This package implements a subcellular protein assignment procedure known as “constrained proportional assignment”, or CPA (Jadot et al, 2016). The basic concepts involved in CPA and analysis of subcellular proteomics data are described in the main paper. These tutorials serve as a basis for implementing CPA and various utilities for both experienced and beginner R users.
+This package implements a subcellular protein assignment procedure known as “constrained proportional assignment”, or CPA (Jadot et al, 2016). The basic concepts involved in CPA and analysis of subcellular proteomics data are described in the main paper (Moore et al., 2020). These tutorials serve as a basis for implementing CPA and various utilities for both experienced and beginner R users.
 
 There are two fundamental inputs for CPA.  The first is a file with information regarding the distribution of each protein or other species of interest to be analyzed across centrifugation fractions. Each row has a name that serves as a unique identifier, which we here refer to as a protein name, but one can use other identifiers (e.g., protein group, protein isoform, gene name, accession number, etc.). For each protein (or other identifier), there are data that reflect its distribution among the centrifugal fractions, which represent a profile. The second is a file containing a list of single-compartment reference proteins (markers) and their associated subcellular locations. As an initial step, the package uses the markers to compute profiles for individual cellular compartments. Then, for each protein, it finds the best match for its profile using a linear combination of compartment profiles. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. 
 
@@ -78,7 +78,7 @@ Once you have installed these packages, you do not need to re-install them the n
 
 ## Working with data expressed as normalized specific amounts (NSA)
 
-To use this package, you will need two data sets as described above. One, the protein profile data set, contains rows with a unique identifier followed by data describing the profile associated with each identifier across a series of centrifugation fractions. In this tutorial, the profiles associated with each identifier are specific amounts with sums constrained to 1 (NSA, see main Paper and Tutorial 3) but can be in a different form or further transformed to improve the quality of the fit (see Tutorials 2-4). The protein profile data set may contain two additional values representing the numbers of peptides and spectra that were used to compute the profile (see below).  The other data set consists of the list of reference proteins and their associated known subcellular compartments.
+To use this package, you will need two data sets as described above. One, the protein profile data set, contains rows with a unique identifier followed by data describing the profile associated with each identifier across a series of centrifugation fractions. In this tutorial, the profiles associated with each identifier are specific amounts with sums constrained to 1 (NSA, see Moore et al., 2002 and Tutorial 3) but can be in a different form or further transformed to improve the quality of the fit (see Tutorials 2-4). The protein profile data set may contain two additional values representing the numbers of peptides and spectra that were used to compute the profile (see below).  The other data set consists of the list of reference proteins and their associated known subcellular compartments.
 
 
 Consider for example a test data set drawn from the TMT MS2 data from Tannous et al. (2020) experiment AT5. The full data set has 7894 proteins but we use a small subset of these for purposes of illustration and to reduce processing time. To get started, load the package and attach the embedded test protein profile data set; we see that it has 40 rows and 11 columns: 
@@ -595,7 +595,7 @@ This yields precisely the same values as calculated previously using `locationPr
 identical(refLocationProfilesRSA, refLocationProfilesRSA_2)
 ```
 
-Finally, if we normalize an RSA profile so that the rows sum to one, this yields a normalized specific amount profile (see Appendix of main paper). Consider, for example, the matrix `refLocationProfilesRSA`, which contains the RSA-transformed compartment profiles. We normalize the rows using the `apply` function, and then transpose using the `t` function to yield a matrix of the normalized specific amounts; these values are essentially identical to those that we started with in `refLocationProfiles`. This is performed using the function `NSAfromRSA`:
+Finally, if we normalize an RSA profile so that the rows sum to one, this yields a normalized specific amount profile (see Appendix of main paper, Moore et al., 2020). Consider, for example, the matrix `refLocationProfilesRSA`, which contains the RSA-transformed compartment profiles. We normalize the rows using the `apply` function, and then transpose using the `t` function to yield a matrix of the normalized specific amounts; these values are essentially identical to those that we started with in `refLocationProfiles`. This is performed using the function `NSAfromRSA`:
 
 
 ```{r, echo=TRUE, eval=TRUE}
@@ -729,7 +729,7 @@ The current vignette provides an introduction to the basic concepts of using the
 
 Jadot, M.; Boonen, M.; Thirion, J.; Wang, N.; Xing, J.; Zhao, C.; Tannous, A.; Qian, M.; Zheng, H.; Everett, J. K., Accounting for protein subcellular localization: A compartmental map of the rat liver proteome. Molecular & Cellular Proteomics 2017, 16, (2), 194-212.
 
-Moore DF; Sleat D; Lobel P. A method to estimate the distribution of proteins across multiple compartments using data from quantitative proteomics subcellular fractionation experiments. Journal of Proteome Research, 2022. in press.
+Moore DF, Sleat D, Lobel P. A method to estimate the distribution of proteins across multiple compartments using data from quantitative proteomics subcellular fractionation experiments. Journal of Proteome Research, 2022, 21, 6, 1371-1381 https://doi.org/10.1021/acs.jproteome.1c00781
 
 Tannous, A.; Boonen, M.; Zheng, H.; Zhao, C.; Germain, C. J.; Moore, D. F.; Sleat, D. E.; Jadot, M.; Lobel, P., Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. J Proteome Res 2020, 19, (4), 1718-1730.
 

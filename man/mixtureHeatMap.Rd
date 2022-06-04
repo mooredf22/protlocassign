@@ -57,7 +57,7 @@ Produce heat map of errors in CPA estimates for fitting simulated
    transformation.
 }
 \examples{
-\dontrun{
+\donttest{
 data(totProtAT5)
 data(refLocProfAcup)
 par(mfrow=c(1,1))

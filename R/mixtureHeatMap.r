@@ -36,7 +36,7 @@
 #'         return data frame of mixture errors
 #'    
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(totProtAT5)
 #' data(refLocProfAcup)
 #' par(mfrow=c(1,1))
