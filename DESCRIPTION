@@ -2,7 +2,7 @@ Package: protlocassign
 Title: Estimation of protein distribution from quantitative subcellular 
   fractionation experiments using a constrained proportional assignment model
 Version: 0.99.6
-Date: 2022-06-03
+Date: 2022-06-15
 Authors@R: 
     person(given = "Peter",
            family = "Lobel", 
@@ -22,7 +22,7 @@ Description: This package uses a constrained proportional assignment (CPA)
     the performance of CPA on those mixtures.
     Also included are functions for summarizing spectral-level 
     data using random effects models to calculate average protein profiles.
-License: GPL-3
+License: Artistic-2.0
 Encoding: UTF-8
 LazyData: false
 Depends: 
