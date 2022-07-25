@@ -1,8 +1,7 @@
 Package: protlocassign
 Title: Estimation of protein distribution from quantitative subcellular 
   fractionation experiments using a constrained proportional assignment model
-Version: 0.99.6
-Date: 2022-06-15
+Version: 0.99.7
 Authors@R: 
     person(given = "Peter",
            family = "Lobel", 
@@ -16,7 +15,7 @@ Description: This package uses a constrained proportional assignment (CPA)
    model to to estimate the distribution of proteins among 
    different subcellular locations based of analytical 
    subcellular fractionation data.
-    The package includes transformations to 
+    The package includes 
     improve the accuracy of the assignments as well as
     functions for simulating mixtures and evaluating 
     the performance of CPA on those mixtures.
@@ -26,7 +25,7 @@ License: Artistic-2.0
 Encoding: UTF-8
 LazyData: false
 Depends: 
-    R (>= 4.1.0),
+    R (>= 4.2.0),
     lme4
 RoxygenNote: 7.2.0
 Imports:
@@ -49,6 +48,7 @@ biocViews: Proteomics, MassSpectrometry
 VignetteBuilder: knitr
 URL: http//github.com/mooredf22/protlocassign
 AdditionalPackage: https://github.com/mooredf22/protlocassigndoc
+BugReports: https://github.com/mooredf22/protlocassign/issues
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

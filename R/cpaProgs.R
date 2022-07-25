@@ -81,14 +81,12 @@ locationProfileSetup <- function(profile, markerList,
         as.character(unique(meanReferenceProts$referenceCompartment))
     n.loc <- length(location.list)
     meanProfile <- NULL
-    # for (i in 1:n.loc) {
+    
     for (i in seq_len(n.loc)) {
-      # i=1
+     
       loc.i <- location.list[i]
 
-      # profile.i <-
-      # meanReferenceProts[meanReferenceProts$referenceCompartment
-      # == loc.i,2+1:numDataCols]
+      
       profile.i <-
             meanReferenceProts[meanReferenceProts$referenceCompartment ==
             loc.i, 2 + seq_len(numDataCols)]
@@ -130,11 +128,11 @@ locationProfileSetup <- function(profile, markerList,
 #' C <-c(0, 0, 0, 1)
 #' gmat<-cbind(A, B,C)
 
-# make vector for a specified profile to be evaluated
+#' # make vector for a specified profile to be evaluated
 
 #' yy <- c(0.2, 0.15, 0.15, 0.5)
 
-# make vector for candidate CPA value to be evaluated
+#' # make vector for candidate CPA value to be evaluated
 
 #' pvec1 <- c(1, 0, 0)  # 100% in compartment A, 0% in compartment B2,
 #'  #  0% in compartment C
@@ -220,7 +218,7 @@ Qfun4subset <- function(pvec.vary, yy, gmat,
     pvec.unorder <- c(pvec.vary, par.fixed)
     n.vec <- length(pvec.unorder)
     pvec.orig <- rep(NA, n.vec)
-    # for (i in 1:n.vec) {
+    
     for (i in seq_len(n.vec)) {
         pvec.orig[vals.order[i]] <- pvec.unorder[i]
     }
@@ -236,34 +234,67 @@ Qfun4subset <- function(pvec.vary, yy, gmat,
     result
 }
 
-# internal function; project an n-dim vector y to
-# the simplex S_n with sum constrained to 1
-# @param y n-dim vector
-# @return simplex of
-# dimension one lower
-# @export
-projSimplex <- function(y) {
+#' project to a simplex
+#' 
+#' internal function; project an n-dim vector y to
+#' the simplex S_n with sum constrained to 1
+#' @param y n-dim vector
+#' @param c constraint; equals one by default
+#' @return simplex S_n with sum constrained to 1
+#' @export
+#' @examples 
+#' y1 <- c(1,1)
+
+#' p1 <- projSimplex(y1)
+#' p1
+#' y2 <- c(0.1, 0.3)
+#' p2 <- projSimplex(y2)
+#' p2
+#' 
+projSimplex <- function(y, c=1) {
     # project an n-dim vector y to the
     # simplex S_n S_n = { x | x \in R^n, 0 <=
     # x <= 1, sum(x) = 1} Derived from:
     # Ravi Varadhan, Johns Hopkins
     # University August 8, 2012
     ##
-    ## See also:
+  ## Original source:
   # Projection onto a simplex
   # Yunmei Chen, Xiaojing Ye -
   # arXiv preprint arXiv:1101.6081, 2011 - arxiv.org
   #
-# Matlab version (Xiaojing Ye):
-#  https://www.mathworks.com/matlabcentral/fileexchange/
-  #        30332-projection-onto-simplex
+# Matlab code (Xiaojing Ye):
+#  https://www.mathworks.com/matlabcentral/fileexchange/30332-projection-onto-simplex
+  # Distributed under MIT open source license.
+  
+#  Copyright 2011 Xiaojing Ye
+#  Permission is hereby granted, free of charge, to any person 
+#  obtaining a copy of this software and associated documentation files 
+#  (the "Software"), to deal in the Software without restriction, 
+# including without limitation the rights to use, 
+# copy, modify, merge, publish, distribute, sublicense, and/or 
+# sell copies of the Software, and to permit persons to whom the Software 
+# is furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be 
+# included in all copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  
+  
+  
     #####
 
     n <- length(y)
     sy <- sort(y, decreasing = TRUE)
     csy <- cumsum(sy)
-    rho <- max(which(sy > (csy - 1)/seq_len(n)))
-    theta <- (csy[rho] - 1)/rho
+    rho <- max(which(sy > (csy - c)/seq_len(n)))
+    theta <- (csy[rho] - c)/rho
     return(pmax(0, y - theta))
 }
 
@@ -353,8 +384,6 @@ protIndex <- function(protName, profile, exactMatch = FALSE) {
 #'    If 'ind.vary' is specified, only the 
 #'    referenced CPA estimates are returned.
 
-# protLocAssign <- function(i, profile,
-# refLocationProfiles, numDataCols,
 fCPAone <- function(profile, refLocationProfiles, numDataCols,
     startProps = NULL, maxit = 10000,
     ind.vary = NULL, minVal = FALSE) {
@@ -397,7 +426,7 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
     }
     channelsMeanProb.i <- matrix(NA, nrow = 1, ncol = length(yy))
     parEstTemp <- channelsMeanProb.i
-    # if (!anyNA(yy)) { start with uniform
+    # start with uniform
     # probabilities:
     startProps <- rep(1/n.compartments, n.compartments)
     if (!is.null(startProps)) {
@@ -407,9 +436,7 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
         if (length(startProps) == n.compartments)
             startVals <- startProps/sum(startProps)
     }
-    # start with uniform probabilities startVals
-    # <- as.numeric(assignProbsStart[i,
-    # 2:(n.compartments + 1)]) # start with
+    # start with uniform probabilities 
 
     # first attempt at minimization: use uniform
     # starting values ordinary procedure; find
@@ -426,15 +453,11 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
         # parameters
         ind.vary <- sort(ind.vary)  # parameters that may vary
         # here are the parameters that are fixed
-        # (complement of ind.vary) ind.fixed <-
-        # (1:length(startVals))[!((1:length(startVals))
-        # %in% ind.vary)]
+        # (complement of ind.vary) 
         ind.fixed <-
           (seq_len(length(startVals)))[!((seq_len(length(startVals))) %in%
             ind.vary)]
-        # yy.vary <- yy[ind.vary] yy.fixed <-
-        # yy[ind.fixed] startVals.vary <-
-        # startVals[ind.vary] # params that vary
+       
         startVals.vary <- rep(1/length(ind.vary), length(ind.vary))
 
         if (length(ind.fixed) > 0)
@@ -454,19 +477,6 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
         convergeInd <- as.numeric((temp$message ==
             "Successful convergence"))
 
-    # If starting values are given
-    # (assignProbsStart is not null) and if the
-    # first attempt failed, try the starting
-    # values if ({convergeInd != 1} &
-    # {!is.null(assignProbsStart)}) { temp <-
-    # try(BB::spg(startVals, fn=Qfun4,
-    # project=projSimplex, y=yy,
-    # gmat=t(refLocationProfiles),
-    # methodQ='sumsquares', quiet=T,
-    # control=list(maxit=maxit, trace=FALSE)))
-
-    # }
-
     convergeInd <- as.numeric(!inherits(temp, "try-error"))
 
     if (is.null(ind.vary))
@@ -485,7 +495,7 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
         convergeInd <- as.numeric((temp$message ==
             "Successful convergence"))
     }
-    # nNoConverge.i <- 0
+    
     if (convergeInd != 1) {
         cpaError <- paste("cpa does not converge for a protein",
         "\n", "returning missing values for cpa estimates for that protein",
@@ -500,7 +510,7 @@ fCPAone <- function(profile, refLocationProfiles, numDataCols,
         pvec.unorder <- c(pvec.vary, par.fixed)
         n.vec <- length(pvec.unorder)
         pvec.orig <- rep(NA, n.vec)
-        # for (i in 1:n.vec) {
+        
         for (i in seq_len(n.vec)) {
             pvec.orig[vals.order[i]] <- pvec.unorder[i]
         }
@@ -561,18 +571,11 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
 
     # # # # # # # # # # # #
     n.prot <- nrow(profile)
-    # indList <- 1:n.prot
+   
     indList <- seq_len(n.prot)
     SpectraSeqInd <- TRUE  # extra columns for numbers of spectra and sequences
     if (numDataCols == ncol(profile))
         SpectraSeqInd <- FALSE  # no extra columns
-
-    # result <- sapply(indList, fCPAone,
-    # profile=profile,
-    # refLocationProfiles=refLocationProfiles,
-    # numDataCols=numDataCols,
-    # startProps=startProps, showProgress=FALSE,
-    # simplify=T, maxit=maxit, ind.vary, minVal)
 
     assignProbs <- NULL
     # for (i in 1:n.prot) {
@@ -593,25 +596,14 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
             }
         }
     }
-    # browser()
+    
     assignProbs <- data.frame(assignProbs)
-    # if (is.null(ind.vary)) ind.vary <-
-    # 1:nrow(refLocationProfiles)
+    
     if (is.null(ind.vary))
         ind.vary <- seq_len(nrow(refLocationProfiles))
-    # (so the next check works either with or
-    # without ind.vary specified) checkCols <-
-    # {ncol(assignProbs) >=
-    # nrow(refLocationProfiles[ind.vary,]) + 2}
-
-    # if (checkCols) {
+    
     if (SpectraSeqInd) {
-        # if (is.null(ind.vary)) ind.vary <-
-        # 1:nrow(refLocationProfiles) # for when
-        # ind.vary not specified
-        # names(assignProbs) <-
-        # c(row.names(refLocationProfiles[ind.vary,]),
-        # 'Nspectra', 'Npeptides')
+        
         names(assignProbs)[seq_len(nrow(refLocationProfiles) +
             2)] <- c(row.names(refLocationProfiles),
             "Nspectra", "Npeptides")
@@ -624,8 +616,7 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
             # name of last column
     }
     if (!SpectraSeqInd) {
-        # names(assignProbs)[1:(nrow(refLocationProfiles))]
-        # <- row.names(refLocationProfiles)
+        
         names(assignProbs)[seq_len(nrow(refLocationProfiles))] <-
           row.names(refLocationProfiles)
         protNames <- rownames(profile)
@@ -667,9 +658,7 @@ fitCPA <- function(profile, refLocationProfiles, numDataCols,
 
 assignCPAloc <- function(assignLocProps, cutoff = 0.5,
     Locations) {
-    # assign location to the one with a
-    # proportion > cutoff assignLocProps <-
-    # assignPropsAll[1,]
+    
     if (anyNA(assignLocProps)) {
       protLoc <- "unclassified"
     }
@@ -689,7 +678,7 @@ assignCPAloc <- function(assignLocProps, cutoff = 0.5,
     protLoc
 }
 
-# unitize functions # # #
+
 #' Unitize vector
 #' 
 #' Normalize a vector to have unit length
@@ -720,7 +709,7 @@ vecUnitize <- function(xx) {
 #' @export
 vectorizeAll <- function(protMatOrig) {
     protUnitMat <- NULL
-    # for (i in 1:nrow(protMatOrig)) {
+    
     for (i in seq_len(nrow(protMatOrig))) {
         # i=1
         temp <- vecUnitize(protMatOrig[i, ])

@@ -1,0 +1,21 @@
+# Data description and how to access the data from the UCSD Massive repository
+
+The primary and processed data has been deposited in the MassIVE repository as submission MSV000083842 which is directly accessible through the following link:
+
+https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=c441d8bd9fe847cdb5a71f899b18499f
+
+This contains the raw data used for database searching, theGPM search engine output giving peptide-spectrum matches along with the associated reporter ion intensities for each spectrum, and the data set after filtering (see below).
+
+The steps for filtering and processing of the data are described in the Tannous et al manuscript.  Briefly, each reporter ion was normalized to the total intensity of that reporter ion in all spectra across all LC-MSruns for that experiment. Data was considered acceptable for quantification after applying the following filters:
+
+(1) Modifications that may cause variability in the data were flagged and removed including oxidation at W, dioxidation at M and W, deamidation at N and Q, isobaric labeling at Y, and carbamylation at K and the N terminus. Moreover, spectra were considered acceptable if all available K and N-termini were labeled and that there was no labeling at Y hydroxyl.
+ (2) Only tryptic peptides and peptides with no missed cleavages were allowed.
+ 
+(3) A species filter was applied for the final statistical and classification analysis so that on rat proteins were included (internal standards and contaminant removed)
+
+(4) Spectra were only included if balance sheet revealed a recovery of 2/3-3/2 for the differential centrifugation fractions N, M, L1, L2, P and S.  For this, normalized intensities of each spectrum were scaled to that which would be obtained from 1 g of rat liver based on the total protein present in each fraction. Recovery was calculated as the ratio of  (N + M + L1 + L2 + P +S)/(E + N), where E +Nis equivalent to the homogenate.
+
+An excel workbook ProcessedQuantPSM.xlsx shows these steps while the file QuantPSM.csv contains NSA data for all acceptable peptide spectrum matches.  These are accessible through the following link:
+
+https://massive.ucsd.edu/ProteoSAFe/dataset_files.jsp?task=c441d8bd9fe847cdb5a71f899b18499f#%7B%22table_sort_history%22%3A%22main.collection_asc%22%2C%22main.attachment_input%22%3A%22updates%2F2022-02-10_ablatannous_094fb41d%22%7D
+

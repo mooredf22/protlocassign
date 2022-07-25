@@ -51,34 +51,14 @@
 #' @export
 protPepProfile_i <- function(i, flagPeps, numRefCols,
     numDataCols, protProfileData) {
-    # byProtein, eps) { flagPeps: one row per
-    # peptide col 1: prot col 2: peptide col
-    # numRefCols + 1: N (followed by M, L1, L2,
-    # ... for numDataCols columns)
-    # protProfileData: one row per protein; must
-    # match proteins in flagPeps col 1: prot col
-    # 2: N, M, L1, L2, ...  This program will
-    # insert a copy of the protein in 'peptide'
-    # after prot
 
-    # testing: flagPeps <- tannousflagPeps
-    # protProfileData <- tannousprotProfileData
-    # i=1
 
     prot.i <- protProfileData$prot[i]
 
     Npep <- 1  # always only one peptide for the peptide-level data
     protDataNarrow.i <- protProfileData[protProfileData$prot ==
         prot.i, ]  # original form for protein data
-    # blankInsert <- cbind(rep(0, Nspectra),
-    # matrix(NA, nrow=nSpectra,
-    # numDataCols=(numRefCols-3))) Create a
-    # one-row matrix of protein data; put protein
-    # name first (for 'prot' slot) and second
-    # (for 'peptide' slot) This will allow for
-    # using the second column for row names later
-    # protData.i is formatted to combine with
-    # pepData.i
+ 
     protData.i <- data.frame(rep(protDataNarrow.i[1],
         2), matrix(NA, ncol = (numRefCols - 2), nrow = 1),
         protDataNarrow.i[2:(1 + numDataCols + 2)])
@@ -90,11 +70,7 @@ protPepProfile_i <- function(i, flagPeps, numRefCols,
         -((numRefCols + numDataCols + 3):(numRefCols +
             numDataCols + 4))]
     Nspectra <- nrow(pepData.i)
-    # pepMatInsert <- data.frame(matrix(NA,
-    # nrow=Nspectra, numDataCols=2))
-    # names(pepMatInsert) <- c('Nspectra.Pep',
-    # 'Npep.Pep') pepData.i <-
-    # data.frame(pepDataT.i, pepMatInsert)
+    
 
     names(protData.i) <- names(pepData.i)
 

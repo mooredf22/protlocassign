@@ -64,11 +64,7 @@ fCPAsubsets <- function(profile, refLocationProfiles,
     names(resultAll) <- c(rownames(refLocationProfiles),
         "value")
     row.names(resultAll) <- locs.vec
-    # result.df <- data.frame(result.df,
-    # locs.vec)
-    #ind.min <- which.min(resultAll$value)
-
-    #resultMin <- resultAll[ind.min, ]
+    
     rOrder <- order(resultAll$value)
     resultOrder <- resultAll[rOrder, ]
 

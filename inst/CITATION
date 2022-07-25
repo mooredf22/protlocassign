@@ -1,0 +1,43 @@
+citHeader("To cite package 'protlocassign' use:")
+
+citEntry(entry = "Manual",
+  title = "protlocassign: Estimation of protein distribution 
+           from quantitative subcellular 
+           fractionation experiments using a constrained proportional 
+           assignment model",
+  author = personList(as.person("Dirk F Moore"), 
+                      as.person("Peter Lobel")),
+  year = "2022",
+  url = "https://github.com/mooredf22/protlocassign",
+  
+
+
+  textVersion = paste("Dirk Moore, Peter Lobel (2022)",
+                "protlocassign: Estimation of protein distribution 
+           from quantitative subcellular 
+           fractionation experiments using a constrained proportional 
+           assignment model",
+           "https://github.com/mooredf22/protlocassign"
+           ))
+           
+citEntry(entry = "Article",
+  title = " A method to estimate the distribution of proteins across 
+  multiple compartments using data from quantitative proteomics 
+  subcellular fractionation experiments",
+  author = personList(as.person("Dirk F Moore"), 
+                      as.person("David E Sleat"),
+                      as.person("Peter Lobel")),
+  year = "2022",
+  volume = 21,
+  number = 6,
+  pages = "1371-1381",
+  journal = "Journal of Proteome Research",
+  doi = "10.1021/acs.jproteome.1c00781",
+  
+  textVersion = paste("Dirk F Moore, David E Sleat, Peter Lobel",
+           "A method to estimate the distribution of proteins across 
+           multiple compartments using data from quantitative proteomics 
+           subcellular fractionation experiments.",
+           "Journal of Proteome Research, 2022, 21, 6, 1371-1381
+           https://doi.org/10.1021/acs.jproteome.1c00781"))
+                

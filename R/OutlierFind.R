@@ -94,7 +94,7 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 
         outIndMat.i <- data.frame(matrix(NA, ncol = numDataCols,
             nrow = n.spectra))
-        # out.boxplotMod.i <- outIndMat.i
+       
         names(outIndMat.i) <- names(nczfMatLog.i)
         for (j in seq_len(numDataCols)) {
             # j=1
@@ -178,7 +178,9 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 #' @param     randomError  TRUE if allow it to be random
 #' @param     setSeed seed for random number generator
 #' @param     cpus 1 (default);
-#'            if cpus > 1 use BiocParallel with SnowParm(cpus)
+#'            if cpus > 1 use BiocParallel with SnowParm or other 
+#'            multiprocessor method
+#'            See examples for how to specify the number of parameters
 #' @return    New data frame with an additional column that indicates 
 #'           the number of fractions in a profile (spectra or peptide) 
 #'           that are outliers
@@ -190,11 +192,22 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 #'                               outlierLevel='peptide', numRefCols=5,
 #'                               numDataCols=9,
 #'                               outlierMeth='boxplot', range=3, eps=eps,
-#'                               randomError=TRUE, cpus=2)
+#'                               randomError=TRUE, cpus=1)
 #'                               
 #' # examine breakdown of spectral according to the number of fractions 
 #' #  in their profiles that are outliers
 #' table(flagSpectraBox$outlier.num.spectra)
+#' # Now use multiple processors by specifying a value for cpus > 1;
+#' # The actual number of cpus is defined by "workers" in SnowParam
+#' # A random number seed may be specified by "RNGseed" in SnowParam
+#' snowParam <- BiocParallel::SnowParam(workers = 2, RNGseed=1423)
+#' BiocParallel::register(snowParam, default=FALSE)
+#' flagSpectraBoxM <- outlierFind(protClass=spectraNSA_test,
+#'                               outlierLevel='peptide', numRefCols=5,
+#'                               numDataCols=9,
+#'                               outlierMeth='boxplot', range=3, eps=eps,
+#'                               randomError=TRUE, cpus=2)
+#' table(flagSpectraBoxM$outlier.num.spectra)
 #' 
 #' @importFrom BiocParallel bplapply
 #' @importFrom BiocParallel SnowParam
@@ -204,8 +217,9 @@ outlierFind <- function(protClass, outlierLevel = "peptide",
     numRefCols = 5, numDataCols = 9, outlierMeth = "boxplot",
     range = 3, proba = 0.99, eps = eps, randomError = TRUE,
     setSeed=NULL, cpus=1) {
+  
 
-
+        if (!is.null(setSeed)) message("setSeed is deprecated")
         if (outlierLevel == "peptide")
             uniqueLabel <- protClass$pepId
         if (outlierLevel == "protein")
@@ -214,19 +228,19 @@ outlierFind <- function(protClass, outlierLevel = "peptide",
         indList <- unique(uniqueLabel)
 
     if (cpus > 1) {
-        system.time(result <- bplapply(indList, outlierFind_i,
+        result <- bplapply(indList, outlierFind_i,
             protClass = protClass, outlierLevel = outlierLevel,
             numRefCols = numRefCols, numDataCols = numDataCols,
             outlierMeth = outlierMeth, range = range,
             proba = proba, eps = eps, randomError = randomError,
-            BPPARAM = SnowParam(workers=cpus,RNGseed = setSeed)))
+            BPPARAM = BiocParallel::bpparam())
     }
         if (cpus == 1) {
-        system.time(result <- lapply(indList, outlierFind_i,
+        result <- lapply(indList, outlierFind_i,
             protClass = protClass, outlierLevel = outlierLevel,
             numRefCols = numRefCols, numDataCols = numDataCols,
             outlierMeth = outlierMeth, range = range,
-            proba = proba, eps = eps, randomError = randomError))
+            proba = proba, eps = eps, randomError = randomError)
     }
 
     protsCombineCnew <- do.call(what = "rbind", result)

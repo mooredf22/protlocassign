@@ -256,7 +256,8 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #'         'spectraAndpeptide' (default)
 #'          according to exclusion level
 #' @param     cpus 1 (default);
-#'            if cpus > 1 use BiocParallel with SnowParm(cpus)
+#'            if cpus > 1 use BiocParallel with SnowParm
+#'            or other multiprocessing method
 #' @param singularList if TRUE, list fractions associated with a given 
 #'         protein or peptide with singular fit from the random effects 
 #'         function lmer; default is FALSE 
@@ -276,6 +277,13 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #'            numRefCols=6, numDataCols=9, refColsKeep=c(1,2,4),eps=eps,
 #'            GroupBy='peptideId', outlierExclude='spectra', cpus=1)
 #' str(pepProfiles, strict.width='cut', width=65)
+#' # Now use multiple processors with specified random number seed
+#' snowParam <- BiocParallel::SnowParam(workers = 2, RNGseed=92883)
+#' BiocParallel::register(snowParam, default=FALSE)
+#' pepProfilesM <- profileSummarize(protsCombineCnew=flagSpectraBox,
+#'            numRefCols=6, numDataCols=9, refColsKeep=c(1,2,4),eps=eps,
+#'            GroupBy='peptideId', outlierExclude='spectra', cpus=2)
+#' str(pepProfilesM, strict.width='cut', width=65)
 #'
 # ================================================================
 profileSummarize <- function(protsCombineCnew, numRefCols,
@@ -318,21 +326,21 @@ profileSummarize <- function(protsCombineCnew, numRefCols,
 
 
   if (cpus == 1) {
-    system.time(result <- lapply(indList, meansByProteins,
+    result <- lapply(indList, meansByProteins,
                 uniqueLabel = uniqueLabel, protsCombineCnew = protsCombineCnew,
                 numRefCols = numRefCols, numDataCols = numDataCols,
                 GroupBy = GroupBy, eps = eps, outlierExclude = outlierExclude,
-                singularList=singularList))
+                singularList=singularList)
   }
   if (cpus > 1) {
-    system.time(result <- bplapply(indList, meansByProteins,
+    result <- bplapply(indList, meansByProteins,
                uniqueLabel = uniqueLabel, protsCombineCnew = protsCombineCnew,
                numRefCols = numRefCols, numDataCols = numDataCols,
                GroupBy = GroupBy, eps = eps, outlierExclude = outlierExclude,
-               BPPARAM = SnowParam(cpus), singularList=singularList))
+               BPPARAM = BiocParallel::bpparam(), singularList=singularList)
   }
 
- # }
+
     # convert list of matrices to one matrix
     temp <- do.call(what = "rbind", result)
     temp_df <- data.frame(temp)

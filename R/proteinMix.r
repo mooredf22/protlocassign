@@ -50,19 +50,9 @@ proteinMix <- function(AcupRef, Loc1, Loc2, increment.prop = 0.1) {
 
     }
 
-    # mixMat <- matrix(0, nrow=nrow.out,
-    # ncol=nrow(Acup)) # matrix of mixtures each
-    # row is a 'protein' with mixed residence
-    # each column is a subcellular location, with
-    # the proportioal assignment mixMat[,Loc1] <-
-    # prop.vec mixMat[,Loc2] <- qrop.vec
-    # input.prop <- data.frame(mixMat)
-    # names(input.prop) <- row.names(Acup)
-    # rownames(input.prop) <- mixProtNames
 
     row.names(Acup) <- mixProtNames
-    # result <- list(Acup=Acup,
-    # input.prop=input.prop) result
+ 
     Acup
 }
 

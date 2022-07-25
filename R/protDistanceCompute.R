@@ -48,9 +48,4 @@ nearestProts <- function(protName, n.nearest = 5, distProts,
 
 }
 
-# nearestProts('AADAC', n.nearest=10,
-# distProts=distUse, protNames=protsUse)
-
-# nearestProts('AAD', n.nearest=10,
-# distProts=distUse, protNames=genesUse)
 

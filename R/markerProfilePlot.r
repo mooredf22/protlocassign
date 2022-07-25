@@ -59,9 +59,7 @@ markerProfilePlot <- function(refLoc, profile, markerList,
     # i=1 loc.i <- location.list[i]
     loc.i <- refLoc
 
-    # channels.i <-
-    # meanReferenceProts[meanReferenceProts$referenceCompartment
-    # == loc.i,2+1:n.channels]
+    
     channels.i <- meanReferenceProts[meanReferenceProts$referenceCompartment ==
         loc.i, 2 + seq_len(n.channels)]
     refprotsvec.i <-
