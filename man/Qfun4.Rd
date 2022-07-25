@@ -32,7 +32,9 @@ A <-c(1, 0, 0, 0)
 B <- c(0, .5, 0.5,0)
 C <-c(0, 0, 0, 1)
 gmat<-cbind(A, B,C)
+# make vector for a specified profile to be evaluated
 yy <- c(0.2, 0.15, 0.15, 0.5)
+# make vector for candidate CPA value to be evaluated
 pvec1 <- c(1, 0, 0)  # 100\% in compartment A, 0\% in compartment B2,
  #  0\% in compartment C
 pvec2<-c(0, 1, 0)  # 0\% in compartment A, 100\% in compartment B2, 
