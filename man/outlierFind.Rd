@@ -44,7 +44,9 @@ using the boxplot method}
 \item{setSeed}{seed for random number generator}
 
 \item{cpus}{1 (default);
-if cpus > 1 use BiocParallel with SnowParm(cpus)}
+if cpus > 1 use BiocParallel with SnowParm or other 
+multiprocessor method
+See examples for how to specify the number of parameters}
 }
 \value{
 New data frame with an additional column that indicates 
@@ -65,10 +67,21 @@ flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
                               outlierLevel='peptide', numRefCols=5,
                               numDataCols=9,
                               outlierMeth='boxplot', range=3, eps=eps,
-                              randomError=TRUE, cpus=2)
+                              randomError=TRUE, cpus=1)
                               
 # examine breakdown of spectral according to the number of fractions 
 #  in their profiles that are outliers
 table(flagSpectraBox$outlier.num.spectra)
+# Now use multiple processors by specifying a value for cpus > 1;
+# The actual number of cpus is defined by "workers" in SnowParam
+# A random number seed may be specified by "RNGseed" in SnowParam
+snowParam <- BiocParallel::SnowParam(workers = 2, RNGseed=1423)
+BiocParallel::register(snowParam, default=FALSE)
+flagSpectraBoxM <- outlierFind(protClass=spectraNSA_test,
+                              outlierLevel='peptide', numRefCols=5,
+                              numDataCols=9,
+                              outlierMeth='boxplot', range=3, eps=eps,
+                              randomError=TRUE, cpus=2)
+table(flagSpectraBoxM$outlier.num.spectra)
 
 }
