@@ -108,7 +108,7 @@ in the tutorials in the accompanying "protlocassigndoc" package we
 provide detailed instructions on how to format data in ".csv" files
 for import in this package. Data stored in
 "pRoloc" or "hpa" R formats may be converted into the formats required
-by "protlocassign" is a similar fashion.
+by "protlocassign" in a similar fashion.
 
 ## Installing the protlocassign package
 
