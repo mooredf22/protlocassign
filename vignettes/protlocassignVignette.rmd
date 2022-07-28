@@ -119,7 +119,7 @@ install.packages("BiocManager")
 ```
 
 Next, install the `protlocassign` package from Bioconductor:
-using `devtools`, from Github:
+
 
 ```
 BiocManager::install("protlocassign")
