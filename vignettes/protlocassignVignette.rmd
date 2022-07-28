@@ -1181,7 +1181,7 @@ The current vignette provides an introduction to the basic concepts
 of using the protlocassign package. The more extensive set of tutorials 
 is available in the "protlocassigndoc" package; details on obtaining this 
 were given in Section 1 of this vignette. The first three tutorials are 
-similar to the contents of this vignette. Tutorials 4 discusses using 
+similar to the contents of this vignette. Tutorial 4 discusses using 
 CPA on simulations of proteins that are resident in two compartments, 
 and Tutorial 5 discusses how these results change when we reformat the 
 data into the form of a classical five-fraction differential fractionation 
