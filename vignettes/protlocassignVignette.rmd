@@ -1,5 +1,5 @@
 ---
-title: "Using protlocassign for constrained proportional assignment"
+title: 'Using protlocassign for constrained proportional assignment'
 author:
 - name: Dirk F Moore
   affiliation: 
@@ -14,9 +14,9 @@ output:
 #    toc: yes
   BiocStyle::html_document:
 vignette: |
-  %\VignetteIndexEntry{Using protlocassign for constrained 
-  proportional assignment}
+  %\VignetteIndexEntry{Using protlocassign for constrained proportional assignment}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
@@ -274,7 +274,7 @@ protNSAout <- protNSA
 rownames(protNSAout) <- paste("'", rownames(protNSA), sep="")
 markerListJadotOut <- markerListJadot
 markerListJadotOut$protName <- paste("'", markerListJadot$protName, sep="")
-write.csv(protNSAout, file="protNSAout.csv", row.names=T)
+write.csv(protNSAout, file="protNSAout.csv", row.names=TRUE)
 write.csv(markerListJadotOut, file="markerListJadotOut.csv", row.names=FALSE)
 ```
 
@@ -527,7 +527,7 @@ rownames(protCPAfromNSAout) <- paste("'", rownames(protCPAfromNSAout), sep="")
 setwd("C:/temp/myProteinOutput")
 
 write.csv(protCPAfromNSAout, file="protCPAfromNSAout_AT5tmtMS2.csv", 
-      row.names=T)
+      row.names=TRUE)
 ```
 
 ### Plot output as pdf files
