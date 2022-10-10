@@ -8,6 +8,8 @@
 #'  This is for input into the "mixtureHeatMap" program,
 #'  optional argument "errorListIn". See tutorial 5 for details
 #'  
+# test
+#'  
 #' @docType data
 #' @format A data frame of pairwise errors
 #'
