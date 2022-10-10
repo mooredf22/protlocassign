@@ -36,6 +36,7 @@
 #' @importFrom stats runif
 #' @export
 #' 
+# test
 
 outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
     numRefCols, numDataCols, outlierMeth, range, proba,
