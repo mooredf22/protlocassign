@@ -255,9 +255,11 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #' @param  outlierExclude 'none', 'spectra', or
 #'         'spectraAndpeptide' (default)
 #'          according to exclusion level
-#' @param     cpus 1 (default);
-#'            if cpus > 1 use BiocParallel with SnowParm
-#'            or other multiprocessing method
+#' @param     cpus NULL (default); deprecated
+#'            Use BiocParallel with SnowParm or other 
+#'            multiprocessor method to set number of processors
+#'            See examples for how to specify the number of processors
+#' @param     multiprocess FALSE by default
 #' @param singularList if TRUE, list fractions associated with a given 
 #'         protein or peptide with singular fit from the random effects 
 #'         function lmer; default is FALSE 
@@ -266,36 +268,44 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #' @export
 #' @return Mean or weighted mean NSA profiles
 #' @examples
-#' set.seed(17356)
+#' set.seed(17356)  # this works if multiprocess is set to FALSE
 #' eps <- 0.029885209
 #' data(spectraNSA_test)
 #' flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
 #'            outlierLevel='peptide', numRefCols=5, numDataCols=9,
 #'            outlierMeth='boxplot', range=3, eps=eps,
-#'            randomError=TRUE, cpus=1)
+#'            randomError=TRUE, multiprocess=FALSE)
 #' pepProfiles <- profileSummarize(protsCombineCnew=flagSpectraBox,
 #'            numRefCols=6, numDataCols=9, refColsKeep=c(1,2,4),eps=eps,
-#'            GroupBy='peptideId', outlierExclude='spectra', cpus=1)
+#'            GroupBy='peptideId', outlierExclude='spectra', 
+#'            multiprocess=FALSE)
 #' str(pepProfiles, strict.width='cut', width=65)
 #' # Now use multiple processors with specified random number seed
 #' snowParam <- BiocParallel::SnowParam(workers = 2, RNGseed=92883)
+#' #
+#' # now modifiy the existing BiocParallelParam
 #' BiocParallel::register(snowParam, default=FALSE)
 #' pepProfilesM <- profileSummarize(protsCombineCnew=flagSpectraBox,
 #'            numRefCols=6, numDataCols=9, refColsKeep=c(1,2,4),eps=eps,
-#'            GroupBy='peptideId', outlierExclude='spectra', cpus=2)
+#'            GroupBy='peptideId', outlierExclude='spectra', 
+#'            multiprocess=TRUE)
 #' str(pepProfilesM, strict.width='cut', width=65)
 #'
 # ================================================================
 profileSummarize <- function(protsCombineCnew, numRefCols,
     numDataCols, refColsKeep = c(1, 2), eps, GroupBy = "protId",
-    outlierExclude = "spectraAndPeptide", cpus=1, singularList=FALSE) {
+    outlierExclude = "spectraAndPeptide", 
+    setSeed=NULL, set.seed=NULL, cpus=NULL,
+    multiprocess=FALSE, singularList=FALSE) {
 
     # outlierExclude: none: don't exclude any
     # outlers spectra: (default) exclude only
     # spectra within peptides spectraAndPeptide:
     # exclude spectra-within-peptide outliers and
     # peptide outliers
-
+    if (!is.null(setSeed)) message("setSeed is deprecated")
+    if (!is.null(set.seed)) message("set.seed is deprecated")
+    if (!is.null(cpus)) message("cpus is deprecated; use multiprocess")
     # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # #
@@ -325,14 +335,16 @@ profileSummarize <- function(protsCombineCnew, numRefCols,
     n_prots <- length(indList)  # either proteins or proteins/peptides
 
 
-  if (cpus == 1) {
+  #if (cpus == 1) {
+    if (multiprocess) {
     result <- lapply(indList, meansByProteins,
                 uniqueLabel = uniqueLabel, protsCombineCnew = protsCombineCnew,
                 numRefCols = numRefCols, numDataCols = numDataCols,
                 GroupBy = GroupBy, eps = eps, outlierExclude = outlierExclude,
                 singularList=singularList)
   }
-  if (cpus > 1) {
+  #if (cpus > 1) {
+    if (!multiprocess) {
     result <- bplapply(indList, meansByProteins,
                uniqueLabel = uniqueLabel, protsCombineCnew = protsCombineCnew,
                numRefCols = numRefCols, numDataCols = numDataCols,

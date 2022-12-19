@@ -15,7 +15,9 @@ outlierFind(
   eps = eps,
   randomError = TRUE,
   setSeed = NULL,
-  cpus = 1
+  set.seed = NULL,
+  cpus = NULL,
+  multiprocess = FALSE
 )
 }
 \arguments{
@@ -41,12 +43,16 @@ using the boxplot method}
 
 \item{randomError}{TRUE if allow it to be random}
 
-\item{setSeed}{seed for random number generator}
+\item{setSeed}{seed for random number generator (deprecated)}
 
-\item{cpus}{1 (default);
-if cpus > 1 use BiocParallel with SnowParm or other 
-multiprocessor method
-See examples for how to specify the number of parameters}
+\item{set.seed}{seed for random number generator (deprecated)}
+
+\item{cpus}{NULL (default); deprecated
+Use BiocParallel with SnowParm or other 
+multiprocessor method to set number of processors
+See examples for how to specify the number of processors}
+
+\item{multiprocess}{FALSE by default}
 }
 \value{
 New data frame with an additional column that indicates 
@@ -60,28 +66,30 @@ Identify outlier profiles.  This can be done at the level of
     See Tutorial 6 for a description of outlier determination methods.
 }
 \examples{
-set.seed(17356)
+set.seed(17356)  # this works if multiprocess=FALSE
 eps <- 0.029885209
 data(spectraNSA_test)
 flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
                               outlierLevel='peptide', numRefCols=5,
                               numDataCols=9,
                               outlierMeth='boxplot', range=3, eps=eps,
-                              randomError=TRUE, cpus=1)
+                              randomError=TRUE, multiprocess=FALSE)
                               
 # examine breakdown of spectral according to the number of fractions 
 #  in their profiles that are outliers
 table(flagSpectraBox$outlier.num.spectra)
-# Now use multiple processors by specifying a value for cpus > 1;
+# Now use multiple processors by specifying "multiprocess=TRUE";
 # The actual number of cpus is defined by "workers" in SnowParam
 # A random number seed may be specified by "RNGseed" in SnowParam
 snowParam <- BiocParallel::SnowParam(workers = 2, RNGseed=1423)
+#
+# now modifiy the existing BiocParallelParam
 BiocParallel::register(snowParam, default=FALSE)
 flagSpectraBoxM <- outlierFind(protClass=spectraNSA_test,
                               outlierLevel='peptide', numRefCols=5,
                               numDataCols=9,
                               outlierMeth='boxplot', range=3, eps=eps,
-                              randomError=TRUE, cpus=2)
+                              randomError=TRUE, multiprocess=TRUE)
 table(flagSpectraBoxM$outlier.num.spectra)
 
 }

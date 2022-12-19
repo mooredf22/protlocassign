@@ -178,37 +178,41 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 #' @param     proba probability to exclude outlier for scores method
 #' @param     eps small value to add so that log argument is greater than zero
 #' @param     randomError  TRUE if allow it to be random
-#' @param     setSeed seed for random number generator
-#' @param     cpus 1 (default);
-#'            if cpus > 1 use BiocParallel with SnowParm or other 
-#'            multiprocessor method
-#'            See examples for how to specify the number of parameters
+#' @param     setSeed seed for random number generator (deprecated)
+#' @param     set.seed seed for random number generator (deprecated)
+#' @param     cpus NULL (default); deprecated
+#'            Use BiocParallel with SnowParm or other 
+#'            multiprocessor method to set number of processors
+#'            See examples for how to specify the number of processors
+#' @param     multiprocess FALSE by default
 #' @return    New data frame with an additional column that indicates 
 #'           the number of fractions in a profile (spectra or peptide) 
 #'           that are outliers
 #' @examples
-#' set.seed(17356)
+#' set.seed(17356)  # this works if multiprocess=FALSE
 #' eps <- 0.029885209
 #' data(spectraNSA_test)
 #' flagSpectraBox <- outlierFind(protClass=spectraNSA_test,
 #'                               outlierLevel='peptide', numRefCols=5,
 #'                               numDataCols=9,
 #'                               outlierMeth='boxplot', range=3, eps=eps,
-#'                               randomError=TRUE, cpus=1)
+#'                               randomError=TRUE, multiprocess=FALSE)
 #'                               
 #' # examine breakdown of spectral according to the number of fractions 
 #' #  in their profiles that are outliers
 #' table(flagSpectraBox$outlier.num.spectra)
-#' # Now use multiple processors by specifying a value for cpus > 1;
+#' # Now use multiple processors by specifying "multiprocess=TRUE";
 #' # The actual number of cpus is defined by "workers" in SnowParam
 #' # A random number seed may be specified by "RNGseed" in SnowParam
 #' snowParam <- BiocParallel::SnowParam(workers = 2, RNGseed=1423)
+#' #
+#' # now modifiy the existing BiocParallelParam
 #' BiocParallel::register(snowParam, default=FALSE)
 #' flagSpectraBoxM <- outlierFind(protClass=spectraNSA_test,
 #'                               outlierLevel='peptide', numRefCols=5,
 #'                               numDataCols=9,
 #'                               outlierMeth='boxplot', range=3, eps=eps,
-#'                               randomError=TRUE, cpus=2)
+#'                               randomError=TRUE, multiprocess=TRUE)
 #' table(flagSpectraBoxM$outlier.num.spectra)
 #' 
 #' @importFrom BiocParallel bplapply
@@ -218,10 +222,12 @@ outlierFind_i <- function(i, protClass, outlierLevel = "peptide",
 outlierFind <- function(protClass, outlierLevel = "peptide",
     numRefCols = 5, numDataCols = 9, outlierMeth = "boxplot",
     range = 3, proba = 0.99, eps = eps, randomError = TRUE,
-    setSeed=NULL, cpus=1) {
+    setSeed=NULL, set.seed=NULL, cpus=NULL, multiprocess=FALSE) {
   
 
         if (!is.null(setSeed)) message("setSeed is deprecated")
+        if (!is.null(set.seed)) message("set.seed is deprecated")
+        if (!is.null(cpus)) message("cpus is deprecated; use multiprocess")
         if (outlierLevel == "peptide")
             uniqueLabel <- protClass$pepId
         if (outlierLevel == "protein")
@@ -229,7 +235,8 @@ outlierFind <- function(protClass, outlierLevel = "peptide",
 
         indList <- unique(uniqueLabel)
 
-    if (cpus > 1) {
+#    if (cpus > 1) {
+     if (multiprocess) {
         result <- bplapply(indList, outlierFind_i,
             protClass = protClass, outlierLevel = outlierLevel,
             numRefCols = numRefCols, numDataCols = numDataCols,
@@ -237,7 +244,8 @@ outlierFind <- function(protClass, outlierLevel = "peptide",
             proba = proba, eps = eps, randomError = randomError,
             BPPARAM = BiocParallel::bpparam())
     }
-        if (cpus == 1) {
+#        if (cpus == 1) {
+        if (!multiprocess) {
         result <- lapply(indList, outlierFind_i,
             protClass = protClass, outlierLevel = outlierLevel,
             numRefCols = numRefCols, numDataCols = numDataCols,

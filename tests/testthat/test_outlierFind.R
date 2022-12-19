@@ -8,7 +8,7 @@ test_that("Test outlier search function", {
                                 outlierLevel='peptide', numRefCols=5,
                                 numDataCols=9,
                                 outlierMeth='boxplot', range=3, eps=eps,
-                                randomError=TRUE, cpus=1)
+                                randomError=TRUE, multiprocess=FALSE)
   
   # examine breakdown of spectral according to the number of fractions 
   #  in their profiles that are outliers
