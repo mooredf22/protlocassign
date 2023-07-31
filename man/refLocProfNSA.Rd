@@ -6,6 +6,12 @@
 \title{NSA reference profiles}
 \format{
 List of profiles
+}
+\usage{
+data(refLocProfNSA)
+}
+\value{
+profiles for subcellular compartments based on NSA means
 
 \describe{
   \item{\code{N}}{a numeric vector}
@@ -18,9 +24,6 @@ List of profiles
   \item{\code{Nyc2}}{a numeric vector}
   \item{\code{Nyc3}}{a numeric vector}
 }
-}
-\usage{
-data(refLocProfNSA)
 }
 \description{
 Profiles for the subcellular compartments based on NSA profile means of the 

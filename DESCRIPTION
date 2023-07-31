@@ -10,7 +10,8 @@ Authors@R:
     person(given = "Dirk",
            family = "Moore",
            role = c("cre","aut"),
-           email = "dirkfmoore@gmail.com")
+           email = "dirkfmoore@gmail.com",
+           comment=c(ORCID="0000-0003-3788-050X"))
 Description: This package uses a constrained proportional assignment (CPA)
    model to to estimate the distribution of proteins among 
    different subcellular locations based of analytical 
@@ -25,9 +26,9 @@ License: Artistic-2.0
 Encoding: UTF-8
 LazyData: false
 Depends: 
-    R (>= 4.2.0),
+    R (>= 4.3.0),
     lme4
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Imports:
     BB,
     pracma,
@@ -47,7 +48,6 @@ Imports:
 biocViews: Proteomics, MassSpectrometry
 VignetteBuilder: knitr
 URL: http//github.com/mooredf22/protlocassign
-AdditionalPackage: https://github.com/mooredf22/protlocassigndoc
 BugReports: https://github.com/mooredf22/protlocassign/issues
 Suggests: 
     testthat (>= 3.0.0)

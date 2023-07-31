@@ -8,6 +8,12 @@
 \format{
 A data frame containing  NSA profiles and descriptive 
        information for spectra
+}
+\usage{
+data(QuantPSM_test)
+}
+\value{
+A data frame containing NSA profiles for spectra
 
 \describe{
   \item{\code{Protein.Gene}}{protein name}
@@ -25,9 +31,6 @@ A data frame containing  NSA profiles and descriptive
   \item{\code{Nyc2}}{a numeric vector}
   \item{\code{Nyc3}}{a numeric vector}
 }
-}
-\usage{
-data(QuantPSM_test)
 }
 \description{
 Test data frame that is the precursor for spectraNSA_test and 

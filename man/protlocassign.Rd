@@ -2,6 +2,7 @@
 \name{protlocassign}
 \alias{protlocassign}
 \title{Constrained proportional assignment of proteins}
+\value{package}
 \description{
 The `protlocassign` package implements constrained proportional assignment
 to assign proteins proportionately to their subcellular organelle 

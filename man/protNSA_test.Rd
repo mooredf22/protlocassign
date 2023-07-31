@@ -7,6 +7,7 @@
 \format{
 A test data set
 
+
 \describe{
   \item{\code{N}}{a numeric vector}
   \item{\code{M}}{a numeric vector}
@@ -23,6 +24,9 @@ A test data set
 }
 \usage{
 data(protNSA_test)
+}
+\value{
+A test data set
 }
 \description{
 NSA profiles.  NSA refers to data in the form of normalized 

@@ -24,6 +24,9 @@ A test data set
 \usage{
 data(protRSA_test)
 }
+\value{
+A test data set
+}
 \description{
 RSA profiles.  RSA refers to data expressed as relative specific amounts, 
   which are ratios of two ratios: the numerator is the amount of a 

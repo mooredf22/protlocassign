@@ -12,6 +12,7 @@
 #'
 #' @docType data
 #' @format A test data set
+#' 
 #'
 #' \describe{
 #'   \item{\code{N}}{a numeric vector}
@@ -27,6 +28,7 @@
 #'   \item{\code{Npep}}{a numeric vector}
 #' }
 #' @keywords datasets
+#' @return A test data set
 #'
 #' @references Tannous, A.; Boonen, M.; Zheng, H.; Zhao, C.;
 #'  Germain, C. J.; Moore, D. F.;

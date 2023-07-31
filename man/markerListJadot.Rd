@@ -30,7 +30,7 @@ and Plasma Membrane (PM).
     \code{PM}}
   }
 }
-
+\value{data frame with 37 observations on marker proteins}
 \source{
 Jadot M, Boonen M, Thirion J, Wang N, Xing J, Zhao C, Tannous A,
 Qian M, Zheng H, Everett JK, Moore DF, Sleat DE, and Lobel P (2016)

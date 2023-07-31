@@ -1,22 +1,21 @@
 ---
-title: 'Using protlocassign for constrained proportional assignment'
+title: "Using protlocassign for constrained proportional assignment"
 author:
 - name: Dirk F Moore
-  affiliation: 
-  - Department of Biostatistics and Epidemiology, 
-    Rutgers School of Public Health, NJ, US
+  affiliation: Department of Biostatistics and Epidemiology, Rutgers School of Public
+    Health, NJ, US
 - name: Peter Lobel
-  affiliation: Center for Advanced Biotechnology and Medicine, 
-    Rutgers University, NJ, US
+  affiliation: Center for Advanced Biotechnology and Medicine, Rutgers University,
+    NJ, US
 date: "`r Sys.Date()`"
-output: 
-#  word_document:
-#    toc: yes
-  BiocStyle::html_document:
-vignette: |
-  %\VignetteIndexEntry{Using protlocassign for constrained proportional assignment}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+#  html_document:
+#    df_print: paged
+#  BiocStyle::html_document: null
+#  word_document: null
+#  BiocStyle::pdf_document
+vignette: "%\\VignetteIndexEntry{Using protlocassign for constrained proportional
+  assignment}\n%\\VignetteEngine{knitr::rmarkdown}\n%\\VignetteEncoding{UTF-8}\n"
 ---
 
 ```{r setup, include = FALSE}
@@ -133,13 +132,8 @@ install.packages("devtools")
 devtools::install_github("mooredf22/protlocassign")
 ```
 
-The companion supplementary tutorials may be installed as follows:
-
-```
-BiocManager::install("protlocassigndoc")
-```
-
-or directly from github:
+An extensive set of companion supplementary tutorials may be installed 
+directly from github:
 
 ```
 devtools::install_github("mooredf22/protlocassigndoc")

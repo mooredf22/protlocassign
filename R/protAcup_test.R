@@ -25,6 +25,7 @@
 #'   \item{\code{Npep}}{a numeric vector}
 #' }
 #' @keywords datasets
+#' @return a test data set
 #'
 #' @references Tannous, A.; Boonen, M.; Zheng, H.; Zhao, C.;
 #'  Germain, C. J.; Moore, D. F.;

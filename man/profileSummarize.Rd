@@ -39,6 +39,10 @@ and peptides) with outlier information}
 'spectraAndpeptide' (default)
  according to exclusion level}
 
+\item{setSeed}{NULL (default) deprecated; see note for "cpus"}
+
+\item{set.seed}{NULL (default) deprecated; see note for "cpus"}
+
 \item{cpus}{NULL (default); deprecated
 Use BiocParallel with SnowParm or other 
 multiprocessor method to set number of processors

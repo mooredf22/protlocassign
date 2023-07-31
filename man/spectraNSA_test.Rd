@@ -5,7 +5,13 @@
 \alias{spectraNSA_test}
 \title{Test data set with spectral level profiles formatted for protlocassign}
 \format{
-A test data frame
+An object of class \code{data.frame} with 6696 rows and 16 columns.
+}
+\usage{
+data(spectraNSA_test)
+}
+\value{
+A test data frame with spectral level profiles
 
 \describe{
   \item{\code{prot}}{protein name}
@@ -25,9 +31,6 @@ A test data frame
   \item{\code{protId}}{a numeric vector}
   \item{\code{pepId}}{a numeric vector}
 }
-}
-\usage{
-data(spectraNSA_test)
 }
 \description{
 Test data set that is the output of the function proteinDataPrep 

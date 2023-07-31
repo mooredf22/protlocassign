@@ -11,6 +11,7 @@
 #' @docType data
 #' @format A data frame containing  NSA profiles and descriptive 
 #'        information for spectra
+#' @return A data frame containing NSA profiles for spectra
 #'
 #' \describe{
 #'   \item{\code{Protein.Gene}}{protein name}

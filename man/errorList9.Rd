@@ -19,6 +19,9 @@ A data frame of pairwise errors
 \usage{
 data(errorList9)
 }
+\value{
+set of pre-computed errors from applying CPA from nine-fraction data
+}
 \description{
 A set of pre-computed errors from applying CPA from 
  nine-fraction simulated mixture data

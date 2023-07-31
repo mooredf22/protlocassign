@@ -3,6 +3,7 @@
 \docType{data}
 \title{Amount of total protein in each fraction 
 }
+\value{amount of total protein in each fraction}
 \description{
 This is a vector that gives the amount of total protein derived 
 from a gram of tissue homogenate in the nine fractions of 

@@ -23,6 +23,7 @@
 #'   }
 #' @keywords datasets
 #' @usage data(errorList5)
+#' @return set of pre-computed errors from applying CPA from five-fraction data
 #' @examples
 #' data(errorList5)
 #' head(errorList5)

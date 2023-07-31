@@ -10,7 +10,7 @@
 #'   Data from the TMT MS2 data, AT5 experiment; see Tannous et al.
 #'
 #' @docType data
-#' @format A test data frame
+#' @return A test data frame with spectral level profiles
 #'
 #' \describe{
 #'   \item{\code{prot}}{protein name}

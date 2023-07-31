@@ -11,6 +11,7 @@
 #'
 #' @docType data
 #' @format List of profiles
+#' @return profiles for subcellular compartments
 #'
 #' \describe{
 #'   \item{\code{N}}{a numeric vector}

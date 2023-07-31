@@ -12,6 +12,7 @@
 #'
 #' @docType data
 #' @format List of profiles
+#' @return profiles for subcellular compartments based on RSA means
 #'
 #' \describe{
 #'   \item{\code{N}}{a numeric vector}

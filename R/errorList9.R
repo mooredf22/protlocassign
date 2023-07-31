@@ -21,6 +21,7 @@
 #'   }
 #' @keywords datasets
 #' @usage data(errorList9)
+#' @return set of pre-computed errors from applying CPA from nine-fraction data
 #' @examples
 #' data(errorList9)
 #' head(errorList9)

@@ -24,6 +24,9 @@ a test data set
 \usage{
 data(protAcup_test)
 }
+\value{
+a test data set
+}
 \description{
 Acup profiles.  Acup denotes relative amounts, which is the amount 
   of given protein in a fraction / amount of that given protein 

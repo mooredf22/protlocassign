@@ -255,6 +255,8 @@ meansByProteins <- function(i, uniqueLabel, protsCombineCnew,
 #' @param  outlierExclude 'none', 'spectra', or
 #'         'spectraAndpeptide' (default)
 #'          according to exclusion level
+#' @param setSeed NULL (default) deprecated; see note for "cpus"
+#' @param set.seed NULL (default) deprecated; see note for "cpus"
 #' @param     cpus NULL (default); deprecated
 #'            Use BiocParallel with SnowParm or other 
 #'            multiprocessor method to set number of processors

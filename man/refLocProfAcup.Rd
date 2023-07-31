@@ -6,6 +6,12 @@
 \title{Acup reference profiles}
 \format{
 List of profiles
+}
+\usage{
+data(refLocProfAcup)
+}
+\value{
+profiles for subcellular compartments
 
 \describe{
   \item{\code{N}}{a numeric vector}
@@ -18,9 +24,6 @@ List of profiles
   \item{\code{Nyc2}}{a numeric vector}
   \item{\code{Nyc3}}{a numeric vector}
 }
-}
-\usage{
-data(refLocProfAcup)
 }
 \description{
 Profiles for the subcellular compartments based on Acup profile means of the 
