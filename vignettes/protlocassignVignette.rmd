@@ -14,8 +14,9 @@ output:
 #  BiocStyle::html_document: null
 #  word_document: null
 #  BiocStyle::pdf_document
-vignette: "%\\VignetteIndexEntry{Using protlocassign for constrained proportional
-  assignment}\n%\\VignetteEngine{knitr::rmarkdown}\n%\\VignetteEncoding{UTF-8}\n"
+vignette: |
+  %\VignetteIndexEntry{Using protlocassign for constrained proportional assignment}
+  %\VignetteEngine{knitr::rmarkdown}\n"
 ---
 
 ```{r setup, include = FALSE}
@@ -569,12 +570,12 @@ were outliers (see Tutorial 6).
 
 ## Introduction
 
-In Tutorial 1 (“Getting Started”), we illustrated the principles of 
+In Section 1 (“Getting Started”), we illustrated the principles of 
 CPA using protein profiles that represent mass spectrometry data 
 from a set of subcellular fractions in the form of normalized 
 specific amounts (NSA). NSA profiles have equivalent amounts of 
 total protein analyzed per fraction, with the sum of all 
-fractions constrained to 1.  This tutorial describes how 
+fractions constrained to 1.  This section describes how 
 to use functions in the `protlocassign` package to transform 
 NSA profiles in ways that may provide more accurate assignments 
 of proportional residence to subcellular compartments.
@@ -582,7 +583,7 @@ of proportional residence to subcellular compartments.
 
 ## Setting up the data and reference protein files and transforming to RSA
 
-As explained in the Tutorial 1, we will demonstrate using 
+As explained in the Section 1, we will demonstrate using 
 two R data sets that are included in the `protlocassign` package.  
 One, `protNSA_test`, consists of row names that indicate protein 
 identifiers, each of which is followed by data describing the 
@@ -1168,8 +1169,112 @@ mixErrorAllCytoRSA
 ```
 
 \newpage
+# 4. Interface with pRoloc and MSnbase data structures
 
-# 4. Summary of tutorials for more detailed information on the protlocassign package.
+The Bioconductor "pRoloc" package provides methods to analyze organelle 
+proteomics data and the "MSnbase" package, also from Bioconductor, provides
+a flexible structure to store this data. In this section we show how to 
+convert the rectanular proteomics data structures of "protlocassign" into
+"MSnbase" data structures on which "pRoloc" functions may operate.
+
+We illustrate the interface using the "protRSAtest" data discussed above, 
+which we renamed "protRSA".
+
+First, attach the necessary libraries and extract the protein names and data:
+
+```{r, echo=TRUE, eval=TRUE}
+library(pRoloc)
+library(MSnbase)
+ProteinID <- as.factor(row.names(protRSA[-2,]))
+protRSAdata <- protRSA[-2,1:9]
+rownames(protRSAdata) <- 1:nrow(protRSAdata)
+```
+
+Next create an expression data frame containing protein names
+and RSA abundance levels:
+
+```{r, echo=TRUE, eval=TRUE}
+exprsProt <- data.frame(ProteinID, protRSAdata)
+names(exprsProt) <- as.factor(names(exprsProt))
+```
+
+To create a file of metadata, we first need a list of organelle locations,
+and then create assignments as follows:
+
+```{r, echo=TRUE, eval=TRUE}
+
+Locations <- c(unique(markerListJadot$referenceCompartment), "unclassified")
+assign0p8 <- apply(protCPAfromRSA[-2,1:8], 1, assignCPAloc, 
+                   cutoff=0.8, Locations=Locations)
+```
+
+Finally we create the metadata file with organelle assignments and 
+spectral and peptide counts:
+
+```{r, echo=TRUE, eval=TRUE}
+fdataProt <- data.frame(ProteinID, protRSA[-2,10:11], assign0p8)
+#fdataProt <- data.frame(ProteinID, assign0p8)
+rownames(fdataProt) <- 1:nrow(fdataProt)
+
+fdataProt
+```
+
+To create an MSnSet data structure we need to create a temporary
+folder and write out these two files in comma-separated format:
+
+```{r, echo=TRUE, eval=TRUE}
+
+currentDir <- tempdir()
+setwd(currentDir)
+currentDir
+
+write.csv(exprsProt, file="exprs.csv", row.names=FALSE)
+write.csv(fdataProt, file="fdata.csv", row.names=FALSE)
+```
+
+Finally, we point to these files and use the "readMSnSet" function to create
+the data structure
+
+```{r, echo=TRUE, eval=TRUE}
+
+f1p <- paste(currentDir, "\\exprs.csv", sep="")
+f2p <- paste(currentDir, "\\fdata.csv", sep="")
+
+protRSAstruct <- readMSnSet(exprsFile=f1p,
+                       featureDataFile=f2p,
+                       sep=",", header=TRUE, check.names=FALSE)
+                       
+```
+
+We may examine the expression data and meta data as follows:
+
+```{r, echo=TRUE, eval=TRUE}
+
+head(exprs(protRSAstruct))
+head(fData(protRSAstruct))
+```
+Having created the data structure "protRSAstruct" we may apply pRoloc functions
+to it. For example, to create a sub-cellular dendrogram, we may
+use the mrkHClust function, after first using "fvarLabels" to identify
+the column names:
+
+```{r, echo=TRUE, eval=TRUE}
+
+fvarLabels(protRSAstruct)
+mrkHClust(protRSAstruct, fcol="\"assign0p8\"")
+```
+
+Similarly, we may create a heat map of average oranelle class profiles
+as follows:
+
+```{r, echo=TRUE, eval=TRUE}
+
+fmat <- mrkConsProfiles(protRSAstruct, fcol="\"assign0p8\"")
+plotConsProfiles(fmat)
+```
+
+
+# 5. Summary of tutorials for more detailed information on the protlocassign package.
 
 The current vignette provides an introduction to the basic concepts 
 of using the protlocassign package. The more extensive set of tutorials 
