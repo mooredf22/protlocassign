@@ -11,7 +11,7 @@ date: "`r Sys.Date()`"
 output:
 #  html_document:
 #    df_print: paged
-#  BiocStyle::html_document: null
+  BiocStyle::html_document: null
 #  word_document: null
 #  BiocStyle::pdf_document
 vignette: |
@@ -1272,7 +1272,19 @@ as follows:
 fmat <- mrkConsProfiles(protRSAstruct, fcol="\"assign0p8\"")
 plotConsProfiles(fmat)
 ```
+One may also extract data from a MSnbase proteomics data structure for use by
+protlocassign. We illustrate with the "protRSAstruct" that we just created:
 
+```{r, echo=TRUE, eval=TRUE}
+
+
+exprsDataTemp <- exprs(protRSAstruct)
+fDataTemp <- fData(protRSAstruct)
+exprsData <- data.frame(exprsDataTemp, fDataTemp[,1:2])
+head(exprsData)
+```
+This data frame is in the same format as the original file, "protRSA", 
+which we defined previously.
 
 # 5. Summary of tutorials for more detailed information on the protlocassign package.
 
